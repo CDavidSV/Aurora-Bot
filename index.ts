@@ -12,7 +12,7 @@ const client = new DiscordJS.Client({
 });
 
 client.on('ready', bot => {
-    console.log(`Logged in as ${bot.user.tag}`);
+    console.log(`Logged in succesfully as ${bot.user.tag}`);
 });
 
 // Normal commands with prefix.
