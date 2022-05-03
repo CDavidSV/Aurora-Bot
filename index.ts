@@ -35,7 +35,7 @@ client.on('messageCreate', message => {
     // Commands.
     switch (command[0]) {
         case 'ping':
-            commands.get('ping').execute(message);
+            commands.get('ping').execute(client, message, MessageEmbed);
             break;
         case 'verification':
             message.reply('Coming soon...');
