@@ -1,7 +1,8 @@
 import DiscordJS, { Intents, MessageEmbed } from 'discord.js';
 import dotenv from 'dotenv';
+import fs from 'fs';
 dotenv.config();
-let prefix = '%';
+let prefix = '-';
 
 // Create client and add intents.
 const client = new DiscordJS.Client({
@@ -11,8 +12,16 @@ const client = new DiscordJS.Client({
     ]
 });
 
+const commands: any = new DiscordJS.Collection();
+const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+
+    commands.set(command.name, command);
+}
+
 client.on('ready', bot => {
-    console.log(`Succesfully logged in  as ${bot.user.tag}`);
+    console.log(`Successfully logged in as ${bot.user.tag}`);
 });
 
 // Normal commands with prefix.
@@ -21,12 +30,15 @@ client.on('messageCreate', message => {
     if (message.author.bot || !message.content.startsWith(prefix)) return;
 
     // Rmoves prefix and converts the message into lowercase.
-    const command = message.content.slice(prefix.length).toLowerCase();
+    const command = message.content.slice(prefix.length).toLowerCase().split(" ");
 
     // Commands.
-    switch (command) {
+    switch (command[0]) {
         case 'ping':
-            message.reply('pong');
+            commands.get('ping').execute(message);
+            break;
+        case 'verification':
+            message.reply('Coming soon...');
             break;
         default:
             const noCommandEmbed = new MessageEmbed()
