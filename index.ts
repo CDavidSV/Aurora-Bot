@@ -13,11 +13,13 @@ const client = new DiscordJS.Client({
 });
 
 const commands: any = new DiscordJS.Collection();
-const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-
-    commands.set(command.name, command);
+const commandFolders = fs.readdirSync('./commands/');
+for (const folder of commandFolders) {
+    const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+    for (const file of commandFiles) {
+        const command = require(`./commands/${folder}/${file}`);
+        commands.set(command.name, command);
+    }
 }
 
 client.on('ready', bot => {

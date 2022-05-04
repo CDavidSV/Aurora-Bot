@@ -1,3 +1,5 @@
+const { Guild } = require("discord.js");
+
 module.exports = {
     name: "ping",
     description: "Returns Latency of the Bot and API service.",
@@ -6,6 +8,7 @@ module.exports = {
         message.channel.send({ embeds: [pingEmbed] }).then(resultMessage => {
             const ping = resultMessage.createdTimestamp - message.createdTimestamp;
             pingEmbed
+                .setAuthor({ name: 'Marin Bot', iconURL: client.user.avatarURL() })
                 .setDescription('')
                 .setColor('#FFDA2E')
                 .addFields(
