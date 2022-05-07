@@ -1,4 +1,4 @@
-import DiscordJS, { Intents, MessageEmbed } from 'discord.js';
+import DiscordJS, { Permissions, Intents, MessageEmbed } from 'discord.js';
 import dotenv from 'dotenv';
 import fs from 'fs';
 dotenv.config();
@@ -32,20 +32,24 @@ client.on('messageCreate', message => {
     if (message.author.bot || !message.content.startsWith(prefix)) return;
 
     // Rmoves prefix and converts the message into lowercase.
-    const command = message.content.slice(prefix.length).toLowerCase().split(" ");
+    const command = message.content.slice(prefix.length).toLowerCase().split(" ").filter(element => element != '');
 
     // Commands.
     switch (command[0]) {
         case 'ping':
             commands.get('ping').execute(client, message, MessageEmbed);
             break;
-        case 'verification':
-            message.reply('Coming soon...');
+        case 'role':
+            if (!message.member?.permissions.has(Permissions.FLAGS.MANAGE_ROLES)) {
+                message.reply(`You don't have permission to use this command.`);
+            } else {
+                commands.get('role').execute(message, command, prefix)
+            }
             break;
         default:
             const noCommandEmbed = new MessageEmbed()
                 .setColor('#FF0000')
-                .setDescription('Error: No Such Command')
+                .setDescription('Error: No hay tal comando.')
             message.reply({ embeds: [noCommandEmbed] });
     }
 })
