@@ -1,14 +1,12 @@
-const { Guild } = require("discord.js");
+import { Client, Message, MessageEmbed } from 'discord.js';
 
-module.exports = {
-    name: "ping",
-    description: "Returns Latency of the Bot and API service.",
-    execute(client, message, MessageEmbed) {
-        const pingEmbed = new MessageEmbed().setDescription('Calculating...')
+export default {
+    execute(client: Client, message: Message) {
+        const pingEmbed = new MessageEmbed().setDescription('Calculating...');
         message.channel.send({ embeds: [pingEmbed] }).then(resultMessage => {
             const ping = resultMessage.createdTimestamp - message.createdTimestamp;
             pingEmbed
-                .setAuthor({ name: 'Marin Bot', iconURL: client.user.avatarURL() })
+                .setAuthor({ name: 'Marin Bot', iconURL: client.user!.avatarURL()!})
                 .setDescription('')
                 .setColor('#FFDA2E')
                 .addFields(
@@ -18,6 +16,5 @@ module.exports = {
                 .setTimestamp()
             resultMessage.edit({ embeds: [pingEmbed] });
         })
-
     }
 }

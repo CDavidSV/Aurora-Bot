@@ -1,8 +1,7 @@
-import DiscordJS, { Permissions, Intents, MessageEmbed } from 'discord.js';
+import DiscordJS, { Intents, MessageEmbed } from 'discord.js';
 import dotenv from 'dotenv';
-import fs from 'fs';
+import getFiles from './get-files';
 dotenv.config();
-let prefix = '-';
 
 // Create client and add intents.
 const client = new DiscordJS.Client({
@@ -12,19 +11,36 @@ const client = new DiscordJS.Client({
     ]
 });
 
-const commands: any = new DiscordJS.Collection();
-const commandFolders = fs.readdirSync('./commands/');
-for (const folder of commandFolders) {
-    const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
-    for (const file of commandFiles) {
-        const command = require(`./commands/${folder}/${file}`);
-        commands.set(command.name, command);
-    }
-}
-
 client.on('ready', bot => {
     console.log(`Successfully logged in as ${bot.user.tag}`);
 });
+
+// COMMAND HANDLER
+
+// Create command object (stres all executable commands).
+const commands: {[key: string]: any} = {}
+
+// Prefix for commands
+let prefix = '-';
+
+// Ending suffix for file type.
+const suffix = '.ts';
+
+// Get all directories for each command.
+const commandFiles = getFiles('./commands', suffix);
+
+// Loop through all commmands in the commandsFile array and add them to the commands object. 
+for (const command  of commandFiles) {
+    let commandFile = require(command);
+    if (commandFile.default) commandFile = commandFile.default;
+
+    const split = command.replace(/\\/g, '/').split('/');
+    const commandName = split[split.length - 1].replace(suffix, '');
+
+    commands[commandName.toLowerCase()] = commandFile;
+}
+
+console.log(commands);
 
 // Normal commands with prefix.
 client.on('messageCreate', message => {
@@ -32,25 +48,19 @@ client.on('messageCreate', message => {
     if (message.author.bot || !message.content.startsWith(prefix)) return;
 
     // Rmoves prefix and converts the message into lowercase.
-    const command = message.content.slice(prefix.length).toLowerCase().split(" ").filter(element => element != '');
+    const args = message.content.slice(prefix.length).toLowerCase().split(" ").filter(element => element != '');
+    const commandName = args.shift()!;
+
+    if (!commands[commandName]) return;
 
     // Commands.
-    switch (command[0]) {
-        case 'ping':
-            commands.get('ping').execute(client, message, MessageEmbed);
-            break;
-        case 'role':
-            if (!message.member?.permissions.has(Permissions.FLAGS.MANAGE_ROLES)) {
-                message.reply(`You don't have permission to use this command.`);
-            } else {
-                commands.get('role').execute(message, command, prefix)
-            }
-            break;
-        default:
-            const noCommandEmbed = new MessageEmbed()
-                .setColor('#FF0000')
-                .setDescription('Error: No hay tal comando.')
-            message.reply({ embeds: [noCommandEmbed] });
+    try {
+        commands[commandName].execute(client, message);
+    } catch (error) {
+        const noCommandEmbed = new MessageEmbed()
+        .setColor('#FF0000')
+        .setDescription('Error: No hay tal comando.')
+    message.reply({ embeds: [noCommandEmbed] });
     }
 })
 
