@@ -34,12 +34,13 @@ for (const command  of commandFiles) {
     let commandFile = require(command);
     if (commandFile.default) commandFile = commandFile.default;
 
+    // Gets command name from directory file.
     const split = command.replace(/\\/g, '/').split('/');
     const commandName = split[split.length - 1].replace(suffix, '');
 
-    commands[commandName.toLowerCase()] = commandFile;
-}
+    commands[commandName.toLowerCase()] = commandFile;}
 
+// Display command object.
 console.log(commands);
 
 // Normal commands with prefix.
@@ -49,19 +50,19 @@ client.on('messageCreate', message => {
 
     // Rmoves prefix and converts the message into lowercase.
     const args = message.content.slice(prefix.length).toLowerCase().split(" ").filter(element => element != '');
-    const commandName = args.shift()!;
+    const commandName = args.slice().shift()!;
 
-    if (!commands[commandName]) return;
-
+    // No such command name found.
+    if (!commands[commandName]) return  // Command found  
+    
     // Commands.
     try {
-        commands[commandName].execute(client, message);
-    } catch (error) {
-        const noCommandEmbed = new MessageEmbed()
-        .setColor('#FF0000')
-        .setDescription('Error: No hay tal comando.')
-    message.reply({ embeds: [noCommandEmbed] });
-    }
+        commands[commandName].execute(client, message, prefix, ...args); // Executes command.
+    } catch (error) { // On Error (Avoids Entire bot from crashing).
+        const unexpectedError = new MessageEmbed()
+    message.reply({ embeds: [unexpectedError] });
+    }        
+
 })
 
 // Token.
