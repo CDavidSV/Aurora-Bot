@@ -17,7 +17,7 @@ export default {
             return;
         }
         if (args.length <= 3) {
-            message.reply(`Esta acción requiere argumentos\nTrata ingresando:\n\`${prefix}role <give, remove> <@Usuario> <@rol>\``);
+            message.reply(`Esta acción requiere argumentos\nTrata ingresando:\`${prefix}role <give, remove> <@Usuario> <@rol>\``);
             return;
         }     
 
