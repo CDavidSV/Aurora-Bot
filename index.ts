@@ -1,4 +1,4 @@
-import DiscordJS, { Intents, MessageEmbed } from 'discord.js';
+import DiscordJS, { Intents, MessageEmbed, MessageAttachment } from 'discord.js';
 import dotenv from 'dotenv';
 import getFiles from './get-files';
 dotenv.config();
@@ -11,23 +11,30 @@ const client = new DiscordJS.Client({
     ]
 });
 
+// On bot ready.
 client.on('ready', bot => {
     console.log(`Successfully logged in as ${bot.user.tag}`);
 });
 
-// COMMAND HANDLER
+// -------------------------------------------------------
+// ------------------- COMMAND HANDLER -------------------
+// -------------------------------------------------------
 
-// Create command object (stres all executable commands).
+// Create command object (all executable commands).
 const commands: {[key: string]: any} = {}
 
 // Prefix for commands
 let prefix = '-';
+const defaultPrefix = 'ma!';
 
 // Ending suffix for file type.
 const suffix = '.ts';
 
 // Get all directories for each command.
 const commandFiles = getFiles('./commands', suffix);
+
+// Error image.
+const file = new MessageAttachment('./assets/command-images/error-icon.png');
 
 // Loop through all commmands in the commandsFile array and add them to the commands object. 
 for (const command  of commandFiles) {
@@ -38,7 +45,8 @@ for (const command  of commandFiles) {
     const split = command.replace(/\\/g, '/').split('/');
     const commandName = split[split.length - 1].replace(suffix, '');
 
-    commands[commandName.toLowerCase()] = commandFile;}
+    commands[commandName.toLowerCase()] = commandFile;
+}
 
 // Display command object.
 console.log(commands);
@@ -46,21 +54,30 @@ console.log(commands);
 // Normal commands with prefix.
 client.on('messageCreate', message => {
     // Verify that the message author is not the bot and that it has the correct prefix
-    if (message.author.bot || !message.content.startsWith(prefix)) return;
+    if (message.author.bot || !message.content.startsWith(prefix) && !message.content.startsWith(defaultPrefix)) return;
 
     // Rmoves prefix and converts the message into lowercase.
-    const args = message.content.slice(prefix.length).toLowerCase().split(" ").filter(element => element != '');
+    let sliceParameter;
+    if (message.content.startsWith(prefix)) {
+        sliceParameter = prefix.length;
+    } else {
+        sliceParameter = defaultPrefix.length;
+    }
+    
+    const args = message.content.slice(sliceParameter).toLowerCase().split(" ").filter(element => element != '');
     const commandName = args.slice().shift()!;
 
     // No such command name found.
-    if (!commands[commandName]) return  // Command found  
+    if (!commands[commandName]) return; 
     
     // Commands.
     try {
         commands[commandName].execute(client, message, prefix, ...args); // Executes command.
     } catch (error) { // On Error (Avoids Entire bot from crashing).
         const unexpectedError = new MessageEmbed()
-    message.reply({ embeds: [unexpectedError] });
+            .setColor('#c9040e')
+            .setAuthor({ name: 'Error Inesperado.', iconURL: 'attachment://error-icon.png' })
+        message.reply({ embeds: [unexpectedError], files: [file] });
     }        
 
 })
