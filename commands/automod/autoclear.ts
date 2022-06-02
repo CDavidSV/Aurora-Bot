@@ -41,7 +41,7 @@ export default {
                 }
             } finally {
                 mongoose.connection.close();
-                console.log('Runs every minute...');
+                // console.log('Runs every minute...');
             }
         });
     },
@@ -139,7 +139,6 @@ export default {
                     return;
                 }
                 channels.push({ channelId: channelId, time: time });
-                console.log(channels);
 
                 break;
             case 'disable':

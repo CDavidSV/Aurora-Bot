@@ -18,7 +18,6 @@ export default {
                     if (!result) continue;
                     guildPrefixes[guildId] = result.prefix;
                 }
-                console.log(guildPrefixes);
             } finally {
                 mongoose.connection.close();
             }
