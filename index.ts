@@ -100,12 +100,6 @@ client.on('messageCreate', async message => {
     }
 })
 
-// -------------------------------------------------------
-// ------------------- ClEAR MESSAGES --------------------
-// -------------------------------------------------------
-
-setInterval(commands['autoclear'].clearMessages, 60000, client);
-
 // Token.
 client.login(process.env.TOKEN);
 

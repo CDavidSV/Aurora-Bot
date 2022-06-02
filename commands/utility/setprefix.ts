@@ -4,7 +4,6 @@ import mongo from '../../mongo';
 import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
 import config from '../../config.json';
 const prefixScheema = require('../../schemas/prefix-scheema');
-import update from '../../updateObjects';
 
 export default {
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {

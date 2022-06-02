@@ -1,8 +1,5 @@
-import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable, TextChannel } from 'discord.js';
-import config from './config.json';
+import { Client } from 'discord.js';
 import mongo from './mongo';
-import fs from 'fs';
-const autoclearScheema = require('./schemas/autoclear-scheema');
 const prefixScheema = require('./schemas/prefix-scheema');
 
 export default {
