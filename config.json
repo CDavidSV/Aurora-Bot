@@ -1,0 +1,11 @@
+{
+    "version": "1.0.0v",
+    "globalPrefix": "ma!",
+    "mongoPath": "mongodb://localhost:27017/marin-bot",
+    "embeds": {
+        "errorColor": "#F14946",
+        "successColor": "#43B582",
+        "defaultColor": "#393C3A",
+        "main": "#FFDA2E"
+    }
+}
