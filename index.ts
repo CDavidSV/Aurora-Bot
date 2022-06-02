@@ -32,9 +32,6 @@ client.on('ready', async (bot) => {
         }
     });
 
-    // Set channel clear object.
-    update.updateAutoClear(client);
-
 });
 
 // -------------------------------------------------------

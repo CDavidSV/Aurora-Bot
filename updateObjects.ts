@@ -24,29 +24,4 @@ export default {
         })
         return guildPrefixes;
     },
-
-    updateAutoClear(client: Client) {
-        // Channels array.
-        let channels: any[] = [];
-        // Get channels document from database.
-        mongo().then(async (mongoose) => {
-            try {
-                const guildIds = client.guilds.cache.map(guild => guild.id)
-                for (let guildId of guildIds) {
-                    const results = await autoclearScheema.findOne({ "_id": guildId });
-                    if (!(results === null)) {
-                        channels.push(results);
-                    }
-                }
-            } finally {
-                mongoose.connection.close();
-            }
-            const jsonObj = JSON.stringify(channels);
-            fs.writeFile('./guild-clear-channels.json', jsonObj, function (error) {
-                if (error) {
-                    return;
-                }
-            });
-        });
-    }
 }

@@ -181,6 +181,5 @@ export default {
                 mongoose.connection.close();
             }
         })
-        clear.updateAutoClear(client);
     }
 }
