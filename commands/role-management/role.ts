@@ -8,8 +8,8 @@ export default {
         const actions = ['give', 'remove'];
         const { guild } = message;
         const roleAction = new MessageEmbed();
-        const errorImg = new MessageAttachment('./assets/command-images/error-icon.png');
-        const successImg = new MessageAttachment('./assets/command-images/success-icon.png');
+        const errorImg = new MessageAttachment(config.embeds.errorImg);
+        const successImg = new MessageAttachment(config.embeds.successImg);
 
         // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
         if (!message.member!.permissions.has([Permissions.FLAGS.MANAGE_ROLES])) {

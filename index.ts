@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import getFiles from './get-files';
 import config from './config.json';
 import mongo from './mongo';
-import update from './updateObjects';
+import update from './update';
 dotenv.config();
 
 // Create client and add intents.
@@ -51,7 +51,7 @@ const suffix = '.ts';
 const commandFiles = getFiles('./commands', suffix);
 
 // Error image.
-const file = new MessageAttachment('./assets/command-images/error-icon.png');
+const file = new MessageAttachment(config.embeds.errorImg);
 
 // Loop through all commmands in the commandsFile array and add them to the commands object. 
 for (const command of commandFiles) {
@@ -74,7 +74,10 @@ client.on('messageCreate', async message => {
     guildPrefixes = await update.updateGuildPrefixes(client);
 
     // Prefix
-    const prefix = guildPrefixes[message.guild!.id] || globalPrefix;
+    let prefix = globalPrefix;
+    if (message.content.startsWith(guildPrefixes[message.guild!.id])) {
+        prefix = guildPrefixes[message.guild!.id]
+    }
 
     // Verify that the message author is not the bot and that it has the correct prefix
     if (message.author.bot || !message.content.startsWith(prefix)) return;

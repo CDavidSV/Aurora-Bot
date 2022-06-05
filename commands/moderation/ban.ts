@@ -6,7 +6,7 @@ export default {
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // error and success images.
-        const errorImg = new MessageAttachment('./assets/command-images/error-icon.png');
+        const errorImg = new MessageAttachment(config.embeds.errorImg);
         // Get guild 
         const { guild } = message;
         // Create message embed.

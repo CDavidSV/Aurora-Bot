@@ -6,6 +6,8 @@
         "errorColor": "#F14946",
         "successColor": "#43B582",
         "defaultColor": "#393C3A",
-        "main": "#FFDA2E"
+        "main": "#FFDA2E",
+        "successImg": "./assets/command-images/success-icon.png",
+        "errorImg": "./assets/command-images/error-icon.png"
     }
 }
