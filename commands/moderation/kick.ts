@@ -60,6 +60,7 @@ export default {
             return;
         }
 
+        message.delete();
         // Attempts to ban the mentioned user.
         member!.kick(kickReason).then(() => {
             kickEmbed
@@ -73,6 +74,5 @@ export default {
                 .setAuthor({ name: 'No puedo hacer eso porque mi rol más alto está demasiado bajo en la jerarquía.', iconURL: 'attachment://error-icon.png' })
             message.channel.send({ embeds: [kickEmbed], files: [errorImg] });
         });
-        message.delete();
     }
 }
