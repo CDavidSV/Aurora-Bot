@@ -80,10 +80,6 @@ export default {
             totalLimit -= limit;
         } while (totalLimit > 0)
 
-        let msg = 'mensaje';
-        if (filtered.size > 1 || filtered.size < 1) {
-            msg = 'mensajes';
-        }
         if (fetched.some((msg: { createdTimestamp: number; }) => Date.now() - msg.createdTimestamp > 1209600000)) {
             clearEmbed
                 .setColor(config.embeds.successColor as ColorResolvable)
