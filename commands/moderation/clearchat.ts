@@ -80,10 +80,10 @@ export default {
 
         if (fetched.some((msg: { createdTimestamp: number; }) => Date.now() - msg.createdTimestamp > 1209600000)) {
             clearEmbed
-                .setColor(config.embeds.successColor as ColorResolvable)
-                .setAuthor({ name: `Mensajes eliminados`, iconURL: 'attachment://success-icon.png' })
+                .setColor(config.embeds.defaultColor as ColorResolvable)
+                .setAuthor({ name: `Algunos mensajes no fueron eliminados` })
                 .setDescription('Debido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de 14 días.')
-            message.channel.send({ embeds: [clearEmbed], files: [successImg] }).then(msg => setTimeout(() => msg.delete(), 5000)).catch();
+            message.channel.send({ embeds: [clearEmbed] }).then(msg => setTimeout(() => msg.delete(), 5000)).catch();
             return;
         }
         clearEmbed
