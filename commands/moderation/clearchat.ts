@@ -59,36 +59,48 @@ export default {
         }
 
         let fetched;
-        let filtered;
         let limit;
+        let counter: any = [];
+        let filteredArray;
+        let newArr;
         do {
             totalLimit > 100 ? limit = 100 : limit = totalLimit;
             fetched = await message.channel.messages.fetch({ limit: limit });
             if (member !== undefined) {
-                filtered = fetched.filter(msg => Date.now() - msg.createdTimestamp < 1209600000 && msg.member! === member);
-            } else {
-                filtered = fetched.filter(msg => Date.now() - msg.createdTimestamp < 1209600000);
+                fetched = fetched.filter(msg => msg.member! === member);
             }
             try {
-                await message.channel.bulkDelete(filtered, true);
+                message.channel.bulkDelete(fetched, true);
             } catch (error) {
                 continue;
             }
-            if (filtered.size < 100) break;
+
+            filteredArray = fetched.map(msg => msg.id);
+            newArr = counter.concat(filteredArray);
+            newArr = [...new Set([...counter, ...filteredArray])];
+            counter = newArr;
+
+            if (fetched.size < 100) break;
             totalLimit -= limit;
         } while (totalLimit > 0)
+
+        let msg = "mensaje";
+        let deleted = counter.length - 1;
+        if (deleted > 1 || deleted < 1) {
+            msg = "mensajes";
+        }
 
         if (fetched.some((msg: { createdTimestamp: number; }) => Date.now() - msg.createdTimestamp > 1209600000)) {
             clearEmbed
                 .setColor(config.embeds.main as ColorResolvable)
-                .setAuthor({ name: `Algunos mensajes no fueron eliminados` })
+                .setAuthor({ name: `He borrado ${deleted} ${msg}`, iconURL: 'attachment://success-icon.png' })
                 .setDescription('Debido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de 14 días.')
-            message.channel.send({ embeds: [clearEmbed] }).then(msg => setTimeout(() => msg.delete(), 5000)).catch();
+            message.channel.send({ embeds: [clearEmbed], files: [successImg] }).then(msg => setTimeout(() => msg.delete(), 5000)).catch();
             return;
         }
         clearEmbed
             .setColor(config.embeds.successColor as ColorResolvable)
-            .setAuthor({ name: `Mensajes eliminados`, iconURL: 'attachment://success-icon.png' })
+            .setAuthor({ name: `He borrado ${deleted} ${msg}`, iconURL: 'attachment://success-icon.png' })
         message.channel.send({ embeds: [clearEmbed], files: [successImg] }).then(msg => setTimeout(() => msg.delete(), 5000)).catch();
     }
 }

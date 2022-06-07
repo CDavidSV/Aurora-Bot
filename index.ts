@@ -65,9 +65,6 @@ for (const command of commandFiles) {
     commands[commandName.toLowerCase()] = commandFile;
 }
 
-// Display command object.
-console.log(commands);
-
 // Normal commands with prefix.
 client.on('messageCreate', async message => {
     // Load al server prefixes.
