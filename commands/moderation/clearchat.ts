@@ -26,15 +26,15 @@ export default {
         }
 
         // Store requested message purge limit.
-        let totalLimit = Number(args[1]) || Number(args[2]);
-        // member object.
+        let totalLimit = (Number(args[1]) || Number(args[2])) + 1;
+        // member.
         let member: any;
 
         // Verify that a quantity is specified.
-        if (isNaN(totalLimit)) {
+        if (isNaN(totalLimit) || totalLimit < 1 || totalLimit > 1001) {
             clearEmbed
                 .setColor(config.embeds.errorColor as ColorResolvable)
-                .setAuthor({ name: 'Necesitas especificar la cantidad de mensajes.', iconURL: 'attachment://error-icon.png' })
+                .setAuthor({ name: 'Necesitas especificar la cantidad de mensajes entre 1 y 1000', iconURL: 'attachment://error-icon.png' })
                 .setDescription(`Intenta ingresando: \`${prefix}clearchat <miembro(opcional)> <cantidad> \``)
             message.reply({ embeds: [clearEmbed], files: [errorImg] });
             return;
@@ -58,7 +58,6 @@ export default {
             return;
         }
 
-        await message.delete();
         let fetched;
         let filtered;
         let limit;
