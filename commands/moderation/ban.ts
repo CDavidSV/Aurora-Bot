@@ -60,6 +60,14 @@ export default {
             return;
         }
 
+        if (!guild!.me!.permissions.has([Permissions.FLAGS.KICK_MEMBERS])) {
+            banEmbed
+                .setColor(config.embeds.errorColor as ColorResolvable)
+                .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
+            message.reply({ embeds: [banEmbed], files: [errorImg] });
+            return;
+        }
+
         message.delete();
         // Attempts to ban the mentioned user.
         member!.ban({ reason: banReason }).then(() => {

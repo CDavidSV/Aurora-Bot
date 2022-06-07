@@ -55,6 +55,14 @@ export default {
             return;
         }
 
+        if (!guild!.me!.permissions.has([Permissions.FLAGS.MANAGE_ROLES])) {
+            roleAction
+                .setColor(config.embeds.errorColor as ColorResolvable)
+                .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
+            message.reply({ embeds: [roleAction], files: [errorImg] });
+            return;
+        }
+
         // Checks if the user's role has enought rank to give the same role. (In case a user is trying to give his highest ranked role)
         if (message.member!.roles.highest <= role && message.member!.id !== guild!.ownerId) {
             roleAction

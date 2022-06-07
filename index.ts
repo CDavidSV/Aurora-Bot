@@ -99,7 +99,6 @@ client.on('messageCreate', async message => {
             .setColor(config.embeds.errorColor as ColorResolvable)
             .setAuthor({ name: 'Error Inesperado.', iconURL: 'attachment://error-icon.png' })
         message.reply({ embeds: [unexpectedError], files: [file] });
-        console.log(error);
     }
 })
 
