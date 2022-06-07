@@ -65,7 +65,6 @@ export default {
         do {
             totalLimit > 100 ? limit = 100 : limit = totalLimit;
             fetched = await message.channel.messages.fetch({ limit: limit });
-            console.log(`fetch ${fetched.size}`);
             if (member !== undefined) {
                 filtered = fetched.filter(msg => Date.now() - msg.createdTimestamp < 1209600000 && msg.member! === member);
             } else {
