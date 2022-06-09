@@ -1,3 +1,6 @@
+// Index.ts : This file runs the bot. Program execution begins and ends there.
+// Copyright © 2022-2022 Viper#9020. All rights reserved. 
+
 import DiscordJS, { Intents, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
 import dotenv from 'dotenv';
 import getFiles from './get-files';

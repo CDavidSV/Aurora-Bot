@@ -70,7 +70,7 @@ export default {
                 fetched = fetched.filter(msg => msg.member! === member);
             }
             try {
-                message.channel.bulkDelete(fetched, true);
+                await message.channel.bulkDelete(fetched, true);
             } catch (error) {
                 continue;
             }
