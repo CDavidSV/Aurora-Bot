@@ -6,6 +6,7 @@ import config from '../../config.json';
 const prefixScheema = require('../../schemas/prefix-scheema');
 
 export default {
+    aliases: ['setprefix'],
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         const errorImg = new MessageAttachment('./assets/command-images/error-icon.png');

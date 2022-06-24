@@ -3,9 +3,12 @@ import config from '../../config.json';
 import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
 
 export default {
+    aliases: ['role'],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         // All actions for role command.
         const actions = ['give', 'remove'];
+
+        // Variables.
         const { guild } = message;
         const roleAction = new MessageEmbed();
         const errorImg = new MessageAttachment(config.embeds.errorImg);

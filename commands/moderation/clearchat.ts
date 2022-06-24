@@ -3,6 +3,7 @@ import config from '../../config.json';
 import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
 
 export default {
+    aliases: ['clearchat'],
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         const clearEmbed = new MessageEmbed();
         const errorImg = new MessageAttachment(config.embeds.errorImg);
@@ -64,17 +65,25 @@ export default {
         let filteredArray;
         let newArr;
         do {
+            // Check if the limit given by the user exceeds 100.
             totalLimit > 100 ? limit = 100 : limit = totalLimit;
+
+            // Fetch messages.
             fetched = await message.channel.messages.fetch({ limit: limit });
+
+            // Check if there is a member.
             if (member !== undefined) {
                 fetched = fetched.filter(msg => msg.member! === member);
             }
+
+            // Attempt to bulk delete all fetched messages
             try {
                 await message.channel.bulkDelete(fetched, true);
             } catch (error) {
                 continue;
             }
 
+            // Count messages.
             filteredArray = fetched.map(msg => msg.id);
             newArr = counter.concat(filteredArray);
             newArr = [...new Set([...counter, ...filteredArray])];
@@ -91,16 +100,8 @@ export default {
         }
 
         if (fetched.some((msg: { createdTimestamp: number; }) => Date.now() - msg.createdTimestamp > 1209600000)) {
-            clearEmbed
-                .setColor(config.embeds.main as ColorResolvable)
-                .setAuthor({ name: `He borrado ${deleted} ${msg}`, iconURL: 'attachment://success-icon.png' })
-                .setDescription('Debido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de 14 días.')
-            message.channel.send({ embeds: [clearEmbed], files: [successImg] }).then(msg => setTimeout(() => msg.delete(), 5000)).catch();
-            return;
+            message.channel.send(`He borrado \`${deleted} ${msg}\`\nDebido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de 14 días.`).then(msg => setTimeout(() => msg.delete().catch(error => { }), 6000));
         }
-        clearEmbed
-            .setColor(config.embeds.successColor as ColorResolvable)
-            .setAuthor({ name: `He borrado ${deleted} ${msg}`, iconURL: 'attachment://success-icon.png' })
-        message.channel.send({ embeds: [clearEmbed], files: [successImg] }).then(msg => setTimeout(() => msg.delete(), 5000)).catch();
+        message.channel.send(`He borrado \`${deleted} ${msg}\``).then(msg => setTimeout(() => msg.delete().catch(error => { }), 6000));
     }
 }

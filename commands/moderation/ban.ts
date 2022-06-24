@@ -3,6 +3,7 @@ import config from '../../config.json';
 import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
 
 export default {
+    aliases: ['ban'],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // error and success images.

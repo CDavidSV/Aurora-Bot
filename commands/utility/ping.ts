@@ -4,6 +4,7 @@ import { Client, Message, MessageEmbed, ColorResolvable } from 'discord.js';
 import config from '../../config.json';
 
 export default {
+    aliases: ['ping'],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         // Calculate difference in time between responce and initial message.
         const pingEmbed = new MessageEmbed().setDescription('Calculating...');

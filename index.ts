@@ -25,8 +25,8 @@ let guildPrefixes: any = {};
 client.on('ready', async (bot) => {
     console.log(`Successfully logged in as ${bot.user.tag}`);
 
-    // Connect to mongo.
     bot.user.setActivity('ma!help', { type: "LISTENING" });
+    // Connect to mongo.
     await mongo().then(mongoose => {
         try {
             console.log('Successfully connected to mongo');
@@ -42,7 +42,7 @@ client.on('ready', async (bot) => {
 // -------------------------------------------------------
 
 // Create command object (all executable commands).
-const commands: { [key: string]: any } = {}
+const commands: { aliases: string[], execute: any }[] = []
 
 // Default prefix for commands (Always use this).
 const globalPrefix = config.globalPrefix;
@@ -63,9 +63,8 @@ for (const command of commandFiles) {
 
     // Gets command name from directory file.
     const split = command.replace(/\\/g, '/').split('/');
-    const commandName = split[split.length - 1].replace(suffix, '');
 
-    commands[commandName.toLowerCase()] = commandFile;
+    commands[commandFiles.indexOf(command)] = commandFile;
 }
 
 // Normal commands with prefix.
@@ -88,18 +87,22 @@ client.on('messageCreate', async message => {
     const args = message.content.slice(sliceParameter).toLowerCase().split(" ").filter(element => element != '');
     const commandName = args.slice().shift()!;
 
+    const command = commands.find(c => c.aliases && c.aliases.includes(commandName));
+
     // No such command name found.
-    if (!commands[commandName]) return;
+    if (!command) return;
 
     // Execute Commands.
     try {
-        commands[commandName].execute(client, message, prefix, ...args); // Executes command.
+        command.execute(client, message, prefix, ...args); // Executes command.
     } catch (error) { // On Error (Avoids Entire bot from crashing).
         const unexpectedError = new MessageEmbed()
             .setColor(config.embeds.errorColor as ColorResolvable)
             .setAuthor({ name: 'Error Inesperado.', iconURL: 'attachment://error-icon.png' })
         message.reply({ embeds: [unexpectedError], files: [file] });
+        console.log(error);
     }
+
 })
 
 // Token.
