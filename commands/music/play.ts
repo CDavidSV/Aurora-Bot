@@ -5,10 +5,12 @@ import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorRes
 import { generateDependencyReport, joinVoiceChannel, DiscordGatewayAdapterCreator, createAudioPlayer, NoSubscriberBehavior, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState } from '@discordjs/voice';
 import ytdl from 'ytdl-core';
 import ytSearch from 'yt-search';
+import fs from 'fs';
+import { OpusEncoder } from '@discordjs/opus';
 
 export default {
     aliases: ['play', 'p',],
-    execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+    async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         const musicEmbed = new MessageEmbed();
         const errorImg = new MessageAttachment(config.embeds.errorImg);
 
@@ -17,6 +19,8 @@ export default {
             message.reply("Necesitas estar dentro de un ****canal de voz****.");
             return;
         }
+    
+        let stream = await ytdl('https://www.youtube.com/watch?v=w1Ntoy8uw00', {filter: 'audioonly'});
 
         const player = createAudioPlayer();
 
@@ -36,7 +40,7 @@ export default {
         })
 
         // Create the audio player.
-        const resource = createAudioResource('D:\\GitHub\\Marin-Bot\\Test-Songs\\Lullaby.mp3');
+        const resource = createAudioResource(stream);
         player.play(resource);
 
         // Connect to voice channel.
