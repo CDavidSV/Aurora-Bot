@@ -12,7 +12,7 @@ export default {
             const ping = resultMessage.createdTimestamp - message.createdTimestamp;
             pingEmbed
                 .setAuthor({ name: 'Marin Bot', iconURL: client.user!.avatarURL()! })
-                .setDescription('')
+                .setDescription('🏓Pong!')
                 .setColor(config.embeds.main as ColorResolvable)
                 .addFields(
                     { name: 'Bot Latency: ', value: `${ping}ms` },

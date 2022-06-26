@@ -5,6 +5,10 @@ import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorRes
 export default {
     aliases: ['role'],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+
+        // Convert args to lowercase.
+        args = args.map(arg => arg.toLowerCase());
+
         // All actions for role command.
         const actions = ['give', 'remove'];
 

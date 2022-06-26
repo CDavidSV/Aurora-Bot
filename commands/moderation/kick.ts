@@ -6,6 +6,8 @@ export default {
     aliases: ['kick'],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
+        // Convert args to lowercase.
+        args = args.map(arg => arg.toLowerCase());
         // error and success images.
         const errorImg = new MessageAttachment(config.embeds.errorImg);
         // Get guild 

@@ -84,8 +84,8 @@ client.on('messageCreate', async message => {
     // Rmoves prefix and converts the message into lowercase.
     const sliceParameter = prefix.length;
 
-    const args = message.content.slice(sliceParameter).toLowerCase().split(" ").filter(element => element != '');
-    const commandName = args.slice().shift()!;
+    const args = message.content.slice(sliceParameter).split(" ").filter(element => element != '');
+    const commandName = args.slice().shift()!.toLowerCase();
 
     const command = commands.find(c => c.aliases && c.aliases.includes(commandName));
 
@@ -104,6 +104,10 @@ client.on('messageCreate', async message => {
     }
 
 })
+
+// -------------------------------------------------------
+// ---------------- SLASH COMMAND HANDLER ----------------
+// -------------------------------------------------------
 
 // Token.
 client.login(process.env.TOKEN);

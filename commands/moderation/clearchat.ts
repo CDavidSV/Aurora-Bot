@@ -3,8 +3,11 @@ import config from '../../config.json';
 import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
 
 export default {
-    aliases: ['clearchat'],
+    aliases: ['clearchat', 'clear', 'purge'],
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+        // Convert args to lowercase.
+        args = args.map(arg => arg.toLowerCase());
+
         const clearEmbed = new MessageEmbed();
         const errorImg = new MessageAttachment(config.embeds.errorImg);
         const successImg = new MessageAttachment(config.embeds.successImg);
@@ -59,6 +62,9 @@ export default {
             return;
         }
 
+        // Delete the command message.
+        message.delete().catch(() => { });
+
         let fetched;
         let limit;
         let counter: any = [];
@@ -70,6 +76,10 @@ export default {
 
             // Fetch messages.
             fetched = await message.channel.messages.fetch({ limit: limit });
+            if (fetched.size < 1) {
+                console.log(fetched.size);
+                break;
+            }
 
             // Check if there is a member.
             if (member !== undefined) {
