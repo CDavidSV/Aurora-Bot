@@ -104,7 +104,10 @@ export default {
         } while (totalLimit > 0)
 
         let msg = "mensaje";
-        let deleted = counter.length - 1;
+        if (counter.indexOf(message.id) > -1) {
+            counter.splice(counter.indexOf(message.id), 1);
+        }
+        let deleted = counter.length;
         if (deleted > 1 || deleted < 1) {
             msg = "mensajes";
         }
