@@ -10,7 +10,6 @@ export default {
 
         const clearEmbed = new MessageEmbed();
         const errorImg = new MessageAttachment(config.embeds.errorImg);
-        const successImg = new MessageAttachment(config.embeds.successImg);
 
         // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
         if (!message.member!.permissions.has([Permissions.FLAGS.MANAGE_CHANNELS, Permissions.FLAGS.MANAGE_MESSAGES])) {
@@ -113,8 +112,8 @@ export default {
         }
 
         if (fetched.some((msg: { createdTimestamp: number; }) => Date.now() - msg.createdTimestamp > 1209600000)) {
-            message.channel.send(`He borrado \`${deleted} ${msg}\`\nDebido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de 14 días.`).then(msg => setTimeout(() => msg.delete().catch(error => { }), 6000));
+            message.channel.send(`He borrado \`${deleted} ${msg}\`\nDebido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de 14 días.`).then(msg => setTimeout(() => msg.delete().catch(error => { }), 5000));
         }
-        message.channel.send(`He borrado \`${deleted} ${msg}\``).then(msg => setTimeout(() => msg.delete().catch(error => { }), 6000));
+        message.channel.send(`He borrado \`${deleted} ${msg}\``).then(msg => setTimeout(() => msg.delete().catch(error => { }), 5000));
     }
 }
