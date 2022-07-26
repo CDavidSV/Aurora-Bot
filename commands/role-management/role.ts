@@ -1,6 +1,6 @@
-// Handles simple role commands (give, remove).
+// Handles simple role commands (grant, remove).
 import config from '../../config.json';
-import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
+import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
 
 export default {
     aliases: ['role'],
@@ -10,16 +10,16 @@ export default {
         args = args.map(arg => arg.toLowerCase());
 
         // All actions for role command.
-        const actions = ['give', 'remove'];
+        const actions = ['grant', 'remove'];
 
         // Variables.
         const { guild } = message;
-        const roleAction = new MessageEmbed();
-        const errorImg = new MessageAttachment(config.embeds.errorImg);
-        const successImg = new MessageAttachment(config.embeds.successImg);
+        const roleAction = new EmbedBuilder();
+        const errorImg = new AttachmentBuilder(config.embeds.errorImg);
+        const successImg = new AttachmentBuilder(config.embeds.successImg);
 
         // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
-        if (!message.member!.permissions.has([Permissions.FLAGS.MANAGE_ROLES])) {
+        if (!message.member!.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
             roleAction
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })
@@ -30,7 +30,7 @@ export default {
             roleAction
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'Esta acción no existe o no es especificada.', iconURL: 'attachment://error-icon.png' })
-                .setDescription(`Intenta ingresando: \`${prefix}role <give, remove> <@miembro> <@rol/rol>\``)
+                .setDescription(`Intenta ingresando: \`${prefix}role <grant, remove> <@miembro> <@rol/rol>\``)
             message.reply({ embeds: [roleAction], files: [errorImg] });
             return;
         }
@@ -38,7 +38,7 @@ export default {
             roleAction
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'Esta acción requiere mencionar al usuario y nombrar el rol.', iconURL: 'attachment://error-icon.png' })
-                .setDescription(`Intenta ingresando: \`${prefix}role <give, remove> <@miembro> <@rol/rol>\``)
+                .setDescription(`Intenta ingresando: \`${prefix}role <grant, remove> <@miembro> <@rol/rol>\``)
             message.reply({ embeds: [roleAction], files: [errorImg] });
             return;
         }
@@ -62,7 +62,7 @@ export default {
             return;
         }
 
-        if (!guild!.me!.permissions.has([Permissions.FLAGS.MANAGE_ROLES])) {
+        if (!guild!.members.me!.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
             roleAction
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
@@ -81,7 +81,7 @@ export default {
 
         // Evaluate the selected action.
         switch (args[1].toLowerCase()) {
-            case 'give': // gives specified role. Returns a promise to be evaluated
+            case 'grant': // gives specified role. Returns a promise to be evaluated
                 member.roles.add(role).then(() => {
                     roleAction
                         .setColor(config.embeds.successColor as ColorResolvable)

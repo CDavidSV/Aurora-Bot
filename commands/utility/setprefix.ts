@@ -1,7 +1,7 @@
 // Change the server's prefix.
 
-import mongo from '../../mongo';
-import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
+import mongo from '../../handlers/mongo';
+import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
 import config from '../../config.json';
 const prefixScheema = require('../../schemas/prefix-scheema');
 
@@ -9,12 +9,12 @@ export default {
     aliases: ['setprefix'],
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
-        const errorImg = new MessageAttachment('./assets/command-images/error-icon.png');
-        const successImg = new MessageAttachment('./assets/command-images/success-icon.png');
-        const setPrefixEmbed = new MessageEmbed();
+        const errorImg = new AttachmentBuilder('./assets/command-images/error-icon.png');
+        const successImg = new AttachmentBuilder('./assets/command-images/success-icon.png');
+        const setPrefixEmbed = new EmbedBuilder();
 
         // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
-        if (!message.member!.permissions.has([Permissions.FLAGS.ADMINISTRATOR])) {
+        if (!message.member!.permissions.has([PermissionsBitField.Flags.Administrator])) {
             setPrefixEmbed
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })

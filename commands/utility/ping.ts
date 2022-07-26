@@ -1,13 +1,13 @@
 // Shows the bots responce time and the API's Latency.
 
-import { Client, Message, MessageEmbed, ColorResolvable } from 'discord.js';
+import { Client, Message, EmbedBuilder, ColorResolvable } from 'discord.js';
 import config from '../../config.json';
 
 export default {
     aliases: ['ping'],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         // Calculate difference in time between responce and initial message.
-        const pingEmbed = new MessageEmbed().setDescription('Calculating...');
+        const pingEmbed = new EmbedBuilder().setDescription('Calculating...');
         message.channel.send({ embeds: [pingEmbed] }).then(async resultMessage => {
             const ping = resultMessage.createdTimestamp - message.createdTimestamp;
             pingEmbed
@@ -15,8 +15,8 @@ export default {
                 .setDescription('🏓Pong!')
                 .setColor(config.embeds.main as ColorResolvable)
                 .addFields(
-                    { name: 'Bot Latency: ', value: `${ping}ms` },
-                    { name: 'API Latency: ', value: `${client.ws.ping}ms` }
+                    { name: 'Bot Latency: ', value: `\`${ping}ms\`` },
+                    { name: 'API Latency: ', value: `\`${client.ws.ping}ms\`` }
                 )
                 .setFooter({ text: config.version })
                 .setTimestamp()

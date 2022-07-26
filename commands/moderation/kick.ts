@@ -1,6 +1,6 @@
 // Kicks a guild member.
 import config from '../../config.json';
-import { Client, Message, Permissions, MessageEmbed, MessageAttachment, ColorResolvable } from 'discord.js';
+import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
 
 export default {
     aliases: ['kick'],
@@ -9,16 +9,16 @@ export default {
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
         // error and success images.
-        const errorImg = new MessageAttachment(config.embeds.errorImg);
+        const errorImg = new AttachmentBuilder(config.embeds.errorImg);
         // Get guild 
         const { guild } = message;
         // Create message embed.
-        const kickEmbed = new MessageEmbed();
+        const kickEmbed = new EmbedBuilder();
         // Kick reason.
         let kickReason = 'No especificada';
 
         // Validate that the user requesting the action has enough Permissions.
-        if (!message.member!.permissions.has([Permissions.FLAGS.KICK_MEMBERS])) {
+        if (!message.member!.permissions.has([PermissionsBitField.Flags.KickMembers])) {
             kickEmbed
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })
@@ -55,7 +55,7 @@ export default {
         }
 
         // Avoids user from banning moderators and administrators.
-        if ((member!.permissions.has([Permissions.FLAGS.ADMINISTRATOR]) || !member!.kickable) && message.member!.id !== guild!.ownerId) {
+        if ((member!.permissions.has([PermissionsBitField.Flags.Administrator]) || !member!.kickable) && message.member!.id !== guild!.ownerId) {
             kickEmbed
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No puedes expulsar a un administrador.', iconURL: 'attachment://error-icon.png' })
@@ -63,7 +63,7 @@ export default {
             return;
         }
 
-        if (!guild!.me!.permissions.has([Permissions.FLAGS.KICK_MEMBERS])) {
+        if (!guild!.members.me!.permissions.has([PermissionsBitField.Flags.KickMembers])) {
             kickEmbed
                 .setColor(config.embeds.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })

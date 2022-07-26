@@ -1,6 +1,6 @@
 import { Client } from 'discord.js';
 import mongo from './mongo';
-const prefixScheema = require('./schemas/prefix-scheema');
+const prefixScheema = require('../schemas/prefix-scheema');
 
 export default {
     async updateGuildPrefixes(client: Client) {
