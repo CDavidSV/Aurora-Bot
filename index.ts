@@ -1,12 +1,12 @@
 // Index.ts : This file runs the bot. Program execution begins and ends there.
 // Copyright © 2022-2022 Viper#9020. All rights reserved. 
 
-import DiscordJS, { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, ActivityType } from 'discord.js';
+import DiscordJS, { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, ActivityType, ChannelType } from 'discord.js';
 import dotenv from 'dotenv';
 import getFiles from './handlers/get-files';
 import config from './config.json';
-import mongo from './handlers/mongo';
-import update from './handlers/update';
+import mongo from './mongoDB/mongo';
+const prefixScheema = require('./mongoDB/schemas/prefix-scheema');
 dotenv.config();
 
 // Create client and add intents.
@@ -28,8 +28,14 @@ client.on('ready', async (bot: Client) => {
 
     bot.user!.setActivity('ma!help', { type: ActivityType.Listening });
     // Connect to mongo.
-    await mongo().then(mongoose => {
+    await mongo().then(async (mongoose) => {
         try {
+            for (const guild of client.guilds.cache) {
+                const guildId = guild[1].id;
+                const result = await prefixScheema.findOne({ _id: guildId });
+                if (!result) continue;
+                guildPrefixes[guildId] = result.prefix;
+            }
             console.log('Successfully connected to mongo');
         } finally {
             mongoose.connection.close();
@@ -67,17 +73,28 @@ for (const command of commandFiles) {
 
 // Normal commands with prefix.
 client.on('messageCreate', async (message: Message)  => {
-    // Load al server prefixes.
-    guildPrefixes = await update.updateGuildPrefixes(client);
-
-    // Prefix.
-    let prefix = globalPrefix;
-    if (message.content.startsWith(guildPrefixes[message.guild!.id])) {
-        prefix = guildPrefixes[message.guild!.id]
+    // Get guild prefix.
+    if (!guildPrefixes[message.guild!.id]) {
+        await mongo().then( async (mongoose) => {
+            try {
+                const result = await prefixScheema.findOne({ _id: message.guild!.id });
+                if (result) {
+                    guildPrefixes[message.guild!.id] = result.prefix;
+                } else {
+                    guildPrefixes[message.guild!.id] = globalPrefix;
+                }
+            } finally {
+                mongoose.connection.close();
+            }
+        })
     }
-
-    // Verify that the message author is not the bot and that it has the correct prefix
-    if (message.author.bot || !message.content.startsWith(prefix)) return;
+    let prefix = guildPrefixes[message.guild!.id];
+    if (message.content.startsWith(globalPrefix)) {
+        prefix = globalPrefix
+    }
+    if(!message.content.startsWith(prefix) || message.author.bot || message.channel.type === ChannelType.DM) {
+        return;
+    }
 
     // Rmoves prefix and converts the message into lowercase.
     const sliceParameter = prefix.length;

@@ -69,17 +69,16 @@ export default {
         let counter: any = [];
         let filteredArray;
         let newArr;
-        const days14ms = 1209600000;
         let oldmessages = false;
+        const days14ms = 1209600000;
+        const requested = totalLimit;
         do {
             // Check if the limit given by the user exceeds 100.
             totalLimit > 100 ? limit = 100 : limit = totalLimit;
 
             // Fetch messages.
             fetched = await message.channel.messages.fetch({ limit: limit });
-            if (fetched.size < 1) {
-                break;
-            }
+            if (fetched.size < 1) break;
 
             // Check if there is a member.
             if (member !== undefined) {
@@ -106,7 +105,8 @@ export default {
             counter = newArr;
 
             if (fetched.size < 100) break;
-            totalLimit -= limit;
+            totalLimit = requested - counter.length ;
+            console.log('deleting');
         } while (totalLimit > 0)
 
         let msg = "mensaje";

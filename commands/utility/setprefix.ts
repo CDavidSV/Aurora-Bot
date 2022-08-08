@@ -1,9 +1,9 @@
 // Change the server's prefix.
 
-import mongo from '../../handlers/mongo';
+import mongo from '../../mongoDB/mongo';
 import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
 import config from '../../config.json';
-const prefixScheema = require('../../schemas/prefix-scheema');
+const prefixScheema = require('../../mongoDB/schemas/prefix-scheema');
 
 export default {
     aliases: ['setprefix'],

@@ -25,7 +25,6 @@
     "ytsr": "^3.8.0"
   },
   "devDependencies": {
-    "@types/yt-search": "^2.3.2",
     "nodemon": "^2.0.19"
   }
 }
