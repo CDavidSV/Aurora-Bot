@@ -1,13 +1,14 @@
-// Command to skip a song.
+// Resumes song playback.
 
 import { Client, Message } from 'discord.js';
 import playercore from '../../handlers/player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
 export default {
-    aliases: ['skip'],
+    aliases: ['resume'],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+
         if (!message.member!.voice.channel) {
             message.reply("Necesitas estar dentro de un ****canal de voz****.");
             return;
@@ -24,10 +25,10 @@ export default {
 
         // check if there are songs in the queue.
         if (playercore.getServerQueue(message.guildId!).queue.length < 1) {
-            message.reply(`No hay más canciones por reproducir. Intenta agragando otra usando: \n\`${prefix}play <canción o url>\``);
+            message.reply(`No hay ninguna canción en la cola. Intenta agragando una usando: \n\`${prefix}play <canción o url>\``);
             return;
         }
 
-        playercore.skip(message.guildId!);
+        playercore.resume(message.guildId!);
     }
 }

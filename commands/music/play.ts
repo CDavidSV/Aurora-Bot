@@ -35,16 +35,16 @@ export default {
         const song = args.slice(1).toString().replace(/,/g, " ");
 
         // Check if there is a vocice connection.
-        if(!getVoiceConnection(message.guildId!)) {
+        if (!getVoiceConnection(message.guildId!)) {
             // Join voice channel.
             joinVoiceChannel({
                 channelId: message.member!.voice.channelId!,
                 guildId: message.guildId!,
                 adapterCreator: message.guild!.voiceAdapterCreator as DiscordGatewayAdapterCreator
             })
-        };
+        }
 
-        playercore.play(message, song);
+        playercore.play(client, message, song);
     }
 }
 

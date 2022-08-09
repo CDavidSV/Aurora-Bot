@@ -1,13 +1,14 @@
-// Command to skip a song.
+// Removes the selected song from queue.
 
 import { Client, Message } from 'discord.js';
 import playercore from '../../handlers/player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
 export default {
-    aliases: ['skip'],
+    aliases: ['pause'],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+
         if (!message.member!.voice.channel) {
             message.reply("Necesitas estar dentro de un ****canal de voz****.");
             return;
@@ -21,13 +22,23 @@ export default {
             message.reply(`No hay un reproductor activo en este servidor \n\`Intenta: ${prefix}play <canción o url>\``);
             return;
         }
-
-        // check if there are songs in the queue.
-        if (playercore.getServerQueue(message.guildId!).queue.length < 1) {
-            message.reply(`No hay más canciones por reproducir. Intenta agragando otra usando: \n\`${prefix}play <canción o url>\``);
+        if (args.length < 2) {
+            message.reply(`Necesitas ingresar el indice de la canción. \nIntenta: \`${prefix}remove <numero en la lista>\``);
             return;
         }
 
-        playercore.skip(message.guildId!);
+        const index = parseInt(args[1]);
+
+        if (index <= 0) {
+            message.reply('El número de indice debe de ser mayor a 0.');
+            return;
+        }
+        // check if there are songs in the queue.
+        if (index > playercore.getServerQueue(message.guildId!).queue.length) {
+            message.reply(`Esa canción no esta en la cola. \nIntenta agragando una usando: \`${prefix}play <canción o url>\``);
+            return;
+        }
+
+        playercore.remove(message.guildId!, index);
     }
 }
