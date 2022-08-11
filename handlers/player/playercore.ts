@@ -2,7 +2,7 @@
 
 import config from '../../config.json';
 import { Client, Message, EmbedBuilder, ColorResolvable, User, TextChannel } from 'discord.js';
-import { createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState, getVoiceConnection, AudioPlayer, PlayerSubscription } from '@discordjs/voice';
+import { createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState, getVoiceConnection, AudioPlayer, PlayerSubscription, AudioResource } from '@discordjs/voice';
 import ytdl, { downloadOptions } from 'ytdl-core';
 import ytsr from 'ytsr';
 import ytpl from 'ytpl';
@@ -51,6 +51,7 @@ export default {
                     songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
                 }
             } else {
+                console.log(1);
                 metadata = await getMetadata(song, 'ytvideo');
                 songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
             }
@@ -98,11 +99,29 @@ export default {
                     .setFooter({ text: `Pedida por ${serverQueue.songQueue[0].requester.tag}`, iconURL: serverQueue.songQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
                 message.channel.send({ embeds: [songEmbed] });
             }
+            // Generate stream depending on the source.
+            let currentSong = serverQueue.songQueue[0];
+            console.log(3);
+            const { stream } = await getStream(currentSong);
+            // Create the audio source and play it.
+            console.log(4);
+            let resource = createAudioResource(stream as any);
+            console.log(5);
+            player.play(resource);
+            console.log(6);
             playManager(client, guildId, serverQueue);
         } else { // Add the requested song or playlist in queue.
             if (serverQueue.songQueue.length < 1) {
                 serverQueue.songQueue.push(...songQueue);
-                playManager(client, guildId, serverQueue);
+
+                // Generate stream depending on the source.
+                const player = serverQueue.subscription.player;
+                let currentSong = serverQueue.songQueue[0];
+                const { stream } = await getStream(currentSong);
+
+                // Create the audio source and play it.
+                let resource = createAudioResource(stream as any);
+                player.play(resource);
                 return;
             }
             serverQueue.songQueue.push(...songQueue);
@@ -147,6 +166,7 @@ export default {
         const queueConstructor = {
             guildId: guildId,
             textChannelId: serverQueue.channelId,
+            subscription: serverQueue.subscription,
             songQueue: newSongQueue as { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[]
         }
 
@@ -186,15 +206,9 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
     const player = serverQueue.subscription.player;
 
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
-    let currentSong = serverQueue.songQueue[0];
+    let currentSong: any;
     let subscription: PlayerSubscription;
-
-    // Generate stream depending on the source.
-    const { stream } = await getStream(currentSong);
-
-    // Create the audio source and play it.
-    let resource = createAudioResource(stream as any);
-    player.play(resource);
+    let resource: AudioResource;
 
     // -----------------------------------------------------
     // ---------------------- EVENTS -----------------------
@@ -255,9 +269,9 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
     })
 
     //Log Errors.
-    player.on('error', async () => {
-        serverQueue.textChannel.send('Se produjo un error inesperado al reproducir esta pista. Pista saltada.');
-
+    player.on('error', async (err: any) => {
+        channel.send('Se produjo un error inesperado al reproducir esta pista. Pista saltada.');
+        console.log(err);
         // Remove finished song from the queue.
         serverQueue = serverQueues.get(guildId);
         serverQueue.songQueue.shift();
@@ -282,8 +296,10 @@ async function getMetadata(request: string, type: string) {
     let durationSec = null;
     let durationTimestamp = null;
     let playlist = null;
-    switch (type.toLocaleLowerCase()) {
+    switch (type) {
         case 'ytvideo':
+            console.log(2);
+            console.log(request);
             // Get video metadata.
             const info = await ytdl.getInfo(request);
             title = info.videoDetails.title;
