@@ -41,7 +41,6 @@ client.on('ready', async (bot: Client) => {
             mongoose.connection.close();
         }
     });
-
 });
 
 // -------------------------------------------------------
@@ -72,10 +71,10 @@ for (const command of commandFiles) {
 }
 
 // Normal commands with prefix.
-client.on('messageCreate', async (message: Message)  => {
+client.on('messageCreate', async (message: Message) => {
     // Get guild prefix.
     if (!guildPrefixes[message.guild!.id]) {
-        await mongo().then( async (mongoose) => {
+        await mongo().then(async (mongoose) => {
             try {
                 const result = await prefixScheema.findOne({ _id: message.guild!.id });
                 if (result) {
@@ -92,7 +91,7 @@ client.on('messageCreate', async (message: Message)  => {
     if (message.content.startsWith(globalPrefix)) {
         prefix = globalPrefix
     }
-    if(!message.content.startsWith(prefix) || message.author.bot || message.channel.type === ChannelType.DM) {
+    if (!message.content.startsWith(prefix) || message.author.bot || message.channel.type === ChannelType.DM) {
         return;
     }
 

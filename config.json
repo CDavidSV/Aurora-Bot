@@ -10,5 +10,9 @@
         "main": "#FFDA2E",
         "successImg": "./assets/command-images/success-icon.png",
         "errorImg": "./assets/command-images/error-icon.png"
+    },
+    "playerIcons": {
+        "playing": "https://media1.tenor.com/images/6bccf62f1691173159c35373068551c2/tenor.gif?itemid=26309669",
+        "skipped": ""
     }
 }

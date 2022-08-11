@@ -61,9 +61,6 @@ export default {
             return;
         }
 
-        // Delete the command message.
-        message.delete().catch(() => { });
-
         let fetched;
         let limit;
         let counter: any = [];
@@ -93,7 +90,7 @@ export default {
             }
 
             // filter old messages.
-            if(fetched.some(msg => Date.now() - msg.createdTimestamp > days14ms)) {
+            if (fetched.some(msg => Date.now() - msg.createdTimestamp > days14ms)) {
                 fetched = fetched.filter(msg => Date.now() - msg.createdTimestamp < days14ms);
                 oldmessages = true;
             }
@@ -105,7 +102,7 @@ export default {
             counter = newArr;
 
             if (fetched.size < 100) break;
-            totalLimit = requested - counter.length ;
+            totalLimit = requested - counter.length - 1;
             console.log('deleting');
         } while (totalLimit > 0)
 

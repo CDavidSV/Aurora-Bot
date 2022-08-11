@@ -6,13 +6,13 @@ import { createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnect
 import ytdl, { downloadOptions } from 'ytdl-core';
 import ytsr from 'ytsr';
 import ytpl from 'ytpl';
+import { Connection } from 'mongoose';
 
 // serverQueues{guildId, queueConstructor{}}
 const serverQueues = new Map();
 const songEmbed = new EmbedBuilder();
 
 export default {
-
     // Plays the requested song in the designate voice channel.
     async play(client: Client, message: Message, song: string) {
         // Youtube Regexes.
@@ -32,34 +32,33 @@ export default {
         // Working on it... Still don't know how.
 
         // find the source based on the users request (can be either a link or search query).
-        let songQueue: { type: string, url: string, requester: User }[] = [];
-        let metadata: { title: any, url: any, durationTimestamp: string | undefined, thumbnail: any, embedTitle: string | undefined, embedDescription: string | undefined };
+        let songQueue: { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[] = [];
+        let metadata: { title: string | null; url: string | null; durationTimestamp: string | null; thumbnail: string | null; embedTitle: string | null; embedDescription: string | null; playlist: ytpl.Result | null };
         const requester = message.member!.user;
 
         if (YTVideoRegex.test(song) || YTPlaylistRegex.test(song) || YTMixRegex.test(song)) {
             // Generate a queue if the link is a playlist.
             if (YTPlaylistRegex.test(song) || YTMixRegex.test(song)) {
                 try {
-                    const playlistId = await ytpl.getPlaylistID(song);
-                    const playlist = await ytpl(playlistId, { limit: Infinity });
+                    metadata = await getMetadata(song, 'ytplaylist');
+                    const playlist = metadata.playlist!;
                     for (let item = 0; item < playlist.items.length; item++) {
-                        songQueue.push({ type: 'youtube', url: playlist.items[item].url, requester: requester });
+                        songQueue.push({ type: 'youtube', title: playlist.items[item].title, url: playlist.items[item].url, durationTimestamp: playlist.items[item].duration, thumbnail: playlist.items[item].bestThumbnail.url, requester: requester });
                     }
-                    metadata = await getMetadata(playlist, 'ytplaylist');
                 } catch {
                     // Could not find the playlist (Mixes not yet supported).
-                    songQueue.push({ type: 'youtube', url: song, requester: requester });
                     metadata = await getMetadata(song, 'ytvideo');
+                    songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
                 }
             } else {
-                songQueue.push({ type: 'youtube', url: song, requester: requester });
                 metadata = await getMetadata(song, 'ytvideo');
+                songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
             }
         } else if (spotifySongRegex.test(song)) {
-            message.channel.send('Lo siento pero todavia no soportamos spotify.');
+            message.channel.send('Lo siento, pero todavia no soportamos spotify.');
             return;
         } else if (spotifyPlaylistRegex.test(song) || spotifyAlbumRegex.test(song)) {
-            message.channel.send('Lo siento pero todavia no soportamos spotify.');
+            message.channel.send('Lo siento, pero todavia no soportamos spotify.');
             return;
         } else {
             const search = await ytsr(song, { limit: 1 }) as any;
@@ -68,21 +67,22 @@ export default {
                 return;
             }
             song = search.items[0].url;
-            songQueue.push({ type: 'youtube', url: song, requester: requester });
             metadata = await getMetadata(song, 'ytvideo');
+            songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
         }
 
         // Check if a queue exists for that server. If not, then generate one.
-        let player: AudioPlayer;
         const guildId = message.guildId!;
         let serverQueue = serverQueues.get(guildId);
         if (!serverQueue) {
-            player = createAudioPlayer();
+            const connection = getVoiceConnection(guildId)!;
+            const player = createAudioPlayer();
+            let subscription = connection.subscribe(player) as PlayerSubscription;
             const queueConstructor = {
                 guildId: guildId,
                 textChannelId: message.channelId,
-                player: player,
-                songQueue: songQueue as { url: string, requester: User }[]
+                subscription: subscription,
+                songQueue: songQueue as { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[]
             }
             serverQueues.set(guildId, queueConstructor);
             serverQueue = serverQueues.get(guildId);
@@ -98,12 +98,13 @@ export default {
                     .setFooter({ text: `Pedida por ${serverQueue.songQueue[0].requester.tag}`, iconURL: serverQueue.songQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
                 message.channel.send({ embeds: [songEmbed] });
             }
-            playManager(client, guildId, serverQueue, metadata);
-
-        } else if (serverQueue.songQueue.length < 1) { // Queue is empty but the bot is still in a voice channel.
-            serverQueue.songQueue.push(...songQueue);
-            playManager(client, guildId, serverQueue, metadata);
-        } else { // A song is currently playing, so add the requested one in queue.
+            playManager(client, guildId, serverQueue);
+        } else { // Add the requested song or playlist in queue.
+            if (serverQueue.songQueue.length < 1) {
+                serverQueue.songQueue.push(...songQueue);
+                playManager(client, guildId, serverQueue);
+                return;
+            }
             serverQueue.songQueue.push(...songQueue);
             songEmbed
                 .setColor(config.embeds.defaultColor2 as ColorResolvable)
@@ -117,39 +118,36 @@ export default {
             return;
         }
 
-
     },
 
     // Pauses the player for the selected guild.
     pause(guildId: string) {
         const serverQueue = serverQueues.get(guildId);
-        serverQueue.player.pause();
+        serverQueue.subscription.player.pause();
         return;
     },
 
     // Resumes playback for the selected guild.
     resume(guildId: string) {
         const serverQueue = serverQueues.get(guildId);
-        serverQueue.player.unpause();
+        serverQueue.subscription.player.unpause();
         return;
     },
 
     // Skips a track for the selected guild.
     skip(guildId: string) {
         const serverQueue = serverQueues.get(guildId);
-        serverQueue.player.stop();
+        serverQueue.subscription.player.stop();
         return;
     },
 
     remove(guildId: string, index: number) {
         const serverQueue = serverQueues.get(guildId)
-        const songQueue = serverQueue.songQueue.splice(index, 1);
-
+        const newSongQueue = serverQueue.songQueue.splice(index, 1);
         const queueConstructor = {
             guildId: guildId,
             textChannelId: serverQueue.channelId,
-            player: serverQueue.player,
-            songQueue: songQueue as { url: string, requester: User }[]
+            songQueue: newSongQueue as { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[]
         }
 
         serverQueues.set(guildId, queueConstructor);
@@ -182,47 +180,44 @@ async function getStream(currentSong: any) {
     return { stream }
 }
 
-async function playManager(client: Client, guildId: string, serverQueue: any, metadata: { title: any, url: any, durationTimestamp: string | undefined, thumbnail: any, embedTitle: string | undefined, embedDescription: string | undefined }) {
-
+async function playManager(client: Client, guildId: string, serverQueue: any) {
     // Get connection, player and text channel id for that given guild.
     const connection = getVoiceConnection(guildId)!;
-    const player = serverQueue.player;
-    const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
+    const player = serverQueue.subscription.player;
 
+    const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
     let currentSong = serverQueue.songQueue[0];
     let subscription: PlayerSubscription;
 
     // Generate stream depending on the source.
     const { stream } = await getStream(currentSong);
 
-    // Create the audio source and add the subscription.
+    // Create the audio source and play it.
     let resource = createAudioResource(stream as any);
-    serverQueue.player.play(resource);
-    subscription = connection.subscribe(serverQueue.player) as PlayerSubscription;
-
-    songEmbed
-        .setColor(config.embeds.main as ColorResolvable)
-        .setTitle(metadata.title)
-        .setURL(currentSong.url)
-        .setAuthor({ name: "Ahora Suena ♪", iconURL: 'https://media1.tenor.com/images/6bccf62f1691173159c35373068551c2/tenor.gif?itemid=26309669' })
-        .setDescription(`\`[0:00 / ${metadata.durationTimestamp}]\``)
-        .setThumbnail(metadata.thumbnail)
-        .setFooter({ text: `Pedida por ${currentSong.requester.tag}`, iconURL: currentSong.requester.displayAvatarURL({ forceStatic: false }) })
-    channel.send({ embeds: [songEmbed] });
-
+    player.play(resource);
 
     // -----------------------------------------------------
     // ---------------------- EVENTS -----------------------
     // -----------------------------------------------------
 
+    player.on(AudioPlayerStatus.Playing, () => {
+        serverQueue = serverQueues.get(guildId);
+        currentSong = serverQueue.songQueue[0];
+
+        songEmbed
+            .setColor(config.embeds.main as ColorResolvable)
+            .setTitle(currentSong.title)
+            .setURL(currentSong.url)
+            .setAuthor({ name: "Ahora Suena ♪", iconURL: config.playerIcons.playing })
+            .setDescription(`\`[0:00 / ${currentSong.durationTimestamp}]\``)
+            .setThumbnail(currentSong.thumbnail)
+            .setFooter({ text: `Pedida por ${currentSong.requester.tag}`, iconURL: currentSong.requester.displayAvatarURL({ forceStatic: false }) })
+        channel.send({ embeds: [songEmbed] });
+    })
+
     player.on(AudioPlayerStatus.Idle, async () => {
-        // console.log('Song ended');
-
-        // Song ended (Stop player and unsubscribe).
-        player.stop();
-        subscription.unsubscribe();
-
         // Remove finished song from the queue.
+        serverQueue = serverQueues.get(guildId);
         serverQueue.songQueue.shift();
 
         // Check if there is another song to play.
@@ -230,28 +225,10 @@ async function playManager(client: Client, guildId: string, serverQueue: any, me
             // Generate stream.
             currentSong = serverQueue.songQueue[0];
             const { stream } = await getStream(currentSong);
-            const metadata = await getMetadata(currentSong.url, 'ytvideo');
             // Create the audio player.
             resource = createAudioResource(stream as any);
-            serverQueue.player.play(resource);
-
-            // Subscribe to the player.
-            subscription = connection.subscribe(serverQueue.player) as PlayerSubscription;
-
-            songEmbed
-                .setColor(config.embeds.main as ColorResolvable)
-                .setTitle(metadata.title)
-                .setURL(currentSong.url)
-                .setAuthor({ name: "Ahora Suena ♪", iconURL: 'https://media1.tenor.com/images/6bccf62f1691173159c35373068551c2/tenor.gif?itemid=26309669' })
-                .setDescription(`\`[0:00 / ${metadata.durationTimestamp}]\``)
-                .setThumbnail(metadata.thumbnail)
-                .setFooter({ text: `Pedida por ${currentSong.requester.tag}`, iconURL: currentSong.requester.displayAvatarURL({ forceStatic: false }) })
-            channel.send({ embeds: [songEmbed] });
-
-        } else {
-            serverQueue.songQueue = [];
+            player.play(resource);
         }
-
     })
 
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
@@ -280,41 +257,31 @@ async function playManager(client: Client, guildId: string, serverQueue: any, me
     //Log Errors.
     player.on('error', async () => {
         serverQueue.textChannel.send('Se produjo un error inesperado al reproducir esta pista. Pista saltada.');
+
+        // Remove finished song from the queue.
+        serverQueue = serverQueues.get(guildId);
+        serverQueue.songQueue.shift();
         // Check if there is another song to play.
         if (serverQueue.songQueue.length >= 1) {
             // Generate stream.
             const { stream } = await getStream(currentSong);
-            const metadata = await getMetadata(currentSong.url, 'ytvideo');
             // Create the audio player.
             resource = createAudioResource(stream as any);
-            serverQueue.player.play(resource);
+            player.play(resource);
 
-            // Subscribe to the player.
-            subscription = connection!.subscribe(serverQueue.player) as PlayerSubscription;
-
-            songEmbed
-                .setColor(config.embeds.main as ColorResolvable)
-                .setTitle(metadata.title)
-                .setURL(currentSong.url)
-                .setAuthor({ name: "Ahora Suena ♪", iconURL: 'https://media1.tenor.com/images/6bccf62f1691173159c35373068551c2/tenor.gif?itemid=26309669' })
-                .setDescription(`\`[0:00 / ${metadata.durationTimestamp}]\``)
-                .setThumbnail(metadata.thumbnail)
-                .setFooter({ text: `Pedida por ${currentSong.requester.tag}`, iconURL: currentSong.requester.displayAvatarURL({ forceStatic: false }) })
-            channel.send({ embeds: [songEmbed] });
-
-        } else {
-            serverQueue.songQueue = [];
         }
     })
 }
 
-async function getMetadata(request: any, type: string) {
-    let title;
-    let thumbnail;
-    let url;
-    let embedTitle;
-    let embedDescription;
-    let durationTimestamp;
+async function getMetadata(request: string, type: string) {
+    let title = null;
+    let thumbnail = null;
+    let url = null;
+    let embedTitle = null;
+    let embedDescription = null;
+    let durationSec = null;
+    let durationTimestamp = null;
+    let playlist = null;
     switch (type.toLocaleLowerCase()) {
         case 'ytvideo':
             // Get video metadata.
@@ -322,9 +289,9 @@ async function getMetadata(request: any, type: string) {
             title = info.videoDetails.title;
             url = request;
             thumbnail = info.videoDetails.thumbnails[3].url;
-            const durationSec = parseInt(info.videoDetails.lengthSeconds);
+            durationSec = parseInt(info.videoDetails.lengthSeconds);
 
-            if (durationSec < 3600) {
+            if (parseInt(info.videoDetails.lengthSeconds) < 3600) {
                 durationTimestamp = new Date(durationSec * 1000).toISOString().slice(14, 19);
             } else {
                 durationTimestamp = new Date(durationSec * 1000).toISOString().slice(11, 19);
@@ -335,15 +302,18 @@ async function getMetadata(request: any, type: string) {
             break;
         case 'ytplaylist':
             // Get playlist metadata.
-            title = request.title;
-            url = request.url;
-            thumbnail = request.bestThumbnail.url;
-            const itemCount = request.items.length;
+            const playlistId = await ytpl.getPlaylistID(request);
+            playlist = await ytpl(playlistId, { limit: Infinity });
+            title = playlist.title;
+            url = playlist.url;
+            thumbnail = playlist.bestThumbnail.url;
+            const itemCount = playlist.items.length;
+            durationTimestamp = playlist.items[0].duration;
 
             embedTitle = 'En cola ♪'
             embedDescription = `¡La playlist 🎧 fue añadida con \`${itemCount}\` canciones!`;
             break;
     }
 
-    return { title, url, durationTimestamp, thumbnail, embedTitle, embedDescription };
+    return { title, url, durationTimestamp, thumbnail, embedTitle, embedDescription, playlist };
 }
