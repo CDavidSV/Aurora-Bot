@@ -101,14 +101,10 @@ export default {
             }
             // Generate stream depending on the source.
             let currentSong = serverQueue.songQueue[0];
-            console.log(3);
             const { stream } = await getStream(currentSong);
             // Create the audio source and play it.
-            console.log(4);
             let resource = createAudioResource(stream as any);
-            console.log(5);
             player.play(resource);
-            console.log(6);
             playManager(client, guildId, serverQueue);
         } else { // Add the requested song or playlist in queue.
             if (serverQueue.songQueue.length < 1) {
