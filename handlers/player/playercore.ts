@@ -51,7 +51,6 @@ export default {
                     songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
                 }
             } else {
-                console.log(1);
                 metadata = await getMetadata(song, 'ytvideo');
                 songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
             }
@@ -242,6 +241,7 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
     })
 
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
+        serverQueue = serverQueues.get(guildId);
         try {
             await Promise.race([
                 entersState(connection, VoiceConnectionStatus.Signalling, 1000),
@@ -249,7 +249,7 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
             ])
         } catch (error) {
             player.stop();
-            subscription.unsubscribe();
+            serverQueue.subscription.unsubscribe();
             serverQueues.delete(guildId);
             if (connection!.state.status !== 'destroyed') {
                 connection!.destroy();
@@ -267,7 +267,6 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
     //Log Errors.
     player.on('error', async (err: any) => {
         channel.send('Se produjo un error inesperado al reproducir esta pista. Pista saltada.');
-        console.log(err);
         // Remove finished song from the queue.
         serverQueue = serverQueues.get(guildId);
         serverQueue.songQueue.shift();
@@ -294,8 +293,6 @@ async function getMetadata(request: string, type: string) {
     let playlist = null;
     switch (type) {
         case 'ytvideo':
-            console.log(2);
-            console.log(request);
             // Get video metadata.
             const info = await ytdl.getInfo(request);
             title = info.videoDetails.title;
