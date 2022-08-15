@@ -1,8 +1,4 @@
-import { client } from '../index';
 import getFiles from '../handlers/get-files';
-import config from '../config.json';
-import mongo from '../mongoDB/mongo';
-import { Message, EmbedBuilder, ColorResolvable, ChannelType } from 'discord.js';
 
 export default {
     getCommands() {
