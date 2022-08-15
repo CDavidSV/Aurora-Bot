@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0v",
+    "version": "v1.0.0",
     "globalPrefix": "ma!",
     "mongoPath": "mongodb://localhost:27017/marin-bot",
     "embeds": {

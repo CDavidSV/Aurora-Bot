@@ -19,12 +19,11 @@ const client = new Client({
 });
 
 let commands: { aliases: string[], execute: any }[];
-let events;
 
 // -------------------------------------------------------
 // -------------------- EVENT HANDLER --------------------
 // -------------------------------------------------------
-events = eventHandler.getEvents();
+eventHandler.getEvents();
 
 // -------------------------------------------------------
 // ------------------- COMMAND HANDLER -------------------
@@ -40,4 +39,3 @@ commands = commandHandler.getCommands();
 client.login(process.env.TOKEN);
 
 export { client, commands };
-
