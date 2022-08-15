@@ -1,9 +1,10 @@
 // Change the server's prefix.
 
 import mongo from '../../mongoDB/mongo';
-import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
 import config from '../../config.json';
 const prefixScheema = require('../../mongoDB/schemas/prefix-scheema');
+import prefixHandler from '../../handlers/prefix-handler';
 
 export default {
     aliases: ['setprefix'],
@@ -48,6 +49,7 @@ export default {
                 }, {
                     upsert: true
                 })
+                prefixHandler.updateGuildPrefix(guildId, args[1]);
                 setPrefixEmbed
                     .setColor(config.embeds.successColor as ColorResolvable)
                     .setAuthor({ name: `El prefijo del servidor se cambió a ${args[1]}`, iconURL: 'attachment://success-icon.png' })

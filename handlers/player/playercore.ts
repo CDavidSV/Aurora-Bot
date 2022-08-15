@@ -2,15 +2,13 @@
 
 import config from '../../config.json';
 import { Client, Message, EmbedBuilder, ColorResolvable, User, TextChannel } from 'discord.js';
-import { createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState, getVoiceConnection, AudioPlayer, PlayerSubscription, AudioResource } from '@discordjs/voice';
+import { createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState, getVoiceConnection, PlayerSubscription } from '@discordjs/voice';
 import ytdl, { downloadOptions } from 'ytdl-core';
 import ytsr from 'ytsr';
 import ytpl from 'ytpl';
-import { Connection } from 'mongoose';
 
 // serverQueues{guildId, queueConstructor{}}
 const serverQueues = new Map();
-const songEmbed = new EmbedBuilder();
 
 export default {
     // Plays the requested song in the designate voice channel.
@@ -32,8 +30,8 @@ export default {
         // Working on it... Still don't know how.
 
         // find the source based on the users request (can be either a link or search query).
-        let songQueue: { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[] = [];
-        let metadata: { title: string | null; url: string | null; durationTimestamp: string | null; thumbnail: string | null; embedTitle: string | null; embedDescription: string | null; playlist: ytpl.Result | null };
+        let newSongQueue: { type: string, title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, requester: User }[] = [];
+        let metadata: { title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, playlist: ytpl.Result | null };
         const requester = message.member!.user;
 
         if (YTVideoRegex.test(song) || YTPlaylistRegex.test(song) || YTMixRegex.test(song)) {
@@ -43,16 +41,16 @@ export default {
                     metadata = await getMetadata(song, 'ytplaylist');
                     const playlist = metadata.playlist!;
                     for (let item = 0; item < playlist.items.length; item++) {
-                        songQueue.push({ type: 'youtube', title: playlist.items[item].title, url: playlist.items[item].url, durationTimestamp: playlist.items[item].duration, thumbnail: playlist.items[item].bestThumbnail.url, requester: requester });
+                        newSongQueue.push({ type: 'youtube', title: playlist.items[item].title, url: playlist.items[item].url, durationTimestamp: playlist.items[item].duration, thumbnail: playlist.items[item].bestThumbnail.url, requester: requester });
                     }
                 } catch {
                     // Could not find the playlist (Mixes not yet supported).
                     metadata = await getMetadata(song, 'ytvideo');
-                    songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
+                    newSongQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
                 }
             } else {
                 metadata = await getMetadata(song, 'ytvideo');
-                songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
+                newSongQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
             }
         } else if (spotifySongRegex.test(song)) {
             message.channel.send('Lo siento, pero todavia no soportamos spotify.');
@@ -61,77 +59,78 @@ export default {
             message.channel.send('Lo siento, pero todavia no soportamos spotify.');
             return;
         } else {
-            const search = await ytsr(song, { limit: 1 }) as any;
-            if (search.items.length < 1) {
+            const search = await ytsr(song, { limit: 3 }) as any;
+            let item = 0;
+            song = search.items[item].url;
+            while (search.items[item].type === 'playlist' || search.items[item].type === 'movie' && item < 2) {
+                item++;
+                song = search.items[item].url;
+            }
+            if (search.items.length < 1 || search.items[item].type === 'playlist' || search.items[item].type === 'movie') {
                 message.channel.send('No se han encontrado resultados. Prueba diferentes palabras clave o revisa el enlace ingresado.');
                 return;
             }
-            song = search.items[0].url;
             metadata = await getMetadata(song, 'ytvideo');
-            songQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
+            newSongQueue.push({ type: 'youtube', title: metadata.title, url: song, durationTimestamp: metadata.durationTimestamp, thumbnail: metadata.thumbnail, requester: requester });
         }
 
         // Check if a queue exists for that server. If not, then generate one.
         const guildId = message.guildId!;
         let serverQueue = serverQueues.get(guildId);
+        let subscription: PlayerSubscription;
         if (!serverQueue) {
             const connection = getVoiceConnection(guildId)!;
             const player = createAudioPlayer();
-            let subscription = connection.subscribe(player) as PlayerSubscription;
+            subscription = connection.subscribe(player) as PlayerSubscription;
+
             const queueConstructor = {
                 guildId: guildId,
                 textChannelId: message.channelId,
                 subscription: subscription,
-                songQueue: songQueue as { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[]
+                songQueue: newSongQueue as { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[]
             }
             serverQueues.set(guildId, queueConstructor);
-            serverQueue = serverQueues.get(guildId);
 
-            if (serverQueue.songQueue.length > 1) {
-                songEmbed
-                    .setColor(config.embeds.defaultColor as ColorResolvable)
-                    .setTitle(metadata.title)
-                    .setURL(metadata.url)
-                    .setAuthor({ name: metadata.embedTitle as string })
-                    .setDescription(metadata.embedDescription as string)
-                    .setThumbnail(metadata.thumbnail)
-                    .setFooter({ text: `Pedida por ${serverQueue.songQueue[0].requester.tag}`, iconURL: serverQueue.songQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
-                message.channel.send({ embeds: [songEmbed] });
-            }
             // Generate stream depending on the source.
-            let currentSong = serverQueue.songQueue[0];
-            const { stream } = await getStream(currentSong);
+            let currentSong = newSongQueue[0];
+            const stream = await getStream(currentSong);
             // Create the audio source and play it.
             let resource = createAudioResource(stream as any);
             player.play(resource);
-            playManager(client, guildId, serverQueue);
+            eventManager(client, guildId, queueConstructor);
+            return;
         } else { // Add the requested song or playlist in queue.
+            subscription = serverQueue.subscription;
+            serverQueue.songQueue.push(...newSongQueue);
             if (serverQueue.songQueue.length < 1) {
-                serverQueue.songQueue.push(...songQueue);
-
-                // Generate stream depending on the source.
-                const player = serverQueue.subscription.player;
+                const player = subscription.player;
                 let currentSong = serverQueue.songQueue[0];
-                const { stream } = await getStream(currentSong);
-
-                // Create the audio source and play it.
+                const stream = await getStream(currentSong);
                 let resource = createAudioResource(stream as any);
                 player.play(resource);
-                return;
             }
-            serverQueue.songQueue.push(...songQueue);
-            songEmbed
-                .setColor(config.embeds.defaultColor2 as ColorResolvable)
-                .setTitle(metadata.title)
-                .setURL(metadata.url)
-                .setAuthor({ name: metadata.embedTitle as string })
-                .setDescription(metadata.embedDescription as string)
-                .setThumbnail(metadata.thumbnail)
-                .setFooter({ text: `Pedida por ${serverQueue.songQueue[0].requester.tag}`, iconURL: serverQueue.songQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
-            message.channel.send({ embeds: [songEmbed] });
-            return;
+            if (newSongQueue.length === 1) {
+                const songEmbed = new EmbedBuilder()
+                    .setColor(config.embeds.defaultColor2 as ColorResolvable)
+                    .setTitle(metadata.title)
+                    .setURL(metadata.url)
+                    .setAuthor({ name: 'Canción añadida a la cola ♪' })
+                    .setThumbnail(metadata.thumbnail)
+                    .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
+                message.channel.send({ embeds: [songEmbed] });
+            } else {
+                const songEmbed = new EmbedBuilder()
+                    .setColor(config.embeds.defaultColor2 as ColorResolvable)
+                    .setTitle(metadata.title)
+                    .setURL(metadata.url)
+                    .setAuthor({ name: 'En cola ♪' })
+                    .setDescription(`¡La playlist 🎧 fue añadida con \`${newSongQueue.length}\` canciones!`)
+                    .setThumbnail(metadata.thumbnail)
+                    .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
+                message.channel.send({ embeds: [songEmbed] });
+            }
         }
-
+        serverQueues.set(guildId, serverQueue);
     },
 
     // Pauses the player for the selected guild.
@@ -157,15 +156,8 @@ export default {
 
     remove(guildId: string, index: number) {
         const serverQueue = serverQueues.get(guildId)
-        const newSongQueue = serverQueue.songQueue.splice(index, 1);
-        const queueConstructor = {
-            guildId: guildId,
-            textChannelId: serverQueue.channelId,
-            subscription: serverQueue.subscription,
-            songQueue: newSongQueue as { type: string, title: string | null, url: string | null; durationTimestamp: string | null; thumbnail: string | null, requester: User }[]
-        }
-
-        serverQueues.set(guildId, queueConstructor);
+        serverQueue.songQueue.splice(index, 1);
+        serverQueues.set(guildId, serverQueue);
         return;
     },
 
@@ -173,10 +165,8 @@ export default {
     getServerQueue(guildId: string) {
         const serverQueue = serverQueues.get(guildId);
         const queue = serverQueue.songQueue;
-
         return { queue };
     }
-
 }
 
 async function getStream(currentSong: any) {
@@ -191,19 +181,15 @@ async function getStream(currentSong: any) {
             stream = ytdl(currentSong.url, optionsNormal);
             break;
     }
-
-    return { stream }
+    return stream
 }
 
-async function playManager(client: Client, guildId: string, serverQueue: any) {
+async function eventManager(client: Client, guildId: string, serverQueue: any) {
     // Get connection, player and text channel id for that given guild.
     const connection = getVoiceConnection(guildId)!;
     const player = serverQueue.subscription.player;
 
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
-    let currentSong: any;
-    let subscription: PlayerSubscription;
-    let resource: AudioResource;
 
     // -----------------------------------------------------
     // ---------------------- EVENTS -----------------------
@@ -211,9 +197,9 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
 
     player.on(AudioPlayerStatus.Playing, () => {
         serverQueue = serverQueues.get(guildId);
-        currentSong = serverQueue.songQueue[0];
+        let currentSong = serverQueue.songQueue[0];
 
-        songEmbed
+        const songEmbed = new EmbedBuilder()
             .setColor(config.embeds.main as ColorResolvable)
             .setTitle(currentSong.title)
             .setURL(currentSong.url)
@@ -228,14 +214,13 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
         // Remove finished song from the queue.
         serverQueue = serverQueues.get(guildId);
         serverQueue.songQueue.shift();
-
         // Check if there is another song to play.
         if (serverQueue.songQueue.length >= 1) {
             // Generate stream.
-            currentSong = serverQueue.songQueue[0];
-            const { stream } = await getStream(currentSong);
+            let currentSong = serverQueue.songQueue[0];
+            const stream = await getStream(currentSong);
             // Create the audio player.
-            resource = createAudioResource(stream as any);
+            let resource = createAudioResource(stream as any);
             player.play(resource);
         }
     })
@@ -264,20 +249,21 @@ async function playManager(client: Client, guildId: string, serverQueue: any) {
         }
     })
 
-    //Log Errors.
+    // In case the track can't be played or returns and error.
     player.on('error', async (err: any) => {
-        channel.send('Se produjo un error inesperado al reproducir esta pista. Pista saltada.');
-        // Remove finished song from the queue.
+        channel.send('Se produjo un error inesperado al reproducir esta canción. Pista saltada.');
+        // Remove song from the queue.
         serverQueue = serverQueues.get(guildId);
         serverQueue.songQueue.shift();
+
         // Check if there is another song to play.
         if (serverQueue.songQueue.length >= 1) {
             // Generate stream.
-            const { stream } = await getStream(currentSong);
+            let currentSong = serverQueue.songQueue[0];
+            const stream = await getStream(currentSong);
             // Create the audio player.
-            resource = createAudioResource(stream as any);
+            let resource = createAudioResource(stream as any);
             player.play(resource);
-
         }
     })
 }
@@ -286,8 +272,6 @@ async function getMetadata(request: string, type: string) {
     let title = null;
     let thumbnail = null;
     let url = null;
-    let embedTitle = null;
-    let embedDescription = null;
     let durationSec = null;
     let durationTimestamp = null;
     let playlist = null;
@@ -305,9 +289,6 @@ async function getMetadata(request: string, type: string) {
             } else {
                 durationTimestamp = new Date(durationSec * 1000).toISOString().slice(11, 19);
             }
-
-            embedTitle = 'Canción añadida a la cola ♪';
-            embedDescription = `\`[0:00 / ${durationTimestamp}]\``;
             break;
         case 'ytplaylist':
             // Get playlist metadata.
@@ -316,13 +297,8 @@ async function getMetadata(request: string, type: string) {
             title = playlist.title;
             url = playlist.url;
             thumbnail = playlist.bestThumbnail.url;
-            const itemCount = playlist.items.length;
             durationTimestamp = playlist.items[0].duration;
-
-            embedTitle = 'En cola ♪'
-            embedDescription = `¡La playlist 🎧 fue añadida con \`${itemCount}\` canciones!`;
             break;
     }
-
-    return { title, url, durationTimestamp, thumbnail, embedTitle, embedDescription, playlist };
+    return { title, url, durationTimestamp, thumbnail, playlist };
 }

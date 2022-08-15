@@ -14,13 +14,11 @@ export default {
             try {
                 const guildId = message.guildId;
                 const ServerPrefix = await prefixScheema.findOne({ _id: guildId });
-                if(!ServerPrefix) {
+                if (!ServerPrefix) {
                     message.reply('Este servidor no tiene un prefijo. \n`Intenta: ma!setprefix <prefijo>`');
                 } else {
                     message.reply(`El prefijo para este servidor es: \`${ServerPrefix.prefix}\``);
                 }
-
-                console.log(ServerPrefix);
             } finally {
                 mongoose.connection.close();
             }
