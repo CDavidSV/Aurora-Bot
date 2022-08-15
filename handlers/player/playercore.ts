@@ -101,15 +101,14 @@ export default {
             return;
         } else { // Add the requested song or playlist in queue.
             subscription = serverQueue.subscription;
-            serverQueue.songQueue.push(...newSongQueue);
             if (serverQueue.songQueue.length < 1) {
                 const player = subscription.player;
-                let currentSong = serverQueue.songQueue[0];
+                let currentSong = newSongQueue[0];
                 const stream = await getStream(currentSong);
                 let resource = createAudioResource(stream as any);
+                serverQueue.songQueue.push(...newSongQueue);
                 player.play(resource);
-            }
-            if (newSongQueue.length === 1) {
+            } else if (newSongQueue.length === 1) {
                 const songEmbed = new EmbedBuilder()
                     .setColor(config.embeds.defaultColor2 as ColorResolvable)
                     .setTitle(metadata.title)
@@ -118,6 +117,7 @@ export default {
                     .setThumbnail(metadata.thumbnail)
                     .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
                 message.channel.send({ embeds: [songEmbed] });
+                serverQueue.songQueue.push(...newSongQueue);
             } else {
                 const songEmbed = new EmbedBuilder()
                     .setColor(config.embeds.defaultColor2 as ColorResolvable)
@@ -128,6 +128,7 @@ export default {
                     .setThumbnail(metadata.thumbnail)
                     .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
                 message.channel.send({ embeds: [songEmbed] });
+                serverQueue.songQueue.push(...newSongQueue);
             }
         }
         serverQueues.set(guildId, serverQueue);
@@ -223,6 +224,8 @@ async function eventManager(client: Client, guildId: string, serverQueue: any) {
             let resource = createAudioResource(stream as any);
             player.play(resource);
         }
+
+        serverQueues.set(guildId, serverQueue);
     })
 
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
