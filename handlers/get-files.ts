@@ -19,7 +19,7 @@ const getFiles = (dir: string, suffix: string, handler: string): string[] => {
 
         } else if (file.name.endsWith(suffix)) { // path is a script file.
             Files.push(`${dir}/${file.name}`);
-            console.log(`[GET-FILES][${handler.toUpperCase()} HANDLER] - File ${file.name} was loaded sucessfully.`);
+            console.log(`[GET-FILES][${handler.toUpperCase()} HANDLER] - File ${file.name} was loaded successfully.`);
         }
     }
 

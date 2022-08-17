@@ -97,28 +97,7 @@ export default {
             // Create the audio source and play it.
             let resource = createAudioResource(stream as any);
             player.play(resource);
-            eventManager(client, guildId, queueConstructor);
-            return;
-        } else { // Add the requested song or playlist in queue.
-            subscription = serverQueue.subscription;
-            if (serverQueue.songQueue.length < 1) {
-                const player = subscription.player;
-                let currentSong = newSongQueue[0];
-                const stream = await getStream(currentSong);
-                let resource = createAudioResource(stream as any);
-                serverQueue.songQueue.push(...newSongQueue);
-                player.play(resource);
-            } else if (newSongQueue.length === 1) {
-                const songEmbed = new EmbedBuilder()
-                    .setColor(config.embeds.defaultColor2 as ColorResolvable)
-                    .setTitle(metadata.title)
-                    .setURL(metadata.url)
-                    .setAuthor({ name: 'Canción añadida a la cola ♪' })
-                    .setThumbnail(metadata.thumbnail)
-                    .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
-                message.channel.send({ embeds: [songEmbed] });
-                serverQueue.songQueue.push(...newSongQueue);
-            } else {
+            if (newSongQueue.length > 1) {
                 const songEmbed = new EmbedBuilder()
                     .setColor(config.embeds.defaultColor2 as ColorResolvable)
                     .setTitle(metadata.title)
@@ -128,9 +107,52 @@ export default {
                     .setThumbnail(metadata.thumbnail)
                     .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
                 message.channel.send({ embeds: [songEmbed] });
-                serverQueue.songQueue.push(...newSongQueue);
+            }
+            eventManager(client, guildId, queueConstructor);
+            return;
+        } else { // Add the requested song or playlist in queue.
+            subscription = serverQueue.subscription;
+            if (serverQueue.songQueue.length < 1) {
+                const player = subscription.player;
+                let currentSong = newSongQueue[0];
+                const stream = await getStream(currentSong);
+                let resource = createAudioResource(stream as any);
+                player.play(resource);
+                if (newSongQueue.length > 1) {
+                    const songEmbed = new EmbedBuilder()
+                        .setColor(config.embeds.defaultColor2 as ColorResolvable)
+                        .setTitle(metadata.title)
+                        .setURL(metadata.url)
+                        .setAuthor({ name: 'En cola ♪' })
+                        .setDescription(`¡La playlist 🎧 fue añadida con \`${newSongQueue.length}\` canciones!`)
+                        .setThumbnail(metadata.thumbnail)
+                        .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
+                    message.channel.send({ embeds: [songEmbed] });
+                }
+            } else {
+                if (newSongQueue.length > 1) {
+                    const songEmbed = new EmbedBuilder()
+                        .setColor(config.embeds.defaultColor2 as ColorResolvable)
+                        .setTitle(metadata.title)
+                        .setURL(metadata.url)
+                        .setAuthor({ name: 'En cola ♪' })
+                        .setDescription(`¡La playlist 🎧 fue añadida con \`${newSongQueue.length}\` canciones!`)
+                        .setThumbnail(metadata.thumbnail)
+                        .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
+                    message.channel.send({ embeds: [songEmbed] });
+                } else {
+                    const songEmbed = new EmbedBuilder()
+                        .setColor(config.embeds.defaultColor2 as ColorResolvable)
+                        .setTitle(metadata.title)
+                        .setURL(metadata.url)
+                        .setAuthor({ name: 'Canción añadida a la cola ♪' })
+                        .setThumbnail(metadata.thumbnail)
+                        .setFooter({ text: `Pedida por ${newSongQueue[0].requester.tag}`, iconURL: newSongQueue[0].requester.displayAvatarURL({ forceStatic: false }) })
+                    message.channel.send({ embeds: [songEmbed] });
+                }
             }
         }
+        serverQueue.songQueue.push(...newSongQueue);
         serverQueues.set(guildId, serverQueue);
     },
 
@@ -254,7 +276,7 @@ async function eventManager(client: Client, guildId: string, serverQueue: any) {
 
     // In case the track can't be played or returns and error.
     player.on('error', async (err: any) => {
-        channel.send('Se produjo un error inesperado al reproducir esta canción. Pista saltada.');
+        channel.send('❌ Se produjo un error inesperado al reproducir esta canción. Pista saltada.');
         // Remove song from the queue.
         serverQueue = serverQueues.get(guildId);
         serverQueue.songQueue.shift();
