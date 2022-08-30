@@ -375,7 +375,7 @@ export default {
     // Returns the song queue for that particular guild.
     async getServerQueue(guildId: string) {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
-        const queue = await serverQueue.getSongQueue();
-        return { queue };
+        const queue = await serverQueue.getSongQueue() as Song[];
+        return queue;
     }
 }
