@@ -1,15 +1,8 @@
 // Command to play a requested song.
 
-import config from '../../config.json';
 import { Client, Message } from 'discord.js';
-import playercore from '../../handlers/player/playercore';
+import playercore from '../../player/playercore';
 import { getVoiceConnection, joinVoiceChannel, DiscordGatewayAdapterCreator } from '@discordjs/voice';
-
-// Queue for songs.
-let queue: { title: string, duration: string, url: string, thumbnail: string }[] = [];
-
-// queue(guildId, queueConstructor object {voice channel, text channel, connection, songQueue[ { url: string, requester: string } ]})
-// const queue = new Map();
 
 export default {
     aliases: ['play', 'p'],
@@ -34,7 +27,7 @@ export default {
         // Get the requested song(s) from args.
         const song = args.slice(1).toString().replace(/,/g, " ");
 
-        // Check if there is a vocice connection.
+        // Check if there is a voice connection.
         if (!getVoiceConnection(message.guildId!)) {
             // Join voice channel.
             joinVoiceChannel({
@@ -47,4 +40,3 @@ export default {
         playercore.play(client, message, song);
     }
 }
-

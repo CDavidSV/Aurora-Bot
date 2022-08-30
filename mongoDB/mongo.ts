@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 import config from '../config.json';
 
-export default async function () {
-    await mongoose.connect(config.mongoPath);
-    return mongoose;
+export default {
+    connect() {
+        mongoose.connect(config.mongoPath);
+        console.log('Successfully connected to mongo');
+    },
 }

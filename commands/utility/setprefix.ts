@@ -1,6 +1,5 @@
 // Change the server's prefix.
 
-import mongo from '../../mongoDB/mongo';
 import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
 import config from '../../config.json';
 const prefixScheema = require('../../mongoDB/schemas/prefix-scheema');
@@ -38,25 +37,21 @@ export default {
             return;
         }
 
-        await mongo().then(async mongoose => {
-            try {
-                const guildId = message.guild!.id;
-                await prefixScheema.findOneAndUpdate({
-                    _id: guildId
-                }, {
-                    _id: guildId,
-                    prefix: args[1]
-                }, {
-                    upsert: true
-                })
-                prefixHandler.updateGuildPrefix(guildId, args[1]);
-                setPrefixEmbed
-                    .setColor(config.embeds.successColor as ColorResolvable)
-                    .setAuthor({ name: `El prefijo del servidor se cambió a ${args[1]}`, iconURL: 'attachment://success-icon.png' })
-                message.reply({ embeds: [setPrefixEmbed], files: [successImg] });
-            } finally {
-                mongoose.connection.close();
-            }
+
+        const guildId = message.guild!.id;
+        await prefixScheema.findOneAndUpdate({
+            _id: guildId
+        }, {
+            _id: guildId,
+            prefix: args[1]
+        }, {
+            upsert: true
         })
+        prefixHandler.updateGuildPrefix(guildId, args[1]);
+        setPrefixEmbed
+            .setColor(config.embeds.successColor as ColorResolvable)
+            .setAuthor({ name: `El prefijo del servidor se cambió a ${args[1]}`, iconURL: 'attachment://success-icon.png' })
+        message.reply({ embeds: [setPrefixEmbed], files: [successImg] });
+
     }
 }

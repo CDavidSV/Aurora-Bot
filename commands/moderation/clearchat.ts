@@ -9,19 +9,19 @@ export default {
         args = args.map(arg => arg.toLowerCase());
 
         const clearEmbed = new EmbedBuilder();
-        const errorImg = new AttachmentBuilder(config.embeds.errorImg);
+        const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
 
         // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
         if (!message.member!.permissions.has([PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.ManageMessages])) {
             clearEmbed
-                .setColor(config.embeds.errorColor as ColorResolvable)
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })
             message.reply({ embeds: [clearEmbed], files: [errorImg] });
             return;
         }
         if (message.channel.type !== ChannelType.GuildText) {
             clearEmbed
-                .setColor(config.embeds.errorColor as ColorResolvable)
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No puedes eliminar mensajes en canales que no sean de texto.', iconURL: 'attachment://error-icon.png' })
                 .setDescription(`Intenta ingresando: \`${prefix}clearchat <miembro(opcional)> <cantidad> \``)
             message.reply({ embeds: [clearEmbed], files: [errorImg] });
@@ -36,7 +36,7 @@ export default {
         // Verify that a quantity is specified.
         if (isNaN(totalLimit) || totalLimit < 1 || totalLimit > 1001) {
             clearEmbed
-                .setColor(config.embeds.errorColor as ColorResolvable)
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'Necesitas especificar la cantidad de mensajes entre 1 y 1000', iconURL: 'attachment://error-icon.png' })
                 .setDescription(`Intenta ingresando: \`${prefix}clearchat <miembro(opcional)> <cantidad> \``)
             message.reply({ embeds: [clearEmbed], files: [errorImg] });
@@ -46,7 +46,7 @@ export default {
             member = message.guild!.members.cache.get(args[1].replace(/[<@!&>]/g, '')) || message.guild!.members.cache.get(args[2].replace(/[<@!&>]/g, ''));
             if (member === undefined) {
                 clearEmbed
-                    .setColor(config.embeds.errorColor as ColorResolvable)
+                    .setColor(config.embeds.colors.errorColor as ColorResolvable)
                     .setAuthor({ name: 'El rol o usuario no existe. Intenta mencionarlos.', iconURL: 'attachment://error-icon.png' })
                     .setDescription(`Intenta ingresando: \`${prefix}clearchat <miembro(opcional)> <cantidad> \``)
                 message.reply({ embeds: [clearEmbed], files: [errorImg] });
@@ -55,7 +55,7 @@ export default {
         }
         if (!message.guild!.members.me!.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
             clearEmbed
-                .setColor(config.embeds.errorColor as ColorResolvable)
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
             message.reply({ embeds: [clearEmbed], files: [errorImg] });
             return;

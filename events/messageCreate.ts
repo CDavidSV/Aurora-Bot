@@ -6,7 +6,7 @@ import prefixHandler from '../handlers/prefix-handler';
 const globalPrefix = config.globalPrefix;
 
 // Error image.
-const file = new AttachmentBuilder(config.embeds.errorImg);
+const file = new AttachmentBuilder(config.embeds.images.errorImg);
 
 client.on('messageCreate', async (message: Message) => {
     // Get all guild prefixes.
@@ -34,7 +34,7 @@ client.on('messageCreate', async (message: Message) => {
         command.execute(client, message, prefix, ...args); // Executes command.
     } catch (error) { // On Error (Avoids Entire bot from crashing).
         const unexpectedError = new EmbedBuilder()
-            .setColor(config.embeds.errorColor as ColorResolvable)
+            .setColor(config.embeds.colors.errorColor as ColorResolvable)
             .setAuthor({ name: 'Error Inesperado.', iconURL: 'attachment://error-icon.png' })
         message.reply({ embeds: [unexpectedError], files: [file] });
         console.log(error);

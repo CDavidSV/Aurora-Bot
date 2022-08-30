@@ -1,7 +1,7 @@
 // Resumes song playback.
 
 import { Client, Message } from 'discord.js';
-import playercore from '../../handlers/player/playercore';
+import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
 export default {

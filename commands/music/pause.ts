@@ -1,7 +1,7 @@
 // Command to pause current song if there is a player.
 
 import { Client, Message } from 'discord.js';
-import playercore from '../../handlers/player/playercore';
+import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
 export default {
