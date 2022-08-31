@@ -1,4 +1,4 @@
-import { User, EmbedBuilder, ColorResolvable, TextChannel } from 'discord.js';
+import { EmbedBuilder, ColorResolvable, TextChannel } from 'discord.js';
 import config from '../config.json';
 
 export default class Song {
@@ -9,18 +9,16 @@ export default class Song {
     public durationTimestamp: string | null;
     public thumbnail: string | null;
     public requester: { tag: string | undefined; avatar: string | undefined; } = { tag: undefined, avatar: undefined };
-    public loop: boolean;
 
     // Constructor.
-    constructor(type: string, title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, requester: User, loop: boolean) {
+    constructor(type: string, title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, requester: { tag: string | undefined, avatar: string | undefined }) {
         this.type = type;
         this.title = title;
         this.url = url;
         this.durationTimestamp = durationTimestamp;
         this.thumbnail = thumbnail;
         this.requester.tag = requester.tag;
-        this.requester.avatar = requester.displayAvatarURL({ forceStatic: false });
-        this.loop = loop;
+        this.requester.avatar = requester.avatar;
     }
 
     // Methods.

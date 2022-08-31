@@ -1,7 +1,5 @@
-import { User, EmbedBuilder, ColorResolvable, TextChannel } from 'discord.js';
 import { PlayerSubscription } from '@discordjs/voice';
 import Song from './Song';
-import config from '../config.json';
 const queueScheema = require("../mongoDB/schemas/queue-scheema");
 
 export default class ServerQueue {
@@ -9,12 +7,16 @@ export default class ServerQueue {
     public guildId: string;
     public textChannelId: string;
     public subscription: PlayerSubscription;
+    public playing: boolean;
+    public loop: boolean;
 
     // Constructor.
-    constructor(guildId: string, textChannelId: string, subscription: PlayerSubscription) {
+    constructor(guildId: string, textChannelId: string, subscription: PlayerSubscription, playing: boolean, loop: boolean) {
         this.guildId = guildId;
         this.textChannelId = textChannelId;
         this.subscription = subscription;
+        this.playing = playing;
+        this.loop = loop;
     }
 
     // Methods.
@@ -33,10 +35,15 @@ export default class ServerQueue {
 
     // Returns the current song queue for that server.
     async getSongQueue() {
-        return await queueScheema.findOne({ _id: this.guildId }).songQueue as Song[];
+        const serverQueue = await queueScheema.findOne({ _id: this.guildId });
+        let queue: Song[] = []
+        serverQueue.songQueue.forEach((element: Song) => {
+            queue.push(new Song(element.type, element.title, element.url, element.durationTimestamp, element.thumbnail, element.requester));
+        });
+        return queue;
     }
 
     async dropSongQueue() {
-        queueScheema.deleteOne({ _id: this.guildId });
+        await queueScheema.deleteOne({ _id: this.guildId });
     }
 }

@@ -13,7 +13,7 @@ export default {
             pingEmbed
                 .setAuthor({ name: 'Marin Bot', iconURL: client.user!.avatarURL()! })
                 .setDescription('🏓Pong!')
-                .setColor(config.embeds.main as ColorResolvable)
+                .setColor(config.embeds.colors.main as ColorResolvable)
                 .addFields(
                     { name: 'Bot Latency: ', value: `\`${ping}ms\`` },
                     { name: 'API Latency: ', value: `\`${client.ws.ping}ms\`` }

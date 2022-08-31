@@ -37,6 +37,6 @@ export default {
             })
         }
 
-        playercore.play(client, message, song);
+        playercore.play(message, song);
     }
 }

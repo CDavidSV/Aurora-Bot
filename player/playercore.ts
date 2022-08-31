@@ -1,7 +1,7 @@
 // Handler for playing music in a voice channel.
 
 import config from '../config.json';
-import { Client, Message, EmbedBuilder, ColorResolvable, User, TextChannel } from 'discord.js';
+import { Message, EmbedBuilder, ColorResolvable, TextChannel } from 'discord.js';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState, getVoiceConnection, PlayerSubscription } from '@discordjs/voice';
 import ytdl, { downloadOptions } from 'ytdl-core';
 import ytsr from 'ytsr';
@@ -22,9 +22,8 @@ async function eventManager(guildId: string, serverQueue: SongQueue) {
 
     player.on(AudioPlayerStatus.Playing, async () => {
         serverQueue = serverQueues.get(guildId);
-        const SongQueue = await serverQueue.getSongQueue();
-
-        SongQueue[0].displayCurrentSong(channel);
+        const songQueue = await serverQueue.getSongQueue() as Song[];
+        songQueue[0].displayCurrentSong(channel);
     })
 
     player.on(AudioPlayerStatus.Idle, async () => {
@@ -33,7 +32,7 @@ async function eventManager(guildId: string, serverQueue: SongQueue) {
         const songQueue = await serverQueue.getSongQueue();
 
         // Loop the song.
-        if (songQueue[0].loop === false) {
+        if (serverQueue.loop === false) {
             songQueue.shift();
         }
 
@@ -44,7 +43,11 @@ async function eventManager(guildId: string, serverQueue: SongQueue) {
             // Create the audio player.
             let resource = createAudioResource(stream as any);
             player.play(resource);
+        } else {
+            serverQueue.loop = false;
+            serverQueues.set(guildId, serverQueue);
         }
+
         serverQueue.updateSongQueue(songQueue);
     })
 
@@ -158,11 +161,15 @@ async function getMetadataFromSearchQuery(query: string) {
     let item = 0;
     let song = search.items[item];
 
+    // In case there are no results.
+    if (search.items.length < 1) return;
+
+    // Checks if the found result is valid.
     while (search.items[item].type === 'playlist' || search.items[item].type === 'movie' && item < 2) {
         item++;
         song = search.items[item];
     }
-    if (search.items.length < 1 || search.items[item].type === 'playlist' || search.items[item].type === 'movie') return;
+    if (search.items[item].type === 'playlist' || search.items[item].type === 'movie') return;
 
     title = song.title;
     url = song.url;
@@ -174,11 +181,13 @@ async function getMetadataFromSearchQuery(query: string) {
 
 export default {
     // Plays the requested song in the designate voice channel.
-    async play(client: Client, message: Message, song: string) {
-        // find the source based on the users request (can be either a link or search query).
+    async play(message: Message, song: string) {
         let newSongQueue: Song[] = [];
         let metadata: { title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, playlist: ytpl.Result | null } | undefined;
-        const requester = message.member!.user;
+
+        const tag = message.member!.user.tag;
+        const avatar = message.member!.user.displayAvatarURL({ forceStatic: false })
+        const requesterObj: { tag: string, avatar: string } = { tag, avatar };
 
         // Youtube Regexes.
         const YTVideoRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/watch\?v=(.*)$/;
@@ -196,6 +205,7 @@ export default {
         // SoundCloud Regexes.
         // Working on it... Still don't know how.
 
+        // find the source based on the users request (can be either a link or search query).
         if (YTVideoRegex.test(song) || YTPlaylistRegex.test(song) || YTMixRegex.test(song)) {
             // Generate a queue if the link is a playlist.
             if (YTPlaylistRegex.test(song) || YTMixRegex.test(song)) {
@@ -203,16 +213,16 @@ export default {
                     metadata = await getMetadata(song, 'ytplaylist');
                     const playlist = metadata.playlist!;
                     for (let item = 0; item < playlist.items.length; item++) {
-                        newSongQueue.push(new Song('youtube', playlist.items[item].title, playlist.items[item].url, playlist.items[item].duration, playlist.items[item].bestThumbnail.url, requester, false));
+                        newSongQueue.push(new Song('youtube', playlist.items[item].title, playlist.items[item].url, playlist.items[item].duration, playlist.items[item].bestThumbnail.url, requesterObj));
                     }
                 } catch {
                     // Could not find the playlist (Mixes not yet supported).
                     metadata = await getMetadata(song, 'ytvideo');
-                    newSongQueue.push(new Song('youtube', metadata.title, song, metadata.durationTimestamp, metadata.thumbnail, requester, false));
+                    newSongQueue.push(new Song('youtube', metadata.title, song, metadata.durationTimestamp, metadata.thumbnail, requesterObj));
                 }
             } else {
                 metadata = await getMetadata(song, 'ytvideo');
-                newSongQueue.push(new Song('youtube', metadata.title, song, metadata.durationTimestamp, metadata.thumbnail, requester, false));
+                newSongQueue.push(new Song('youtube', metadata.title, song, metadata.durationTimestamp, metadata.thumbnail, requesterObj));
             }
         } else if (spotifySongRegex.test(song)) {
             message.channel.send('Lo siento, pero todavia no soportamos spotify.');
@@ -226,13 +236,12 @@ export default {
                 message.channel.send('No se han encontrado resultados. Prueba diferentes palabras clave o revisa el enlace ingresado.');
                 return;
             }
-            newSongQueue.push(new Song('youtube', metadata.title, song, metadata.durationTimestamp, metadata.thumbnail, requester, false));
+            newSongQueue.push(new Song('youtube', metadata.title, metadata.url, metadata.durationTimestamp, metadata.thumbnail, requesterObj));
         }
 
         // Check if a queue exists for that server. If not, then generate one.
         const guildId = message.guildId!;
         let serverQueue = serverQueues.get(guildId) as SongQueue;
-        let songQueue = await serverQueue.getSongQueue();
         let subscription: PlayerSubscription;
         let currentSong = newSongQueue[0];
         if (!serverQueue) { // Plays audio onm the created voice connection.
@@ -240,8 +249,11 @@ export default {
             const player = createAudioPlayer();
             subscription = connection.subscribe(player) as PlayerSubscription;
 
-            serverQueue = new SongQueue(guildId, message.channelId, subscription);
+            serverQueue = new SongQueue(guildId, message.channelId, subscription, true, false);
             serverQueues.set(guildId, serverQueue);
+
+            // Create a document in the database to save the queue.
+            serverQueue.updateSongQueue(newSongQueue);
 
             // Generate stream depending on the source.
             const stream = await getStream(currentSong);
@@ -264,7 +276,7 @@ export default {
 
             eventManager(guildId, serverQueue);
             return;
-        } else if (songQueue.length < 1) { // bot is connected bot not playing audio.
+        } else if (serverQueue.playing) { // bot is connected bot not playing audio.
             // Plays audio.
             subscription = serverQueue.subscription;
             const player = subscription.player;
@@ -299,6 +311,7 @@ export default {
                 currentSong.displayQueuedSong(message.channel as TextChannel);
             }
         }
+        const songQueue = await serverQueue.getSongQueue() as Song[];
         songQueue.push(...newSongQueue);
         await serverQueue.updateSongQueue(songQueue);
     },
@@ -320,10 +333,11 @@ export default {
     // Skips a track for the selected guild.
     async skip(guildId: string) {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
-        const songQueue = await serverQueue.getSongQueue();
-        songQueue[0].loop = false;
-        serverQueue.updateSongQueue(songQueue);
+
+        serverQueue.loop = false;
         serverQueue.subscription.player.stop();
+
+        serverQueues.set(guildId, serverQueue);
         return;
     },
 
@@ -340,8 +354,21 @@ export default {
     async loop(guildId: string) {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
         const songQueue = await serverQueue.getSongQueue();
-        songQueue[0].loop = true;
-        serverQueue.updateSongQueue(songQueue);
+
+        if (serverQueue.loop) {
+            serverQueue.loop = false;
+        } else {
+            serverQueue.loop = true;
+        }
+        serverQueues.set(guildId, serverQueue);
+
+        const songEmbed = new EmbedBuilder()
+            .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
+            .setTitle(`repetición \`ha sido activada\`.`)
+            .setFooter({ text: `Pedido por ${songQueue[0].requester.tag}`, iconURL: songQueue[0].requester.avatar })
+        const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
+        channel.send({ embeds: [songEmbed] });
+
         return;
     },
 
@@ -364,12 +391,23 @@ export default {
         const songEmbed = new EmbedBuilder()
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
             .setTitle(`La lista de canciones \`ha sido mezclada\`.`)
-            .setFooter({ text: `Por ${songQueue[0].requester.tag}`, iconURL: songQueue[0].requester.avatar })
+            .setFooter({ text: `Pedido por ${songQueue[0].requester.tag}`, iconURL: songQueue[0].requester.avatar })
         const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
         channel.send({ embeds: [songEmbed] });
 
         serverQueue.updateSongQueue(songQueue);
         return;
+    },
+
+    stop(guildId: string) {
+        const serverQueue = serverQueues.get(guildId) as SongQueue;
+        const connection = getVoiceConnection(guildId)!;
+
+        serverQueue.subscription.player.stop();
+        serverQueue.subscription.unsubscribe();
+        serverQueue.dropSongQueue();
+        serverQueues.delete(guildId);
+        connection.destroy();
     },
 
     // Returns the song queue for that particular guild.

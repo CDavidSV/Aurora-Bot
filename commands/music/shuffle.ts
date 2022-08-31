@@ -1,11 +1,11 @@
-// Stops the player in the guild.
+// Shuffles the queue for that particular guild.
 
 import { Client, Message } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
 export default {
-    aliases: ['stop', 'disconnect'],
+    aliases: ['shuffle'],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -23,6 +23,13 @@ export default {
             return;
         }
 
-        playercore.stop(message.guildId!);
+        // check if there are songs in the queue.
+        const queue = await playercore.getServerQueue(message.guildId!);
+        if (queue.length < 2) {
+            message.reply(`No hay canciones para mezclar. \nIntenta agragando otra usando: \`${prefix}play <canción o url>\``);
+            return;
+        }
+
+        playercore.shuffle(message.guildId!);
     }
 }
