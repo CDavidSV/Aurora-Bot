@@ -9,14 +9,16 @@ export default class ServerQueue {
     public subscription: PlayerSubscription;
     public playing: boolean;
     public loop: boolean;
+    public paused: boolean
 
     // Constructor.
-    constructor(guildId: string, textChannelId: string, subscription: PlayerSubscription, playing: boolean, loop: boolean) {
+    constructor(guildId: string, textChannelId: string, subscription: PlayerSubscription, playing: boolean, loop: boolean, paused: boolean) {
         this.guildId = guildId;
         this.textChannelId = textChannelId;
         this.subscription = subscription;
         this.playing = playing;
         this.loop = loop;
+        this.paused = paused;
     }
 
     // Methods.
@@ -43,7 +45,20 @@ export default class ServerQueue {
         return queue;
     }
 
+    async deleteQueue() {
+        await queueScheema.findOneAndUpdate({
+            _id: this.guildId
+        }, {
+            _id: this.guildId,
+            songQueue: []
+        }, {
+            upsert: true
+        })
+    }
+
     async dropSongQueue() {
         await queueScheema.deleteOne({ _id: this.guildId });
     }
+
+
 }

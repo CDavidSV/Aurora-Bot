@@ -1,6 +1,6 @@
-// Displays queue in the chat with all songs for that particular guild.
+// Clears the song queue for that guild.
 
-import { Client, Message, EmbedBuilder } from 'discord.js';
+import { Client, Message } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
@@ -25,11 +25,11 @@ export default {
 
         // check if there are songs in the queue.
         const queue = await playercore.getServerQueue(message.guildId!);
-        if (queue.length < 1) {
+        if (queue.length < 2) {
             message.reply('No hay canciones en la cola');
             return;
         }
 
-        // Display the queue in an embed.
+        playercore.clear(message.guildId!);
     }
 }

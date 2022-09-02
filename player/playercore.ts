@@ -23,7 +23,13 @@ async function eventManager(guildId: string, serverQueue: SongQueue) {
     player.on(AudioPlayerStatus.Playing, async () => {
         serverQueue = serverQueues.get(guildId);
         const songQueue = await serverQueue.getSongQueue() as Song[];
-        songQueue[0].displayCurrentSong(channel);
+
+        if (!serverQueue.paused) {
+            songQueue[0].displayCurrentSong(channel);
+        }
+
+        serverQueue.paused = false;
+        serverQueues.set(guildId, serverQueue)
     })
 
     player.on(AudioPlayerStatus.Idle, async () => {
@@ -32,7 +38,7 @@ async function eventManager(guildId: string, serverQueue: SongQueue) {
         const songQueue = await serverQueue.getSongQueue();
 
         // Loop the song.
-        if (serverQueue.loop === false) {
+        if (!serverQueue.loop) {
             songQueue.shift();
         }
 
@@ -40,11 +46,13 @@ async function eventManager(guildId: string, serverQueue: SongQueue) {
         if (songQueue.length >= 1) {
             // Generate stream.
             const stream = await getStream(songQueue[0]);
+
             // Create the audio player.
             let resource = createAudioResource(stream as any);
             player.play(resource);
         } else {
             serverQueue.loop = false;
+            serverQueue.playing = false;
             serverQueues.set(guildId, serverQueue);
         }
 
@@ -249,7 +257,7 @@ export default {
             const player = createAudioPlayer();
             subscription = connection.subscribe(player) as PlayerSubscription;
 
-            serverQueue = new SongQueue(guildId, message.channelId, subscription, true, false);
+            serverQueue = new SongQueue(guildId, message.channelId, subscription, true, false, false);
             serverQueues.set(guildId, serverQueue);
 
             // Create a document in the database to save the queue.
@@ -276,7 +284,7 @@ export default {
 
             eventManager(guildId, serverQueue);
             return;
-        } else if (serverQueue.playing) { // bot is connected bot not playing audio.
+        } else if (!serverQueue.playing) { // bot is connected bot not playing audio.
             // Plays audio.
             subscription = serverQueue.subscription;
             const player = subscription.player;
@@ -319,6 +327,9 @@ export default {
     // Pauses the player for the selected guild.
     pause(guildId: string) {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
+        serverQueue.paused = true;
+        serverQueues.set(guildId, serverQueue);
+
         serverQueue.subscription.player.pause();
         return;
     },
@@ -364,7 +375,7 @@ export default {
 
         const songEmbed = new EmbedBuilder()
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
-            .setTitle(`repetición \`ha sido activada\`.`)
+            .setTitle(`Repetición \`ha sido activada\`.`)
             .setFooter({ text: `Pedido por ${songQueue[0].requester.tag}`, iconURL: songQueue[0].requester.avatar })
         const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
         channel.send({ embeds: [songEmbed] });
@@ -390,7 +401,7 @@ export default {
 
         const songEmbed = new EmbedBuilder()
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
-            .setTitle(`La lista de canciones \`ha sido mezclada\`.`)
+            .setTitle(`La lista de canciones \`ha sido mezclada.♪\``)
             .setFooter({ text: `Pedido por ${songQueue[0].requester.tag}`, iconURL: songQueue[0].requester.avatar })
         const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
         channel.send({ embeds: [songEmbed] });
@@ -399,6 +410,25 @@ export default {
         return;
     },
 
+    // Replays the current song.
+    replay(guildId: string) {
+        const serverQueue = serverQueues.get(guildId) as SongQueue;
+
+        // Set loop to true and stop the player to replay the song.
+        if (serverQueue.loop) {
+            serverQueue.subscription.player.stop();
+            return;
+        }
+        serverQueue.loop = true;
+        serverQueues.set(guildId, serverQueue);
+
+
+        // Set loop to false again.
+        serverQueue.loop = false;
+        serverQueues.set(guildId, serverQueue);
+    },
+
+    // Stops the player and disconnects from the voice channel.
     stop(guildId: string) {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
         const connection = getVoiceConnection(guildId)!;
@@ -410,7 +440,14 @@ export default {
         connection.destroy();
     },
 
-    // Returns the song queue for that particular guild.
+    // Clear the queue.
+    clear(guildId: string) {
+        const serverQueue = serverQueues.get(guildId) as SongQueue;
+        serverQueue.deleteQueue();
+
+    },
+
+    // Returns the queue for that particular guild.
     async getServerQueue(guildId: string) {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
         const queue = await serverQueue.getSongQueue() as Song[];

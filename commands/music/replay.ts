@@ -1,6 +1,6 @@
-// Displays queue in the chat with all songs for that particular guild.
+// Replays the current song.
 
-import { Client, Message, EmbedBuilder } from 'discord.js';
+import { Client, Message } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
@@ -30,6 +30,6 @@ export default {
             return;
         }
 
-        // Display the queue in an embed.
+        playercore.replay(message.guildId!);
     }
 }

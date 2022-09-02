@@ -9,9 +9,11 @@ const globalPrefix = config.globalPrefix;
 const file = new AttachmentBuilder(config.embeds.images.errorImg);
 
 client.on('messageCreate', async (message: Message) => {
+    if (message.author.bot || message.channel.type === ChannelType.DM) return;
+
     // Get all guild prefixes.
     let guildPrefixes: any = prefixHandler.getGuildPrefixes();
-    if (message.author.bot || message.channel.type === ChannelType.DM) return;
+
     let prefix = guildPrefixes[message.guild!.id];
     if (message.content.startsWith(globalPrefix)) {
         prefix = globalPrefix
@@ -32,11 +34,10 @@ client.on('messageCreate', async (message: Message) => {
     // Execute Commands.
     try {
         command.execute(client, message, prefix, ...args); // Executes command.
-    } catch (error) { // On Error (Avoids Entire bot from crashing).
+    } catch (error) {
         const unexpectedError = new EmbedBuilder()
             .setColor(config.embeds.colors.errorColor as ColorResolvable)
             .setAuthor({ name: 'Error Inesperado.', iconURL: 'attachment://error-icon.png' })
         message.reply({ embeds: [unexpectedError], files: [file] });
-        console.log(error);
     }
 })

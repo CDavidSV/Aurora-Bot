@@ -30,7 +30,7 @@ export default class Song {
             .setTitle(this.title)
             .setURL(this.url)
             .setAuthor({ name: "Ahora Suena ♪", iconURL: config.playerEmbeds.images.playingImage })
-            .setDescription(`\`[0:00 / ${this.durationTimestamp}]\``)
+            .setFields({ name: 'Duración', value: `\`${this.durationTimestamp}\`` })
             .setThumbnail(this.thumbnail)
             .setFooter({ text: `Pedida por ${this.requester.tag}`, iconURL: this.requester.avatar })
         channel.send({ embeds: [songEmbed] });
