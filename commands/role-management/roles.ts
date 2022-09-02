@@ -13,7 +13,6 @@ export default {
         const { guild } = message;
         const rolesEmbed = new EmbedBuilder();
         const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
-        const successImg = new AttachmentBuilder(config.embeds.images.successImg);
 
         // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
         if (!message.member!.permissions.has([PermissionsBitField.Flags.ManageRoles])) {

@@ -401,7 +401,7 @@ export default {
 
         const songEmbed = new EmbedBuilder()
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
-            .setTitle(`La lista de canciones \`ha sido mezclada.♪\``)
+            .setDescription(`La lista de canciones **ha sido mezclada.♪**`)
             .setFooter({ text: `Pedido por ${songQueue[0].requester.tag}`, iconURL: songQueue[0].requester.avatar })
         const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
         channel.send({ embeds: [songEmbed] });

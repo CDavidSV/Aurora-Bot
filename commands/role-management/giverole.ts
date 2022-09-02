@@ -41,7 +41,7 @@ export default {
         let role = guild!.roles.cache.get(roleID);
 
         if (!role) { // In case Role's name is typed instead of a mention.
-            role = message.guild!.roles.cache.find(role => role.name.toLowerCase().includes(String(args.slice(2, args.length)).replace(',', ' ')))!;
+            role = message.guild!.roles.cache.find(role => role.name.toLowerCase().includes(args[2]))!;
         }
         if (!member || !role) { // Checks if either the role or the user does not exist.
             roleAction
