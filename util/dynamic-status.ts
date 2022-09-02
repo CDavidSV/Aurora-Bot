@@ -39,7 +39,6 @@ function formatNumbers(number: number) {
 function changeStatus(client: Client) {
     const randomIndex = Math.floor(Math.random() * statuses.length);
     client.user!.setActivity(statuses[randomIndex].status, { type: statuses[randomIndex].type })
-    console.log(randomIndex);
 }
 
 export default {
