@@ -24,9 +24,9 @@ export default {
         }
 
         // check if there are songs in the queue.
-        const queue = await playercore.getServerQueue(message.guildId!);
-        if (queue.length < 2) {
-            message.reply(`No hay canciones para mezclar. \nIntenta agragando otra usando: \`${prefix}play <canción o url>\``);
+        const queue = await playercore.getSongQueue(message.guildId!);
+        if (queue.length < 3) {
+            message.reply(`No hay suficientes canciones para mezclar.`);
             return;
         }
 

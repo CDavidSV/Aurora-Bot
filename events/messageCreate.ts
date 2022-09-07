@@ -3,7 +3,7 @@ import { Message, ChannelType, ColorResolvable, EmbedBuilder, AttachmentBuilder 
 import config from '../config.json';
 import prefixHandler from '../handlers/prefix-handler';
 // Normal commands with prefix.
-const globalPrefix = config.globalPrefix;
+const globalPrefixes = config.globalPrefixes;
 
 // Error image.
 const file = new AttachmentBuilder(config.embeds.images.errorImg);
@@ -14,11 +14,16 @@ client.on('messageCreate', async (message: Message) => {
     // Get all guild prefixes.
     let guildPrefixes: any = prefixHandler.getGuildPrefixes();
 
-    let prefix = guildPrefixes[message.guild!.id];
-    if (message.content.startsWith(globalPrefix)) {
-        prefix = globalPrefix
+    let prefix: string | undefined;
+    for (let globalPrefix of globalPrefixes) {
+        if (message.content.startsWith(globalPrefix)) {
+            prefix = globalPrefix;
+            break;
+        } else {
+            prefix = guildPrefixes[message.guild!.id];
+        }
     }
-    if (!message.content.startsWith(prefix)) return;
+    if (!prefix || !message.content.startsWith(prefix)) return;
 
     // Rmoves prefix and converts the message into lowercase.
     const sliceParameter = prefix.length;

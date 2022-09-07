@@ -1,6 +1,10 @@
 {
     "version": "v1.0.0",
-    "globalPrefix": "ma!",
+    "globalPrefixes": [
+        "ma!",
+        "!",
+        "<@970506702799646730>"
+    ],
     "mongoPath": "mongodb://localhost:27017/marin-bot",
     "embeds": {
         "colors": {

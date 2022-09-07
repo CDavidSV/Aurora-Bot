@@ -1,24 +1,25 @@
-import { PlayerSubscription } from '@discordjs/voice';
+import { AudioPlayer } from '@discordjs/voice';
+import { ButtonInteraction, CacheType, InteractionCollector, Message, SelectMenuInteraction } from 'discord.js';
 import Song from './Song';
 const queueScheema = require("../mongoDB/schemas/queue-scheema");
 
-export default class ServerQueue {
+export default class SongQueue {
     // Variables.
     public guildId: string;
     public textChannelId: string;
-    public subscription: PlayerSubscription;
+    public lastMessage: Message | undefined;
+    public player: AudioPlayer;
     public playing: boolean;
     public loop: boolean;
-    public paused: boolean
+    public collector: InteractionCollector<ButtonInteraction<CacheType> | SelectMenuInteraction<CacheType>> | undefined;
 
     // Constructor.
-    constructor(guildId: string, textChannelId: string, subscription: PlayerSubscription, playing: boolean, loop: boolean, paused: boolean) {
+    constructor(guildId: string, textChannelId: string, subscription: AudioPlayer, playing: boolean, loop: boolean) {
         this.guildId = guildId;
         this.textChannelId = textChannelId;
-        this.subscription = subscription;
+        this.player = subscription;
         this.playing = playing;
         this.loop = loop;
-        this.paused = paused;
     }
 
     // Methods.
@@ -38,6 +39,7 @@ export default class ServerQueue {
     // Returns the current song queue for that server.
     async getSongQueue() {
         const serverQueue = await queueScheema.findOne({ _id: this.guildId });
+        if (!serverQueue) return;
         let queue: Song[] = []
         serverQueue.songQueue.forEach((element: Song) => {
             queue.push(new Song(element.type, element.title, element.url, element.durationTimestamp, element.thumbnail, element.requester));
@@ -59,6 +61,4 @@ export default class ServerQueue {
     async dropSongQueue() {
         await queueScheema.deleteOne({ _id: this.guildId });
     }
-
-
 }

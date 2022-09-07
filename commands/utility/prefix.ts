@@ -1,5 +1,4 @@
-// Returns random "banana" size for the user. For fun!
-// Copied from Nekotina xD.
+// Returns the prefix for that server.
 
 import { Client, Message } from 'discord.js';
 const prefixScheema = require('../../mongoDB/schemas/prefix-scheema');

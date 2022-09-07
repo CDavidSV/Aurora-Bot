@@ -34,7 +34,7 @@ export default {
             return;
         }
         // check if there are songs in the queue.
-        const queue = await playercore.getServerQueue(message.guildId!);
+        const queue = await playercore.getSongQueue(message.guildId!);
         if (index > queue.length - 1) {
             message.reply(`Esa canción no esta en la cola. \nIntenta agragando una usando: \`${prefix}play <canción o url>\``);
             return;

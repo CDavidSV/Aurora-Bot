@@ -1,5 +1,7 @@
-import { EmbedBuilder, ColorResolvable, TextChannel } from 'discord.js';
+import { EmbedBuilder, ColorResolvable, TextChannel, ButtonBuilder, ActionRowBuilder, ButtonStyle, ButtonInteraction, CollectedInteraction } from 'discord.js';
+
 import config from '../config.json';
+import playercore from './playercore';
 
 export default class Song {
     // Variables.
@@ -24,7 +26,9 @@ export default class Song {
     // Methods.
 
     // Displays currently playing song.
-    displayCurrentSong(channel: TextChannel) {
+    displayCurrentSong() {
+
+        // Embed.
         const songEmbed = new EmbedBuilder()
             .setColor(config.playerEmbeds.colors.playingColor as ColorResolvable)
             .setTitle(this.title)
@@ -33,11 +37,13 @@ export default class Song {
             .setFields({ name: 'Duración', value: `\`${this.durationTimestamp}\`` })
             .setThumbnail(this.thumbnail)
             .setFooter({ text: `Pedida por ${this.requester.tag}`, iconURL: this.requester.avatar })
-        channel.send({ embeds: [songEmbed] });
+
+        return songEmbed;
+
     }
 
     // Displays queued song.
-    displayQueuedSong(channel: TextChannel) {
+    displayQueuedSong() {
         const songEmbed = new EmbedBuilder()
             .setColor(config.playerEmbeds.colors.queuedColor as ColorResolvable)
             .setTitle(this.title)
@@ -45,6 +51,8 @@ export default class Song {
             .setAuthor({ name: 'Canción añadida a la cola ♪' })
             .setThumbnail(this.thumbnail)
             .setFooter({ text: `Pedida por ${this.requester.tag}`, iconURL: this.requester.avatar })
-        channel.send({ embeds: [songEmbed] });
+
+
+        return songEmbed;
     }
 }

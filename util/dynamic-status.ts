@@ -1,6 +1,7 @@
 // Automatically changes the bots status every specified ammount of time.
 import { ActivityType, Client } from 'discord.js';
 import { client } from '../index';
+import playercore from '../player/playercore';
 
 let statuses: { status: string, type: any, }[] = [];
 
@@ -9,12 +10,12 @@ function updateStatuses() {
         { status: 'ma!help', type: ActivityType.Listening },
         { status: `in ${formatNumbers(client.guilds.cache.size)} Servers`, type: ActivityType.Playing },
         { status: `in ${formatNumbers(client.channels.cache.size)} Channels`, type: ActivityType.Playing },
-        { status: `with ${formatNumbers(client.users.cache.size)} Users`, type: ActivityType.Playing }
+        { status: `with ${formatNumbers(client.users.cache.size)} Users`, type: ActivityType.Playing },
+        { status: `in ${formatNumbers(playercore.getServerQueues().size)} Voice Channels`, type: ActivityType.Playing }
     ];
 
     return statuses;
 }
-
 
 function formatNumbers(number: number) {
     let numberString: string = "";

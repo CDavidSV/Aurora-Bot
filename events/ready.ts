@@ -5,6 +5,8 @@ import db from '../mongoDB/mongo';
 import prefixHandler from '../handlers/prefix-handler';
 
 // On bot ready.
+let startTime = new Date().getTime();
+
 client.on('ready', async (bot: Client) => {
     console.log('\n----------------------------------------------------\n');
     console.log(`Successfully logged in as ${bot.user!.tag}`);
@@ -16,3 +18,5 @@ client.on('ready', async (bot: Client) => {
     prefixHandler.createGuildPrefixes(client);
     console.log('\n----------------------------------------------------');
 });
+
+export default startTime;

@@ -42,16 +42,36 @@ export default {
             }
         }
 
+        // Role info.
+        const name = role.name;
+        const ID = role.id;
+        const createdAt = Math.round(role.createdTimestamp / 1000);
+        const memberSize = role.members.size;
+        const color = role.color.toString(16);
+        const position = role.position;
+
+        let hoist: string;
+        let managed: string;
+        let mentionable: string;
+
+        role.hoist ? hoist = '✓' : hoist = 'Χ';
+        role.managed ? managed = '✓' : managed = 'Χ';
+        role.mentionable ? mentionable = '✓' : mentionable = 'Χ';
+
         roleEmbed
             .setAuthor({ name: `${message.guild!.name}`, iconURL: message.guild?.iconURL({ forceStatic: false })! })
             .setFields(
-                { name: 'Nombre', value: `${role!.name}`, inline: true },
-                { name: 'Miembros', value: `${role!.members.size}`, inline: true },
-                { name: 'ID', value: `${role!.id}`, inline: false },
-                // { name: 'Fecha de creación', value: `${}`, inline: false },
+                { name: 'Nombre', value: `${name}`, inline: true },
+                { name: 'ID', value: `${ID}`, inline: true },
+                { name: 'Fecha de creación', value: `<t:${createdAt}> (<t:${createdAt}:R>)`, inline: false },
+                { name: 'Miembros en caché', value: `${memberSize}`, inline: true },
+                { name: 'Posición', value: `${position}`, inline: true },
+                { name: 'Color en Hex', value: `#${color.toUpperCase()}`, inline: true },
+                { name: 'Separado', value: `${hoist}`, inline: true },
+                { name: 'Administrado', value: `${managed}`, inline: true },
+                { name: 'Mencionable', value: `${mentionable}`, inline: true },
             )
             .setColor(role!.color);
-        console.log(role);
         message.channel.send({ embeds: [roleEmbed] });
     }
 }

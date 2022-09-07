@@ -5,7 +5,7 @@ import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
 
 export default {
-    aliases: ['clearqueue'],
+    aliases: ['replay'],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -24,7 +24,7 @@ export default {
         }
 
         // check if there are songs in the queue.
-        const queue = await playercore.getServerQueue(message.guildId!);
+        const queue = await playercore.getSongQueue(message.guildId!);
         if (queue.length < 1) {
             message.reply('No hay canciones en la cola');
             return;
