@@ -3,13 +3,13 @@
 import config from '../config.json';
 import { Message, EmbedBuilder, ColorResolvable, TextChannel, ButtonInteraction, InteractionCollector, CacheType, SelectMenuInteraction, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection, PlayerSubscription, NoSubscriberBehavior, VoiceConnectionStatus, entersState, joinVoiceChannel, DiscordGatewayAdapterCreator } from '@discordjs/voice';
-import ytdl, { downloadOptions } from 'ytdl-core';
-import ytsr from 'ytsr';
 import { client } from '../index';
-import ytpl from 'ytpl';
-import Song from './Song';
-import SongQueue from './SongQueue';
-import Metadata from './Metadata';
+import Song from './Classes/Song';
+import SongQueue from './Classes/SongQueue';
+import Metadata from './Classes/Metadata';
+import { getStream } from './functions/getStream';
+import { getMetadata } from './functions/getMetadata';
+import { getMetadataFromSearchQuery } from './functions/getMetadataFromSearchQuery';
 
 const serverQueues: Map<string, SongQueue> = new Map();
 
@@ -38,8 +38,8 @@ const playerButtons = new ActionRowBuilder<ButtonBuilder>()
             .setStyle(ButtonStyle.Secondary),
     ]);
 
-// Functions.
-async function playerEventManager(guildId: string, serverQueue: SongQueue) {
+// Event manager.
+async function EventManager(guildId: string, serverQueue: SongQueue) {
     // Get connection, player and text channel id for that given guild.
     const connection = getVoiceConnection(guildId)!;
     const songQueue = await serverQueue.getSongQueue() as Song[];
@@ -49,12 +49,13 @@ async function playerEventManager(guildId: string, serverQueue: SongQueue) {
 
     const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
 
-    const collector = collectorEventManager(guildId, channel);
+    const collector = channel.createMessageComponentCollector();
 
     serverQueue.collector = collector;
     serverQueue.lastMessage = sentMessage;
     serverQueues.set(guildId, serverQueue);
 
+    // Player events.
     serverQueue.player.on(AudioPlayerStatus.Idle, async () => {
         // Remove finished song from the queue.
         const serverQueue = serverQueues.get(guildId) as SongQueue;
@@ -156,6 +157,70 @@ async function playerEventManager(guildId: string, serverQueue: SongQueue) {
         }
     });
 
+    // Collector Events.
+    collector.on('collect', async (interaction: ButtonInteraction) => {
+        if (!getVoiceConnection(guildId)) {
+            interaction.reply({ content: 'No hay un reproductor activo en este servidor.', ephemeral: true });
+            collector.stop();
+            collector.removeAllListeners();
+            return;
+        }
+        if (!interaction.guild!.members.cache.get(interaction.user.id)!.voice.channel) {
+            interaction.reply({ content: `Necesitas primero estar dentro de un **canal de voz**`, ephemeral: true });
+            return;
+        }
+        const updatedPlayerButtons = playerButtons;
+        switch (interaction.customId) {
+            case 'resume_playback':
+                resume(guildId);
+                updatedPlayerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚');
+                await interaction.update({ content: 'Resumed', components: [updatedPlayerButtons] }).catch(async () => {
+                    await interaction.editReply({});
+                });
+                break;
+            case 'pause_playback':
+                pause(guildId);
+                updatedPlayerButtons.components[1].setCustomId('resume_playback').setLabel('▶');
+                await interaction.update({ content: 'Paused', components: [updatedPlayerButtons] }).catch(async () => {
+                    await interaction.editReply({});
+                });
+                break;
+            case 'skip_song':
+                skip(guildId);
+                await interaction.update({ content: 'Skipped' }).catch(async () => {
+                    await interaction.editReply({});
+                });
+                break;
+            case 'loop_song':
+                loop(guildId);
+                await interaction.update({ content: 'Loop activated' }).catch(async () => {
+                    await interaction.editReply({});
+                });
+                break;
+            case 'show_queue':
+                await interaction.update({}).catch(async () => {
+                    await interaction.editReply({});
+                });
+                break;
+            case 'stop_player':
+                stop(guildId);
+                collector.stop();
+                await interaction.update({ content: 'stopped' }).catch(async () => {
+                    await interaction.editReply({});
+                });
+                break;
+        }
+    });
+
+    collector.on('end', () => {
+        const serverQueue = serverQueues.get(guildId);
+        serverQueue!.lastMessage!.edit({ components: [] });
+
+        collector.removeAllListeners();
+    });
+
+    // Connection events.
+
     // When the bot disconnects or is kicked from a voice channel.
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
@@ -191,169 +256,6 @@ async function playerEventManager(guildId: string, serverQueue: SongQueue) {
             channel.send({ embeds: [disconnectedEmbed] });
         }
     });
-}
-
-function collectorEventManager(guildId: string, channel: TextChannel) {
-
-    const collector = channel.createMessageComponentCollector();
-
-    collector.on('collect', async (interaction: ButtonInteraction) => {
-        const songQueue = await serverQueues.get(guildId)!.getSongQueue();
-        if (!getVoiceConnection(guildId)) {
-            interaction.reply({ content: 'No hay un reproductor activo en este servidor.', ephemeral: true });
-            collector.stop();
-            collector.removeAllListeners();
-            return;
-        }
-        if (!interaction.guild!.members.cache.get(interaction.user.id)!.voice.channel) {
-            interaction.reply({ content: `Necesitas primero estar dentro de un **canal de voz**`, ephemeral: true });
-            return;
-        }
-        const updatedPlayerButtons = playerButtons;
-        switch (interaction.customId) {
-            case 'resume_playback':
-                resume(guildId);
-                updatedPlayerButtons.components[0].setCustomId('pause_playback').setLabel('❚❚');
-                await interaction.update({ content: 'Resumed', components: [updatedPlayerButtons] }).catch(async () => {
-                    await interaction.editReply({});
-                });
-                break;
-            case 'pause_playback':
-                pause(guildId);
-                updatedPlayerButtons.components[0].setCustomId('resume_playback').setLabel('▶');
-                await interaction.update({ content: 'Paused', components: [updatedPlayerButtons] }).catch(async () => {
-                    await interaction.editReply({});
-                });
-                break;
-            case 'skip_song':
-                skip(guildId);
-                await interaction.update({ content: 'Skipped' }).catch(async () => {
-                    await interaction.editReply({});
-                });
-                break;
-            case 'loop_song':
-                loop(guildId);
-                await interaction.update({ content: 'Loop activated' }).catch(async () => {
-                    await interaction.editReply({});
-                });
-                break;
-            case 'show_queue':
-                getServerQueues();
-                await interaction.update({}).catch(async () => {
-                    await interaction.editReply({});
-                });
-                break;
-            case 'stop_player':
-                stop(guildId);
-                collector.stop();
-                await interaction.update({ content: 'stopped' }).catch(async () => {
-                    await interaction.editReply({});
-                });
-                break;
-        }
-    });
-
-    collector.on('end', () => {
-        const serverQueue = serverQueues.get(guildId);
-        serverQueue!.lastMessage!.edit({ components: [] });
-
-        collector.removeAllListeners();
-    });
-
-    return collector;
-}
-
-// Gets audio stream depending on the source.
-async function getStream(currentSong: any) {
-    let stream;
-
-    switch (currentSong.type) {
-        case 'youtube':
-            // Get audio from video.
-            // const optionsLive = { highWaterMark: 1 <25, dlChunkSize: 0, quality: [91,92,93,94,95], opusEncoded: true, liveBuffer: 4900 } as downloadOptions;
-            const optionsNormal = { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 } as downloadOptions;
-            // Generate stream.
-            stream = ytdl(currentSong.url, optionsNormal);
-            break;
-    }
-    return stream;
-}
-
-// Gets metadata for the song.
-async function getMetadata(request: string, type: string) {
-    let title = null;
-    let thumbnail = null;
-    let url = null;
-    let durationSec = null;
-    let durationTimestamp = null;
-    let playlist = null;
-    switch (type) {
-        case 'ytvideo':
-            // Get video metadata.
-            let info;
-            try {
-                info = await ytdl.getInfo(request)
-            } catch {
-                return;
-            }
-            title = info.videoDetails.title;
-            url = request;
-            thumbnail = info.videoDetails.thumbnails[3].url;
-            durationSec = parseInt(info.videoDetails.lengthSeconds);
-
-            if (parseInt(info.videoDetails.lengthSeconds) < 3600) {
-                durationTimestamp = new Date(durationSec * 1000).toISOString().slice(14, 19);
-            } else {
-                durationTimestamp = new Date(durationSec * 1000).toISOString().slice(11, 19);
-            }
-            break;
-        case 'ytplaylist':
-            // Get playlist metadata.
-            const playlistId = await ytpl.getPlaylistID(request)
-
-            try {
-                playlist = await ytpl(playlistId, { limit: Infinity });
-            } catch {
-                return;
-            }
-
-            title = playlist.title;
-            url = playlist.url;
-            thumbnail = playlist.bestThumbnail.url;
-            durationTimestamp = playlist.items[0].duration;
-            break;
-    }
-    return new Metadata(title, url, durationTimestamp, thumbnail, playlist);
-}
-
-// gets metadata from search query.
-async function getMetadataFromSearchQuery(query: string) {
-    let title = null;
-    let thumbnail = null;
-    let url = null;
-    let playlist = null;
-    let durationTimestamp = null;
-
-    const search = await ytsr(query, { limit: 3 }) as any;
-    let item = 0;
-    let song = search.items[item];
-
-    // In case there are no results.
-    if (search.items.length < 1) return;
-
-    // Checks if the found result is valid.
-    while (search.items[item].type === 'playlist' || search.items[item].type === 'movie' && item < 2) {
-        item++;
-        song = search.items[item];
-    }
-    if (search.items[item].type === 'playlist' || search.items[item].type === 'movie') return;
-
-    title = song.title;
-    url = song.url;
-    thumbnail = song.bestThumbnail.url;
-    durationTimestamp = song.duration;
-
-    return new Metadata(title, url, durationTimestamp, thumbnail, playlist);
 }
 
 // Player functions.
@@ -443,7 +345,6 @@ async function play(message: Message, song: string) {
     // Check if a queue exists for that server. If not, then generate one.
     const guildId = message.guildId!;
     let serverQueue = serverQueues.get(guildId) as SongQueue;
-    let subscription: PlayerSubscription;
     let currentSong = newSongQueue[0];
     if (!serverQueue) { // Plays audio onm the created voice connection.
         const player = createAudioPlayer({
@@ -451,7 +352,7 @@ async function play(message: Message, song: string) {
                 noSubscriber: NoSubscriberBehavior.Play,
             },
         });
-        subscription = connection.subscribe(player) as PlayerSubscription;
+        connection.subscribe(player) as PlayerSubscription;
 
         serverQueue = new SongQueue(guildId, message.channelId, player, true, false);
         serverQueues.set(guildId, serverQueue);
@@ -478,7 +379,7 @@ async function play(message: Message, song: string) {
             message.channel.send({ embeds: [songEmbed] });
         }
 
-        playerEventManager(guildId, serverQueue);
+        EventManager(guildId, serverQueue);
         return;
     } else if (!serverQueue.playing) { // bot is connected bot not playing audio.
         // Plays audio.

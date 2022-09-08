@@ -16,5 +16,4 @@ export default class Metadata {
         this.thumbnail = thumbnail;
         this.playlist = playlist
     }
-
 }

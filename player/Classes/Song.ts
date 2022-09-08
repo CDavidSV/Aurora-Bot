@@ -1,7 +1,7 @@
 import { EmbedBuilder, ColorResolvable, TextChannel, ButtonBuilder, ActionRowBuilder, ButtonStyle, ButtonInteraction, CollectedInteraction } from 'discord.js';
 
-import config from '../config.json';
-import playercore from './playercore';
+import config from '../../config.json';
+import playercore from '../playercore';
 
 export default class Song {
     // Variables.

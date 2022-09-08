@@ -1,7 +1,7 @@
 import { AudioPlayer } from '@discordjs/voice';
 import { ButtonInteraction, CacheType, InteractionCollector, Message, SelectMenuInteraction } from 'discord.js';
 import Song from './Song';
-const queueScheema = require("../mongoDB/schemas/queue-scheema");
+const queueScheema = require("../../mongoDB/schemas/queue-scheema");
 
 export default class SongQueue {
     // Variables.
