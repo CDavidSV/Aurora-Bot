@@ -1,7 +1,7 @@
 // Handler for playing music in a voice channel.
 
 import config from '../config.json';
-import { Message, EmbedBuilder, ColorResolvable, TextChannel, ButtonInteraction, InteractionCollector, CacheType, SelectMenuInteraction, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js';
+import { Message, EmbedBuilder, ColorResolvable, TextChannel, ButtonInteraction, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection, PlayerSubscription, NoSubscriberBehavior, VoiceConnectionStatus, entersState, joinVoiceChannel, DiscordGatewayAdapterCreator } from '@discordjs/voice';
 import { client } from '../index';
 import Song from './Classes/Song';
@@ -173,14 +173,14 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
         switch (interaction.customId) {
             case 'resume_playback':
                 resume(guildId);
-                updatedPlayerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚');
+                updatedPlayerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
                 await interaction.update({ content: 'Resumed', components: [updatedPlayerButtons] }).catch(async () => {
                     await interaction.editReply({});
                 });
                 break;
             case 'pause_playback':
                 pause(guildId);
-                updatedPlayerButtons.components[1].setCustomId('resume_playback').setLabel('▶');
+                updatedPlayerButtons.components[1].setCustomId('resume_playback').setLabel('▶').setStyle(ButtonStyle.Success);
                 await interaction.update({ content: 'Paused', components: [updatedPlayerButtons] }).catch(async () => {
                     await interaction.editReply({});
                 });

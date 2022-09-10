@@ -10,18 +10,19 @@ export async function getMetadataFromSearchQuery(query: string) {
     let durationTimestamp = null;
 
     const search = await ytsr(query, { limit: 3 }) as any;
-    let item = 0;
-    let song = search.items[item];
+    let song;
 
     // In case there are no results.
     if (search.items.length < 1) return;
 
     // Checks if the found result is valid.
-    while (search.items[item].type === 'playlist' || search.items[item].type === 'movie' && item < 2) {
-        item++;
-        song = search.items[item];
+    for (let item = 0; item < search.items.length; item++) {
+        if (search.items[item].type !== 'playlist' && search.items[item].type !== 'movie') {
+            song = search.items[item];
+            break;
+        }
     }
-    if (search.items[item].type === 'playlist' || search.items[item].type === 'movie') return;
+    if (!song) return;
 
     title = song.title;
     url = song.url;
