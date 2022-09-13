@@ -3,6 +3,7 @@ import Metadata from "../Classes/Metadata";
 
 // gets metadata from search query.
 export async function getMetadataFromSearchQuery(query: string) {
+    let type = null;
     let title = null;
     let thumbnail = null;
     let url = null;
@@ -17,17 +18,18 @@ export async function getMetadataFromSearchQuery(query: string) {
 
     // Checks if the found result is valid.
     for (let item = 0; item < search.items.length; item++) {
-        if (search.items[item].type !== 'playlist' && search.items[item].type !== 'movie') {
+        if (search.items[item].type !== 'playlist' && search.items[item].type !== 'movie' && search.items[item].badges[0] !== 'LIVE') {
             song = search.items[item];
             break;
         }
     }
     if (!song) return;
 
+    type = 'ytvideo';
     title = song.title;
     url = song.url;
     thumbnail = song.bestThumbnail.url;
     durationTimestamp = song.duration;
 
-    return new Metadata(title, url, durationTimestamp, thumbnail, playlist);
+    return new Metadata(type, title, url, durationTimestamp, thumbnail, playlist);
 }

@@ -9,7 +9,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if ((oldState.channel!.members.size - 1) < 1) {
         setTimeout(() => {
             if ((oldState.channel!.members.size - 1) < 1) {
-                playercore.stop(oldState.guild.id);
+                playercore.stop(oldState.guild.id, undefined);
             }
         }, 15000);
     }

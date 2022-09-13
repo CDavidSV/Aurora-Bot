@@ -19,6 +19,12 @@ export async function getMetadata(request: string, type: string) {
             } catch {
                 return;
             }
+            
+            if (info.videoDetails.isLiveContent) {
+                type = 'ytlive';
+            } else {
+                type = 'ytvideo';
+            }
             title = info.videoDetails.title;
             url = request;
             thumbnail = info.videoDetails.thumbnails[3].url;
@@ -40,11 +46,12 @@ export async function getMetadata(request: string, type: string) {
                 return;
             }
 
+            type = 'ytplaylist';
             title = playlist.title;
             url = playlist.url;
             thumbnail = playlist.bestThumbnail.url;
             durationTimestamp = playlist.items[0].duration;
             break;
     }
-    return new Metadata(title, url, durationTimestamp, thumbnail, playlist);
+    return new Metadata(type, title, url, durationTimestamp, thumbnail, playlist);
 }

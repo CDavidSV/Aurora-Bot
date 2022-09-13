@@ -23,6 +23,6 @@ export default {
             return;
         }
 
-        playercore.stop(message.guildId!);
+        playercore.stop(message.guildId!, message.member);
     }
 }

@@ -103,7 +103,6 @@ export default {
 
             if (fetched.size < 100) break;
             totalLimit = requested - counter.length - 1;
-            console.log('deleting');
         } while (totalLimit > 0)
 
         let msg = "mensaje";

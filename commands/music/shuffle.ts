@@ -30,6 +30,6 @@ export default {
             return;
         }
 
-        playercore.shuffle(message.guildId!);
+        playercore.shuffle(message.guildId!, message.member);
     }
 }

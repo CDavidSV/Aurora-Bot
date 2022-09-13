@@ -1,10 +1,11 @@
 // Bans a guild member.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, GuildMember, GuildMemberManager, User } from 'discord.js';
+import cli from '@angular/cli';
 
 export default {
     aliases: ['ban'],
-    execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+    async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
@@ -36,33 +37,6 @@ export default {
             return;
         }
 
-        // No reason specified.
-        if (args.length > 2) {
-            banReason = String(args.slice(2)).replace(/,/g, ' ');
-        }
-
-        // Get member object.
-        const userID = args[1].replace(/[<@!&>]/g, '');
-        const member = guild!.members.cache.get(userID);
-
-        // member does not exist
-        if (!member) {
-            banEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'Ese miembro no existe.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [banEmbed], files: [errorImg] });
-            return;
-        }
-
-        // Avoids user from banning moderators and administrators.
-        if ((member!.permissions.has([PermissionsBitField.Flags.Administrator]) || !member!.bannable) && message.member!.id !== guild!.ownerId) {
-            banEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No puedes banear a un administrador.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [banEmbed], files: [errorImg] });
-            return;
-        }
-
         if (!guild!.members.me!.permissions.has([PermissionsBitField.Flags.KickMembers])) {
             banEmbed
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
@@ -71,12 +45,46 @@ export default {
             return;
         }
 
+        // No reason specified.
+        if (args.length > 2) {
+            banReason = String(args.slice(2)).replace(/,/g, ' ');
+        }
+
+        // Get member object.
+        const userID = args[1].replace(/[<@!&>]/g, '');
+        const member = guild!.members.cache.get(userID);
+        let user: User;
+
+        // member does not exist.
+        if (!member) {
+            try {
+                user = await client.users.fetch(userID);
+            } catch {
+                banEmbed
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                .setAuthor({ name: 'Ese usuario no existe.', iconURL: 'attachment://error-icon.png' })
+            message.reply({ embeds: [banEmbed], files: [errorImg] });
+            return;
+            }
+        } else {
+            // Avoids user from banning moderators and administrators.
+            user = member!.user;
+            if ((member!.permissions.has([PermissionsBitField.Flags.Administrator]) || !member!.bannable) && message.member!.id !== guild!.ownerId) {
+                banEmbed
+                    .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                    .setAuthor({ name: 'No puedes banear a un administrador.', iconURL: 'attachment://error-icon.png' })
+                message.reply({ embeds: [banEmbed], files: [errorImg] });
+                return;
+            }
+        }
+
         message.delete();
-        // Attempts to ban the mentioned user.
-        member!.ban({ reason: banReason }).then(() => {
+
+        // Attempts to ban the mentioned member.
+        message.guild!.members.ban(user, {reason: banReason}).then(() => {
             banEmbed
                 .setColor(config.embeds.colors.defaultColor as ColorResolvable)
-                .setAuthor({ name: `${member!.user.tag} fue banead@ del servidor.`, iconURL: String(member!.user.avatarURL()) })
+                .setAuthor({ name: `${user.tag} fue banead@ del servidor.`, iconURL: String(user.avatarURL({forceStatic: false})) })
                 .setDescription(`****Razón:**** ${banReason}`)
             message.channel.send({ embeds: [banEmbed] });
         }).catch(() => {

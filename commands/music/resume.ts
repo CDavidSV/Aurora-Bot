@@ -30,6 +30,6 @@ export default {
             return;
         }
 
-        playercore.resume(message.guildId!);
+        playercore.resume(message.guildId!, message.member);
     }
 }

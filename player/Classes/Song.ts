@@ -1,11 +1,12 @@
 import { EmbedBuilder, ColorResolvable, TextChannel, ButtonBuilder, ActionRowBuilder, ButtonStyle, ButtonInteraction, CollectedInteraction } from 'discord.js';
+import ytdl, { downloadOptions } from 'ytdl-core';
 
 import config from '../../config.json';
 import playercore from '../playercore';
 
 export default class Song {
     // Variables.
-    public type: string;
+    public type: string | null;
     public title: string | null;
     public url: string | null;
     public durationTimestamp: string | null;
@@ -13,7 +14,7 @@ export default class Song {
     public requester: { tag: string | undefined; avatar: string | undefined; } = { tag: undefined, avatar: undefined };
 
     // Constructor.
-    constructor(type: string, title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, requester: { tag: string | undefined, avatar: string | undefined }) {
+    constructor(type: string | null, title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, requester: { tag: string | undefined, avatar: string | undefined }) {
         this.type = type;
         this.title = title;
         this.url = url;
@@ -54,5 +55,30 @@ export default class Song {
 
 
         return songEmbed;
+    }
+
+    // Gets a readeble stream for the discord player.
+    getStream() {
+        if(!this.url) {
+            throw new Error('No url provided.');
+        }
+
+        let stream;
+
+        const normalOptions = { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 } as downloadOptions;
+        const liveOptions = { highWaterMark: 1 << 25, dlChunkSize: 0, quality: [91,92,93,94,95], opusEncoded: true, liveBuffer: 4900 } as downloadOptions
+    
+        switch (this.type) {
+            case 'ytvideo':
+                // Get audio from video.
+                // Generate stream.
+                stream = ytdl(this.url, normalOptions);
+                break;
+            case 'ytlive':
+                // Generate stream.
+                stream = ytdl(this.url, liveOptions);
+                break;
+        }
+        return stream;
     }
 }

@@ -29,6 +29,6 @@ export default {
             return;
         }
 
-        playercore.skip(message.guildId!);
+        playercore.skip(message.guildId!, message.member);
     }
 }

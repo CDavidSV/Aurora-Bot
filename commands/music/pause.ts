@@ -30,6 +30,6 @@ export default {
             return;
         }
 
-        playercore.pause(message.guildId!);
+        playercore.pause(message.guildId!, message.member);
     }
 }

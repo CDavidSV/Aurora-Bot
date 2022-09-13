@@ -29,6 +29,6 @@ export default {
             return;
         }
 
-        playercore.loop(message.guildId!);
+        playercore.loop(message.guildId!, message.member);
     }
 }
