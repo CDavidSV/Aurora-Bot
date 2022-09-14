@@ -59,12 +59,20 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
         let currentSong: Song;
 
         if(!serverQueue.loop) {
-            await serverQueue.lastMessage!.edit({ components: [] });
+            serverQueue.lastMessage!.edit({ components: [] });
             songQueue.shift();
         }
 
         // Check if there is another song to play.
         if (songQueue.length >= 1) { 
+            if(!serverQueue.loop) {
+                const songEmbed = songQueue[0].displayCurrentSong();
+                playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
+                const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
+                serverQueue.lastMessage = sentMessage;
+                serverQueues.set(guildId, serverQueue);
+            }
+
             currentSong = songQueue[0] as Song;
 
             // Generate stream.
@@ -74,13 +82,6 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
             let resource = createAudioResource(stream as any);
             serverQueue.player.play(resource);
             serverQueue.playing = true;
-
-            if(!serverQueue.loop) {
-                const songEmbed = songQueue[0].displayCurrentSong();
-                const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
-                serverQueue.lastMessage = sentMessage;
-                serverQueues.set(guildId, serverQueue);
-            }
         } else {
             serverQueue.loop = false;
             serverQueue.playing = false;
@@ -154,7 +155,6 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
     // Collector Events.
     collector.on('collect', async (interaction: ButtonInteraction) => {
         const member = interaction.guild!.members.cache.get(interaction.user.id)!;
-        
         if (!getVoiceConnection(guildId)) {
             interaction.reply({ content: 'No hay un reproductor activo en este servidor.', ephemeral: true });
             collector.stop();
@@ -170,23 +170,23 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
         }
         switch (interaction.customId) {
             case 'resume_playback':
-                resume(guildId, member);
                 interaction.deferUpdate();
+                resume(guildId, member);
                 break;
             case 'pause_playback':
-                pause(guildId, member);
                 interaction.deferUpdate();
+                pause(guildId, member);        
                 break;
             case 'skip_song':
-                skip(guildId, member);
                 interaction.deferUpdate();
+                skip(guildId, member);
                 break;
             case 'loop_song':
-                loop(guildId, member);
                 interaction.deferUpdate();
+                loop(guildId, member);
                 break;
             case 'show_queue':
-                interaction.deferUpdate();;
+                interaction.deferUpdate();
                 break;
             case 'stop_player':
                 stop(guildId, member);
@@ -209,6 +209,7 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
         const serverQueue = serverQueues.get(guildId) as SongQueue;
         const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
 
+        playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
         serverQueue.lastMessage!.edit({ components: [] });
 
         try {
@@ -384,7 +385,8 @@ async function play(message: Message, song: string) {
             message.channel.send({ embeds: [songEmbed] });
         }
         const songEmbed = newSongQueue[0].displayCurrentSong();
-
+        
+        playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
         const sentMessage = await message.channel.send({ embeds: [songEmbed], components: [playerButtons] });
 
         serverQueue.playing = true;
@@ -416,13 +418,12 @@ async function pause(guildId: string, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     serverQueues.set(guildId, serverQueue);
 
-    const updatedPlayerButtons = playerButtons;
-    updatedPlayerButtons.components[1].setCustomId('resume_playback').setLabel('▶').setStyle(ButtonStyle.Success);
+    playerButtons.components[1].setCustomId('resume_playback').setLabel('▶').setStyle(ButtonStyle.Success);
 
     const editedEmbed = EmbedBuilder.from(serverQueue.lastMessage!.embeds[0])
         .setColor(config.playerEmbeds.colors.stoppedColor as ColorResolvable)
         .setDescription(`Reproductor de audio pausado por ${requester!.user.tag}`)
-    await serverQueue.lastMessage!.edit({embeds: [editedEmbed], components: [updatedPlayerButtons]});
+    serverQueue.lastMessage!.edit({embeds: [editedEmbed], components: [playerButtons]});
 
     serverQueue.player.pause();
     return;
@@ -432,13 +433,12 @@ async function pause(guildId: string, requester: GuildMember | null) {
 async function resume(guildId: string, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
 
-    const updatedPlayerButtons = playerButtons;
-    updatedPlayerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
+    playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
 
     const editedEmbed = EmbedBuilder.from(serverQueue.lastMessage!.embeds[0])
         .setColor(config.playerEmbeds.colors.playingColor as ColorResolvable)
         .setDescription(`Reproductor de audio reanudado por ${requester!.user.tag}`)
-    await serverQueue.lastMessage!.edit({embeds: [editedEmbed], components: [updatedPlayerButtons]});
+    serverQueue.lastMessage!.edit({embeds: [editedEmbed], components: [playerButtons]});
 
     serverQueue.player.unpause();
     return;
@@ -451,12 +451,12 @@ async function skip(guildId: string, requester: GuildMember | null) {
     const editedEmbed = EmbedBuilder.from(serverQueue.lastMessage!.embeds[0])
         .setColor(config.playerEmbeds.colors.skipedColor as ColorResolvable)
         .setDescription(`Canción saltada por ${requester!.user.tag}`)
-    await serverQueue.lastMessage!.edit({embeds: [editedEmbed]});
+    serverQueue.lastMessage!.edit({embeds: [editedEmbed], components: []});
 
     serverQueue.loop = false;
+    serverQueue.player.unpause();
     serverQueue.player.stop();
 
-    serverQueues.set(guildId, serverQueue);
     return;
 }
 
@@ -544,6 +544,7 @@ function stop(guildId: string, requester: GuildMember | null | undefined) {
     const connection = getVoiceConnection(guildId)!;
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
 
+    playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
     if(requester) {
         const editedEmbed = EmbedBuilder.from(serverQueue.lastMessage!.embeds[0])
         .setColor(config.playerEmbeds.colors.stoppedColor as ColorResolvable)
