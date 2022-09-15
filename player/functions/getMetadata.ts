@@ -51,7 +51,8 @@ export async function getMetadata(request: string, type: string) {
             url = playlist.url;
             thumbnail = playlist.bestThumbnail.url;
             durationTimestamp = playlist.items[0].duration;
+            durationSec = playlist.items[0].durationSec;
             break;
-    }
-    return new Metadata(type, title, url, durationTimestamp, thumbnail, playlist);
+        }
+    return new Metadata(type, title, url, durationTimestamp, durationSec, thumbnail, playlist);
 }

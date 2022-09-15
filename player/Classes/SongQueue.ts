@@ -11,6 +11,7 @@ export default class SongQueue {
     public player: AudioPlayer;
     public playing: boolean;
     public loop: boolean;
+    public startTimeStamp: number | undefined;
     public collector: InteractionCollector<ButtonInteraction<CacheType> | SelectMenuInteraction<CacheType>> | undefined;
 
     // Constructor.
@@ -42,7 +43,7 @@ export default class SongQueue {
         if (!serverQueue) return;
         let queue: Song[] = []
         serverQueue.songQueue.forEach((element: Song) => {
-            queue.push(new Song(element.type, element.title, element.url, element.durationTimestamp, element.thumbnail, element.requester));
+            queue.push(new Song(element.type, element.title, element.url, element.durationTimestamp, element.durationInSeconds, element.thumbnail, element.requester));
         });
         return queue;
     }

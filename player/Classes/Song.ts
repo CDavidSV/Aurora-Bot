@@ -10,15 +10,17 @@ export default class Song {
     public title: string | null;
     public url: string | null;
     public durationTimestamp: string | null;
+    durationInSeconds: number | null;
     public thumbnail: string | null;
     public requester: { tag: string | undefined; avatar: string | undefined; } = { tag: undefined, avatar: undefined };
 
     // Constructor.
-    constructor(type: string | null, title: string | null, url: string | null, durationTimestamp: string | null, thumbnail: string | null, requester: { tag: string | undefined, avatar: string | undefined }) {
+    constructor(type: string | null, title: string | null, url: string | null, durationTimestamp: string | null, durationInSeconds: number | null, thumbnail: string | null, requester: { tag: string | undefined, avatar: string | undefined }) {
         this.type = type;
         this.title = title;
         this.url = url;
         this.durationTimestamp = durationTimestamp;
+        this.durationInSeconds = durationInSeconds;
         this.thumbnail = thumbnail;
         this.requester.tag = requester.tag;
         this.requester.avatar = requester.avatar;
@@ -27,8 +29,7 @@ export default class Song {
     // Methods.
 
     // Displays currently playing song.
-    displayCurrentSong() {
-
+    displayCurrentSong(currentDurationProgress: string | undefined = undefined) {
         // Embed.
         const songEmbed = new EmbedBuilder()
             .setColor(config.playerEmbeds.colors.playingColor as ColorResolvable)
@@ -39,8 +40,13 @@ export default class Song {
             .setThumbnail(this.thumbnail)
             .setFooter({ text: `Pedida por ${this.requester.tag}`, iconURL: this.requester.avatar })
 
-        return songEmbed;
+        if(!currentDurationProgress) {
+            songEmbed.setFields({ name: 'Duración', value: `\`${this.durationTimestamp}\`` });
+        } else {
+            songEmbed.setFields({ name: 'Duración', value: `\`${currentDurationProgress}\`` });
+        }
 
+        return songEmbed;
     }
 
     // Displays queued song.

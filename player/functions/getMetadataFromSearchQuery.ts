@@ -9,9 +9,10 @@ export async function getMetadataFromSearchQuery(query: string) {
     let url = null;
     let playlist = null;
     let durationTimestamp = null;
+    let durationSec = null;
 
     const search = await ytsr(query, { limit: 3 }) as any;
-    let song;
+    let song: any;
 
     // In case there are no results.
     if (search.items.length < 1) return;
@@ -30,6 +31,7 @@ export async function getMetadataFromSearchQuery(query: string) {
     url = song.url;
     thumbnail = song.bestThumbnail.url;
     durationTimestamp = song.duration;
+    durationSec = song.durationSec;
 
-    return new Metadata(type, title, url, durationTimestamp, thumbnail, playlist);
+    return new Metadata(type, title, url, durationTimestamp, durationSec, thumbnail, playlist);
 }

@@ -8,6 +8,7 @@ import SongQueue from './Classes/SongQueue';
 import Metadata from './Classes/Metadata';
 import { getMetadata } from './functions/getMetadata';
 import { getMetadataFromSearchQuery } from './functions/getMetadataFromSearchQuery';
+import { progressBar } from './functions/progressbar';
 
 const serverQueues: Map<string, SongQueue> = new Map();
 
@@ -49,6 +50,7 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
 
     serverQueue.collector = collector;
     serverQueue.lastMessage = sentMessage;
+    serverQueue.startTimeStamp = Math.round(Date.now() / 1000);
     serverQueues.set(guildId, serverQueue);
 
     // Player events.
@@ -69,7 +71,9 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
                 const songEmbed = songQueue[0].displayCurrentSong();
                 playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
                 const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
+
                 serverQueue.lastMessage = sentMessage;
+                serverQueue.startTimeStamp = Math.round(Date.now() / 1000);
                 serverQueues.set(guildId, serverQueue);
             }
 
@@ -131,6 +135,7 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
             const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
 
             serverQueue.lastMessage = sentMessage;
+            serverQueue.startTimeStamp = Math.round(Date.now() / 1000);
             serverQueues.set(guildId, serverQueue);
         } else {
             serverQueue.playing = false;
@@ -292,7 +297,7 @@ async function play(message: Message, song: string) {
                 }
                 const playlist = metadata.playlist!;
                 for (let item = 0; item < playlist.items.length; item++) {
-                    newSongQueue.push(new Song('ytvideo', playlist.items[item].title, playlist.items[item].url, playlist.items[item].duration, playlist.items[item].bestThumbnail.url, requesterObj));
+                    newSongQueue.push(new Song('ytvideo', playlist.items[item].title, playlist.items[item].url, playlist.items[item].duration, playlist.items[item].durationSec, playlist.items[item].bestThumbnail.url, requesterObj));
                 }
             } catch {
                 // Could not find the playlist (Mixes not yet supported).
@@ -301,7 +306,7 @@ async function play(message: Message, song: string) {
                     message.channel.send('❌ No se han encontrado resultados. Esto puede deberse a que la canción **es para usuarios Premium o es privada**.')
                     return;
                 }
-                newSongQueue.push(new Song(metadata.type, metadata.title, song, metadata.durationTimestamp, metadata.thumbnail, requesterObj));
+                newSongQueue.push(new Song(metadata.type, metadata.title, metadata.url, metadata.durationTimestamp, metadata.durationInSeconds, metadata.thumbnail, requesterObj));
             }
         } else {
             metadata = await getMetadata(song, 'ytvideo');
@@ -309,7 +314,7 @@ async function play(message: Message, song: string) {
                 message.channel.send('❌ No se han encontrado resultados. Esto puede deberse a que la canción **es para usuarios Premium o es privada**.')
                 return;
             }
-            newSongQueue.push(new Song(metadata.type, metadata.title, song, metadata.durationTimestamp, metadata.thumbnail, requesterObj));
+            newSongQueue.push(new Song(metadata.type, metadata.title, metadata.url, metadata.durationTimestamp, metadata.durationInSeconds, metadata.thumbnail, requesterObj));
         }
     } else if (spotifySongRegex.test(song)) {
         message.channel.send('Lo siento, pero todavia no soportamos spotify.');
@@ -323,7 +328,7 @@ async function play(message: Message, song: string) {
             message.channel.send('❌ No se han encontrado resultados. Prueba diferentes **palabras clave**.');
             return;
         }
-        newSongQueue.push(new Song(metadata.type, metadata.title, metadata.url, metadata.durationTimestamp, metadata.thumbnail, requesterObj));
+        newSongQueue.push(new Song(metadata.type, metadata.title, metadata.url, metadata.durationTimestamp, metadata.durationInSeconds, metadata.thumbnail, requesterObj));
     }
 
     // Check if a queue exists for that server. If not, then generate one.
@@ -416,7 +421,7 @@ async function play(message: Message, song: string) {
 // Pauses the player for the selected guild.
 async function pause(guildId: string, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
-    serverQueues.set(guildId, serverQueue);
+    if(!serverQueue) return;
 
     playerButtons.components[1].setCustomId('resume_playback').setLabel('▶').setStyle(ButtonStyle.Success);
 
@@ -432,6 +437,7 @@ async function pause(guildId: string, requester: GuildMember | null) {
 // Resumes playback for the selected guild.
 async function resume(guildId: string, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
+    if(!serverQueue) return;
 
     playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
 
@@ -444,9 +450,31 @@ async function resume(guildId: string, requester: GuildMember | null) {
     return;
 }
 
+// Sends an embed showing current time of the playing audio.
+async function currentSong(guildId: string) {
+    const serverQueue = serverQueues.get(guildId);
+    if(!serverQueue) return;
+
+    // Get channel and song queue.
+    const songQueue = await serverQueue.getSongQueue() as Song[];
+    const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
+
+    // Remove componets from last message.
+    serverQueue.lastMessage!.edit({components: []});
+
+    // Calculate duration progress.
+    const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeStamp!;
+    const songEmbed = songQueue[0].displayCurrentSong(progressBar(songQueue[0].durationInSeconds, currentTime));
+
+    // Send embed with new components.
+    channel.send({embeds: [songEmbed], components: [playerButtons]});
+    
+}
+
 // Skips a track for the selected guild.
 async function skip(guildId: string, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
+    if(!serverQueue) return;
 
     const editedEmbed = EmbedBuilder.from(serverQueue.lastMessage!.embeds[0])
         .setColor(config.playerEmbeds.colors.skipedColor as ColorResolvable)
@@ -463,6 +491,8 @@ async function skip(guildId: string, requester: GuildMember | null) {
 // Removes a selected song from the queue.
 async function remove(guildId: string, index: number, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
+    if(!serverQueue) return;
+
     const songQueue = await serverQueue.getSongQueue() as Song[];
     songQueue.splice(index, 1);
     serverQueue.updateSongQueue(songQueue);
@@ -480,6 +510,8 @@ async function remove(guildId: string, index: number, requester: GuildMember | n
 // Loops the current song.
 async function loop(guildId: string, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
+    if(!serverQueue) return;
+
     const songQueue = await serverQueue.getSongQueue() as Song[];
 
     if (serverQueue.loop) {
@@ -507,6 +539,8 @@ async function loop(guildId: string, requester: GuildMember | null) {
 // Shuffles the queue for a particular guild.
 async function shuffle(guildId: string, requester: GuildMember | null) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
+    if(!serverQueue) return;
+
     const songQueue = await serverQueue.getSongQueue() as Song[];
     const currentSong = songQueue[0];
     songQueue.shift();
@@ -531,7 +565,7 @@ async function shuffle(guildId: string, requester: GuildMember | null) {
     return;
 }
 
-// Replays the current song.
+// Replays the current song immediately.
 function replay(guildId: string, requester: GuildMember | null) {
 
 }
@@ -574,6 +608,8 @@ function stop(guildId: string, requester: GuildMember | null | undefined) {
 // Clear the queue.
 function clear(guildId: string, requester: GuildMember | null ) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
+    if(!serverQueue) return;
+
     serverQueue.deleteQueue();
 
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
@@ -606,6 +642,7 @@ export default {
     play,
     pause,
     resume,
+    currentSong,
     skip,
     remove,
     loop,

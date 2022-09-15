@@ -2,7 +2,6 @@
 
 import { Client, Message } from 'discord.js';
 import playercore from '../../player/playercore';
-import { getVoiceConnection, joinVoiceChannel, DiscordGatewayAdapterCreator } from '@discordjs/voice';
 
 export default {
     aliases: ['play', 'p'],
