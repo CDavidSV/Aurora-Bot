@@ -1,7 +1,6 @@
 // Bans a guild member.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, GuildMember, GuildMemberManager, User } from 'discord.js';
-import cli from '@angular/cli';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, User } from 'discord.js';
 
 export default {
     aliases: ['ban'],

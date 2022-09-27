@@ -1,6 +1,6 @@
 // Kicks a guild member.
 import config from '../../config.json';
-import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
 
 export default {
     aliases: ['kick'],

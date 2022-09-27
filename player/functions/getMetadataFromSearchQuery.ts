@@ -1,15 +1,14 @@
 import ytsr from "ytsr";
-import Metadata from "../Classes/Metadata";
+import Metadata from "../Classes/SongMetadata";
 
 // gets metadata from search query.
 export async function getMetadataFromSearchQuery(query: string) {
-    let type = null;
-    let title = null;
-    let thumbnail = null;
-    let url = null;
-    let playlist = null;
-    let durationTimestamp = null;
-    let durationSec = null;
+    let type;
+    let title;
+    let thumbnail;
+    let url;
+    let durationTimestamp;
+    let durationSec;
 
     const search = await ytsr(query, { limit: 3 }) as any;
     let song: any;
@@ -19,19 +18,26 @@ export async function getMetadataFromSearchQuery(query: string) {
 
     // Checks if the found result is valid.
     for (let item = 0; item < search.items.length; item++) {
-        if (search.items[item].type !== 'playlist' && search.items[item].type !== 'movie' && search.items[item].badges[0] !== 'LIVE') {
+        if (search.items[item].type !== 'playlist' && search.items[item].type !== 'movie') {
             song = search.items[item];
             break;
         }
     }
-    if (!song) return;
+    if(!song) return;
 
-    type = 'ytvideo';
     title = song.title;
     url = song.url;
     thumbnail = song.bestThumbnail.url;
-    durationTimestamp = song.duration;
-    durationSec = song.durationSec;
 
-    return new Metadata(type, title, url, durationTimestamp, durationSec, thumbnail, playlist);
+    if(song.badges.some((badge: string) => badge.includes("LIVE"))) {
+        type = 'ytlive';
+        durationTimestamp = 'En Vivo';
+        durationSec = 0;
+    } else {
+        type = 'ytvideo';
+        durationTimestamp = song.duration;
+        durationSec = song.durationSec;
+    }
+
+    return new Metadata(type, title, url, durationTimestamp, durationSec, thumbnail);
 }

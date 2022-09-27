@@ -11,7 +11,9 @@ export default class SongQueue {
     public player: AudioPlayer;
     public playing: boolean;
     public loop: boolean;
-    public startTimeStamp: number | undefined;
+    public startTimeStamp: number  = 0;
+    public bassBoost: boolean = false;
+    public nightCore: boolean = false;
     public collector: InteractionCollector<ButtonInteraction<CacheType> | SelectMenuInteraction<CacheType>> | undefined;
 
     // Constructor.

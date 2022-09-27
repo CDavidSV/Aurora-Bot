@@ -17,6 +17,7 @@
     "dotenv": "^16.0.2",
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^5.1.0",
+    "fluent-ffmpeg": "^2.1.2",
     "libsodium-wrappers": "^0.7.10",
     "mongoose": "^6.6.0",
     "npm": "^8.19.1",
@@ -25,6 +26,7 @@
     "ytsr": "^3.8.0"
   },
   "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.20",
     "nodemon": "^2.0.19"
   }
 }
