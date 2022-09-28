@@ -9,9 +9,10 @@ export default class SongQueue {
     public textChannelId: string;
     public lastMessage: Message | undefined;
     public player: AudioPlayer;
-    public playing: boolean;
-    public loop: boolean;
-    public startTimeStamp: number  = 0;
+    public playing: boolean = true;
+    public loop: boolean = true;
+    public startTimeInSec: number  = 0;
+    public pausedTimeInSec: number = 0;
     public bassBoost: boolean = false;
     public nightCore: boolean = false;
     public collector: InteractionCollector<ButtonInteraction<CacheType> | SelectMenuInteraction<CacheType>> | undefined;

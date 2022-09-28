@@ -20,7 +20,7 @@ export function progressBar(totalDuration: number | null, currentTime: number) {
     const currentBars = Math.round(currentTime * totalBars / totalDuration!);
 
     for (let i = 0; i < 24; i++) {
-        if(i < 24) {
+        if(i < currentBars) {
             progressBar += "▬";
         } else {
             progressBar += "-";

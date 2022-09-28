@@ -52,7 +52,7 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
 
     serverQueue.collector = collector;
     serverQueue.lastMessage = sentMessage;
-    serverQueue.startTimeStamp = Math.round(Date.now() / 1000);
+    serverQueue.startTimeInSec = Math.round(Date.now() / 1000);
     serverQueues.set(guildId, serverQueue);
 
     // Player events.
@@ -61,24 +61,20 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
         const songQueue = await serverQueue.getSongQueue() as Song[];
         let currentSong: Song;
 
+        serverQueue.lastMessage!.edit({ components: [] });
+
         // Remove finished song from the queue.
-        if(!serverQueue.loop) {
-            serverQueue.lastMessage!.edit({ components: [] });
+        if(!serverQueue.loop && songQueue.length >= 1) {
             songQueue.shift();
+            const songEmbed = songQueue[0].displayCurrentSong();
+            playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
+            const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
+
+            serverQueue.lastMessage = sentMessage;
         }
 
         // Check if there is another song to play.
         if (songQueue.length >= 1) { 
-            if(!serverQueue.loop) {
-                const songEmbed = songQueue[0].displayCurrentSong();
-                playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
-                const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
-
-                serverQueue.lastMessage = sentMessage;
-                serverQueue.startTimeStamp = Math.round(Date.now() / 1000);
-                serverQueues.set(guildId, serverQueue);
-            }
-
             currentSong = songQueue[0] as Song;
 
             // Generate stream.
@@ -97,14 +93,13 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
             let resource = createAudioResource(stream);
             serverQueue.player.play(resource);
             serverQueue.playing = true;
+            serverQueue.startTimeInSec = Math.round(Date.now() / 1000);
         } else {
             serverQueue.loop = false;
             serverQueue.playing = false;
-            serverQueues.set(guildId, serverQueue);
 
             setTimeout(async () => {
-                let queueSize = (await serverQueue.getSongQueue())!;
-                if ((!queueSize || queueSize.length < 1) && connection.state.status !== 'destroyed') {
+                if (songQueue.length < 1 && connection.state.status !== 'destroyed') {
                     connection.destroy();
 
                     collector.stop();
@@ -116,6 +111,7 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
                 }
             }, 300000)
         }
+        serverQueues.set(guildId, serverQueue);
         serverQueue.updateSongQueue(songQueue);
     });
 
@@ -155,15 +151,14 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
             const sentMessage = await channel.send({ embeds: [songEmbed], components: [playerButtons] });
 
             serverQueue.lastMessage = sentMessage;
-            serverQueue.startTimeStamp = Math.round(Date.now() / 1000);
+            serverQueue.startTimeInSec = Math.round(Date.now() / 1000);
             serverQueues.set(guildId, serverQueue);
         } else {
             serverQueue.playing = false;
             serverQueues.set(guildId, serverQueue);
 
             setTimeout(async () => {
-                let queueSize = await serverQueue.getSongQueue() as Song[];
-                if (!queueSize || queueSize.length < 1) {
+                if (songQueue.length < 1 && connection.state.status !== 'destroyed') {
                     connection.destroy();
 
                     collector.stop();
@@ -180,11 +175,6 @@ async function EventManager(guildId: string, serverQueue: SongQueue) {
     // Collector Events.
     collector.on('collect', async (interaction: ButtonInteraction) => {
         const member = interaction.guild!.members.cache.get(interaction.user.id)!;
-        if (!getVoiceConnection(guildId)) {
-            interaction.reply({ content: 'No hay un reproductor activo en este servidor.', ephemeral: true });
-            collector.stop();
-            return;
-        }
         if (!member.voice.channel) {
             interaction.reply({ content: `Necesitas primero estar dentro de un **canal de voz**.`, ephemeral: true });
             return;
@@ -439,7 +429,7 @@ async function play(message: Message, song: string) {
 }
 
 // Pauses the player for the selected guild.
-async function pause(guildId: string, requester: GuildMember | null) {
+async function pause(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
 
@@ -455,7 +445,7 @@ async function pause(guildId: string, requester: GuildMember | null) {
 }
 
 // Resumes playback for the selected guild.
-async function resume(guildId: string, requester: GuildMember | null) {
+async function resume(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
 
@@ -483,7 +473,7 @@ async function nowplaying(guildId: string) {
     serverQueue.lastMessage!.edit({components: []});
 
     // Calculate duration progress.
-    const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeStamp!;
+    const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeInSec!;
     const songEmbed = songQueue[0].displayCurrentSong(progressBar(songQueue[0].durationInSeconds!, currentTime));
 
     // Send embed with new components.
@@ -492,7 +482,7 @@ async function nowplaying(guildId: string) {
 }
 
 // Skips a track for the selected guild.
-async function skip(guildId: string, requester: GuildMember | null) {
+async function skip(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
 
@@ -509,7 +499,7 @@ async function skip(guildId: string, requester: GuildMember | null) {
 }
 
 // Removes a selected song from the queue.
-async function remove(guildId: string, index: number, requester: GuildMember | null) {
+async function remove(guildId: string, index: number, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
 
@@ -528,7 +518,7 @@ async function remove(guildId: string, index: number, requester: GuildMember | n
 }
 
 // Loops the current song.
-async function loop(guildId: string, requester: GuildMember | null) {
+async function loop(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
 
@@ -562,7 +552,7 @@ async function loop(guildId: string, requester: GuildMember | null) {
 }
 
 // Shuffles the queue for a particular guild.
-async function shuffle(guildId: string, requester: GuildMember | null) {
+async function shuffle(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
 
@@ -591,12 +581,12 @@ async function shuffle(guildId: string, requester: GuildMember | null) {
 }
 
 // Replays the current song immediately.
-function replay(guildId: string, requester: GuildMember | null) {
+function replay(guildId: string, requester: GuildMember) {
 
 }
 
 // Stops the player and disconnects from the voice channel.
-function stop(guildId: string, requester: GuildMember | null | undefined) {
+function stop(guildId: string, requester: GuildMember | undefined) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
     
@@ -604,6 +594,7 @@ function stop(guildId: string, requester: GuildMember | null | undefined) {
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
 
     playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
+
     if(requester) {
         const editedEmbed = EmbedBuilder.from(serverQueue.lastMessage!.embeds[0])
         .setColor(config.playerEmbeds.colors.stoppedColor as ColorResolvable)
@@ -614,12 +605,12 @@ function stop(guildId: string, requester: GuildMember | null | undefined) {
     if (serverQueue.player.state.status === AudioPlayerStatus.Paused) {
         serverQueue.player.unpause();
     }
-    connection!.destroy();
-    serverQueue.player.removeAllListeners();
-    serverQueue.player.stop();
 
     serverQueue.collector!.stop();
     serverQueue.dropSongQueue();
+    connection!.destroy();
+    serverQueue.player.removeAllListeners();
+    serverQueue.player.stop();
     serverQueues.delete(guildId);
 
     const disconnectedEmbed = new EmbedBuilder()
@@ -631,7 +622,7 @@ function stop(guildId: string, requester: GuildMember | null | undefined) {
 }
 
 // Clear the queue.
-function clear(guildId: string, requester: GuildMember | null ) {
+function clear(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
 
@@ -639,13 +630,11 @@ function clear(guildId: string, requester: GuildMember | null ) {
 
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
 
-    if (requester) {
-        const songEmbed = new EmbedBuilder()
+    const songEmbed = new EmbedBuilder()
         .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
         .setDescription(`La lista de canciones ha sido borrada.`)
         .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.displayAvatarURL({forceStatic: false}) })
     channel.send({embeds: [songEmbed]});
-    }
 
     return;
 }
@@ -657,34 +646,30 @@ async function bassBoost(guildId: string, requester: GuildMember) {
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
     const songQueue = await serverQueue.getSongQueue() as Song[];
 
-    const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeStamp!;
     let stream: any;
-
-
     const songEmbed = new EmbedBuilder();
     if (serverQueue.nightCore && !serverQueue.bassBoost) {
-        stream = songQueue[0].getStream('nightcore-bassboost', currentTime);
+        stream = songQueue[0].getStream('nightcore-bassboost');
         serverQueue.bassBoost = true;
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
             .setDescription('Nightcore y Bassboost están habilitados.')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({forceStatic: false})! })
     } else if (!serverQueue.nightCore && !serverQueue.bassBoost){
-        stream = songQueue[0].getStream('bassboost', currentTime);
+        stream = songQueue[0].getStream('bassboost');
         serverQueue.bassBoost = true;
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
             .setDescription('Bassboost habilitado.')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({forceStatic: false})! })
     } else {
-        stream = songQueue[0].getStream('none', currentTime);
+        stream = songQueue[0].getStream('none');
         serverQueue.bassBoost = false;
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
             .setDescription('Bassboost dehabilitado.')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({forceStatic: false})! })
     }
-
     channel.send({embeds: [songEmbed]});
 
     const resource = createAudioResource(stream);
@@ -694,40 +679,38 @@ async function bassBoost(guildId: string, requester: GuildMember) {
     serverQueues.set(guildId, serverQueue);
 }
 
-async function nightCore(guildId: string, requester: GuildMember | null) {
+async function nightCore(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as SongQueue;
     if(!serverQueue) return;
     
     const songQueue = await serverQueue.getSongQueue() as Song[];
     const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
 
-    const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeStamp!;
     let stream: any;
 
     const songEmbed = new EmbedBuilder();
     if (serverQueue.bassBoost && !serverQueue.nightCore) {
-        stream = songQueue[0].getStream('nightcore-bassboost', currentTime);
+        stream = songQueue[0].getStream('nightcore-bassboost');
         serverQueue.nightCore = true;
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
             .setDescription('Bassboost y Nightcore están habilitados.')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({forceStatic: false})! })
     } else if (!serverQueue.bassBoost && !serverQueue.nightCore){
-        stream = songQueue[0].getStream('nightcore', currentTime);
+        stream = songQueue[0].getStream('nightcore');
         serverQueue.nightCore = true;
         songEmbed
         .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
         .setDescription('Nightcore habilitado.')
         .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({forceStatic: false})! })
     } else {
-        stream = songQueue[0].getStream('none', currentTime);
+        stream = songQueue[0].getStream('none');
         serverQueue.nightCore = false;
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
             .setDescription('Nightcore deshabilitado.')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({forceStatic: false})! })
     }
-
     channel.send({embeds: [songEmbed]});
     
     const resource = createAudioResource(stream);
@@ -735,7 +718,6 @@ async function nightCore(guildId: string, requester: GuildMember | null) {
     serverQueue.player.play(resource);
 
     serverQueues.set(guildId, serverQueue);
-
 }
 
 // Returns the queue for that particular guild.

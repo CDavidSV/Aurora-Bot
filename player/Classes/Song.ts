@@ -1,5 +1,5 @@
 import { EmbedBuilder, ColorResolvable } from 'discord.js';
-import ytdl, { downloadOptions } from 'ytdl-core';
+import ytdl from 'ytdl-core';
 import dytdl from 'discord-ytdl-core';
 
 import config from '../../config.json';
@@ -63,14 +63,14 @@ export default class Song {
     }
 
     // Gets a readeble stream for the discord player.
-    getStream(streamSetting: string = 'none', startTimeInSec: number = 0) {
+    getStream(streamSetting: string = 'none') {
         if(!this.url) {
             throw new Error('This song has no url.');
         }
         
         let stream: any;
 
-        let normalOptions = { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25, fmt: 'mp3', begin: startTimeInSec * 1000 } as any;
+        let normalOptions = { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25, fmt: 'mp3' } as any;
         let liveOptions = { highWaterMark: 1 << 25, dlChunkSize: 0, quality: [91,92,93,94,95], opusEncoded: true, liveBuffer: 4900 } as any;
 
         // Select appropriate stream depending on the source.
@@ -85,9 +85,6 @@ export default class Song {
                 stream = this.generateYTStream(liveOptions, streamSetting);
                 break;
         }
-
-        // Set stream setting for nightcore or bassboost.
-
         return stream;
     }
 

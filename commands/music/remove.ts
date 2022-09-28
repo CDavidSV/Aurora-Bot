@@ -40,6 +40,6 @@ export default {
             return;
         }
 
-        playercore.remove(message.guildId!, index, message.member);
+        playercore.remove(message.guildId!, index, message.member!);
     }
 }

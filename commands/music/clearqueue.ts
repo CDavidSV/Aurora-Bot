@@ -30,6 +30,6 @@ export default {
             return;
         }
 
-        playercore.clear(message.guildId!, message.member);
+        playercore.clear(message.guildId!, message.member!);
     }
 }
