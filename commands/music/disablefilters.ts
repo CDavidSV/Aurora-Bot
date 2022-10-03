@@ -5,7 +5,7 @@ import { Client, Message } from "discord.js";
 import playercore from "../../player/playercore";
 
 export default {
-    aliases: ['reverb'],
+    aliases: ['disablefilters'],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -24,13 +24,6 @@ export default {
         // Check if there is a voice connection.
         if (!getVoiceConnection(message.guildId!)) {
             message.reply(`No hay un reproductor activo en este servidor \n\`Intenta: ${prefix}play <canción o url>\``);
-            return;
-        }
-
-        // check if there are songs in the queue.
-        const serverQueue = playercore.getServerQueues().get(message.guildId!);
-        if (!serverQueue || !serverQueue!.playing) {
-            message.reply(`No hay ninguna canción reproduciendose.`);
             return;
         }
 

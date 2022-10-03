@@ -94,8 +94,10 @@ async function EventManager(guildId: string, serverQueue: ServerQueue) {
             serverQueue.playing = false;
             serverQueues.set(guildId, serverQueue);
 
-            setTimeout(async () => {
-                if (songQueue.length < 1 && connection.state.status !== 'destroyed') {
+            setTimeout(() => {
+                const serverQueue = serverQueues.get(guildId);
+                if (!serverQueue) return;
+                if (!serverQueue.playing && connection.state.status !== 'destroyed') {
                     connection.destroy();
 
                     collector.stop();
@@ -143,8 +145,10 @@ async function EventManager(guildId: string, serverQueue: ServerQueue) {
             serverQueue.playing = false;
             serverQueues.set(guildId, serverQueue);
 
-            setTimeout(async () => {
-                if (songQueue.length < 1 && connection.state.status !== 'destroyed') {
+            setTimeout(() => {
+                const serverQueue = serverQueues.get(guildId);
+                if (!serverQueue) return;
+                if (!serverQueue.playing && connection.state.status !== 'destroyed') {
                     connection.destroy();
 
                     collector.stop();
@@ -409,6 +413,7 @@ async function play(message: Message, song: string) {
         }
     }
     const songQueue = await serverQueue.getSongQueue() as Song[];
+    if (!songQueue) return;
     songQueue.push(...newSongQueue);
     await serverQueue.updateSongQueue(songQueue);
     serverQueues.set(guildId, serverQueue)
@@ -871,7 +876,7 @@ async function disableFilters(guildId: string, requester: GuildMember) {
         serverQueue.startTimeInSec = serverQueue.startTimeInSec + pausedTime;
     }
 
-    if(!serverQueue.playing) {
+    if (!serverQueue.playing) {
         serverQueue.removeAllFilters();
     } else {
         const loadStartTime = Math.round(Date.now() / 1000);

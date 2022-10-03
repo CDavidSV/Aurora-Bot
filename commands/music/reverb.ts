@@ -34,6 +34,6 @@ export default {
             return;
         }
 
-        playercore.nightCore(message.guildId!, message.member!);
+        playercore.reverb(message.guildId!, message.member!);
     }
 }

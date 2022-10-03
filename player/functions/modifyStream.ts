@@ -20,7 +20,7 @@ export function modifyStream(stream: any, streamSettings: { outputOption: string
         outputOptionsString += 'asetrate=44100*1.25, aresample=48000, ';
     }
     if (streamSettings.outputOption.includes('daycore')) {
-        outputOptionsString += 'asetrate=44100*0.91, aresample=48000, ';
+        outputOptionsString += 'asetrate=44100*0.90, aresample=48000, ';
     }
     if (streamSettings.outputOption.includes('reverb')) {
         outputOptionsString += 'aecho=1.0:0.7:20:0.5, ';

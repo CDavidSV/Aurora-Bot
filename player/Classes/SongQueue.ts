@@ -91,17 +91,17 @@ export default class ServerQueue {
             return;
         }
         if (filter === 'nightcore') {
-            this.filters.slice(this.filters.indexOf('daycore'), 1);
+            this.filters.splice(this.filters.indexOf('daycore'), 1);
         }
         if (filter === 'daycore') {
-            this.filters.slice(this.filters.indexOf('nightcore'), 1);
+            this.filters.splice(this.filters.indexOf('nightcore'), 1);
         }
 
         this.filters.push(filter);
     }
 
     removeFilter(filter: Filters) {
-        this.filters.slice(this.filters.indexOf(filter), 1);
+        this.filters.splice(this.filters.indexOf(filter), 1);
     }
 
     removeAllFilters() {

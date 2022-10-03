@@ -6,7 +6,7 @@ import playercore from "../../player/playercore";
 import config from '../../config.json';
 
 export default {
-    aliases: ['reverb'],
+    aliases: ['filters'],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -32,7 +32,7 @@ export default {
         const serverQueue = playercore.getServerQueues().get(message.guildId!);
         const filters = serverQueue!.filters;
 
-        if(filters.length < 1) {
+        if (filters.length < 1) {
             message.reply('No hay filtros activos.');
             return;
         }
@@ -41,7 +41,5 @@ export default {
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
             .setTitle('Filtros activos ♪')
             .setDescription(filters.toString().replace(',', '\n'))
-
-        playercore.disableFilters(message.guildId!, message.member!);
     }
 }
