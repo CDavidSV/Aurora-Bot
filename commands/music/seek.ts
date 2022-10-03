@@ -1,1 +1,1 @@
-// playback from selected timestamp.
+// Playback from selected timestamp.

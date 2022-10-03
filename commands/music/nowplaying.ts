@@ -27,7 +27,7 @@ export default {
             return;
         }
 
-        // check if there are songs in the queue.
+        // Check if there are songs in the queue.
         const serverQueue = playercore.getServerQueues().get(message.guildId!);
         if (!serverQueue || !serverQueue!.playing) {
             message.reply(`No hay ninguna canción reproduciendose.`);

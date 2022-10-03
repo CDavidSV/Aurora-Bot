@@ -23,7 +23,7 @@ export async function getPlaylistMetadata(request: string) {
     thumbnail = playlist.bestThumbnail.url;
 
     durationSec = 0;
-    for(let song = 0; song < playlist.items.length; song++) {
+    for (let song = 0; song < playlist.items.length; song++) {
         durationSec += playlist.items[song].durationSec!;
     }
 

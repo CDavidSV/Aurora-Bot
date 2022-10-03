@@ -9,6 +9,7 @@ export async function getMetadataFromSearchQuery(query: string) {
     let url;
     let durationTimestamp;
     let durationSec;
+    let author;
 
     const search = await ytsr(query, { limit: 3 }) as any;
     let song: any;
@@ -23,13 +24,15 @@ export async function getMetadataFromSearchQuery(query: string) {
             break;
         }
     }
-    if(!song) return;
+    if (!song) return;
 
     title = song.title;
     url = song.url;
     thumbnail = song.bestThumbnail.url;
+    author = song.author.name;
 
-    if(song.badges.some((badge: string) => badge.includes("LIVE"))) {
+
+    if (song.badges.some((badge: string) => badge.includes("LIVE"))) {
         type = 'ytlive';
         durationTimestamp = 'En Vivo';
         durationSec = 0;
@@ -39,5 +42,5 @@ export async function getMetadataFromSearchQuery(query: string) {
         durationSec = song.durationSec;
     }
 
-    return new Metadata(type, title, url, durationTimestamp, durationSec, thumbnail);
+    return new Metadata(type, title, author, url, durationTimestamp, durationSec, thumbnail);
 }

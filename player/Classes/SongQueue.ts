@@ -3,19 +3,21 @@ import { ButtonInteraction, CacheType, InteractionCollector, Message, SelectMenu
 import Song from './Song';
 const queueScheema = require("../../mongoDB/schemas/queue-scheema");
 
-export default class SongQueue {
+type Filters = 'bassboost' | 'nightcore' | 'daycore' | 'reverb';
+
+export default class ServerQueue {
     // Variables.
     public guildId: string;
+    public size: number = 0;
     public textChannelId: string;
     public lastMessage: Message | undefined;
     public player: AudioPlayer;
     public playing: boolean = true;
     public loop: boolean = true;
-    public startTimeInSec: number  = 0;
+    public startTimeInSec: number = 0;
     public pausedTimeInSec: number = 0;
-    public bassBoost: boolean = false;
-    public nightCore: boolean = false;
     public collector: InteractionCollector<ButtonInteraction<CacheType> | SelectMenuInteraction<CacheType>> | undefined;
+    public filters: Filters[] = [];
 
     // Constructor.
     constructor(guildId: string, textChannelId: string, subscription: AudioPlayer, playing: boolean, loop: boolean) {
@@ -40,13 +42,31 @@ export default class SongQueue {
         })
     }
 
+    // Add a song or list of songs to the queue.
+    async addSongs(songQueue: Song[]) {
+        await queueScheema.updateOne({
+            _id: this.guildId
+        }, {
+            $push: { songQueue: { $each: songQueue } }
+        })
+    }
+
+    // Removes the first song from the queue (finished playing).
+    async pop() {
+        await queueScheema.updateOne({
+            _id: this.guildId
+        }, {
+            $pop: { songQueue: -1 }
+        })
+    }
+
     // Returns the current song queue for that server.
     async getSongQueue() {
         const serverQueue = await queueScheema.findOne({ _id: this.guildId });
         if (!serverQueue) return;
         let queue: Song[] = []
         serverQueue.songQueue.forEach((element: Song) => {
-            queue.push(new Song(element.type, element.title, element.url, element.durationTimestamp, element.durationInSeconds, element.thumbnail, element.requester));
+            queue.push(new Song(element.type, element.title, element.author, element.url, element.durationTimestamp, element.durationInSeconds, element.thumbnail, element.requester));
         });
         return queue;
     }
@@ -64,5 +84,27 @@ export default class SongQueue {
 
     async dropSongQueue() {
         await queueScheema.deleteOne({ _id: this.guildId });
+    }
+
+    addFilter(filter: Filters) {
+        if (this.filters.includes(filter)) {
+            return;
+        }
+        if (filter === 'nightcore') {
+            this.filters.slice(this.filters.indexOf('daycore'), 1);
+        }
+        if (filter === 'daycore') {
+            this.filters.slice(this.filters.indexOf('nightcore'), 1);
+        }
+
+        this.filters.push(filter);
+    }
+
+    removeFilter(filter: Filters) {
+        this.filters.slice(this.filters.indexOf(filter), 1);
+    }
+
+    removeAllFilters() {
+        this.filters = [];
     }
 }
