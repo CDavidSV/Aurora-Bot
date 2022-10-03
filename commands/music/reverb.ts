@@ -1,4 +1,4 @@
-// Dissables all filters.
+// Adds reverb to the stream.
 
 import { getVoiceConnection } from "@discordjs/voice";
 import { Client, Message } from "discord.js";
@@ -34,6 +34,6 @@ export default {
             return;
         }
 
-        playercore.disableFilters(message.guildId!, message.member!);
+        playercore.nightCore(message.guildId!, message.member!);
     }
 }

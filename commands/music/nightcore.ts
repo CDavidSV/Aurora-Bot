@@ -35,6 +35,5 @@ export default {
         }
 
         playercore.nightCore(message.guildId!, message.member!);
-
     }
 }

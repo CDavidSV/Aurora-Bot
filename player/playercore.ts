@@ -688,7 +688,7 @@ async function bassBoost(guildId: string, requester: GuildMember) {
         serverQueue.addFilter('bassboost');
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
-            .setDescription('Bassboost habilitado.')
+            .setDescription('Bassboost habilitado ♪')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({ forceStatic: false })! })
     } else {
         serverQueue.removeFilter('bassboost');
@@ -732,7 +732,7 @@ async function nightCore(guildId: string, requester: GuildMember) {
         serverQueue.addFilter('nightcore');
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
-            .setDescription('Nightcore habilitado.')
+            .setDescription('Nightcore habilitado ♪')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({ forceStatic: false })! })
     } else {
         serverQueue.removeFilter('nightcore');
@@ -775,7 +775,7 @@ async function daycore(guildId: string, requester: GuildMember) {
         serverQueue.addFilter('daycore');
         songEmbed
             .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
-            .setDescription('Daycore habilitado.')
+            .setDescription('Daycore habilitado ♪')
             .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({ forceStatic: false })! })
     } else {
         serverQueue.removeFilter('daycore');
@@ -798,11 +798,50 @@ async function daycore(guildId: string, requester: GuildMember) {
     serverQueues.set(guildId, serverQueue);
 }
 
-async function reverb() {
+async function reverb(guildId: string, requester: GuildMember) {
+    const serverQueue = serverQueues.get(guildId) as ServerQueue;
+    if (!serverQueue) return;
 
+    const songQueue = await serverQueue.getSongQueue() as Song[];
+    const currentSong = songQueue[0];
+
+    if (serverQueue.player.state.status === AudioPlayerStatus.Paused) {
+        playerButtons.components[1].setCustomId('pause_playback').setLabel('❚❚').setStyle(ButtonStyle.Secondary);
+        const pausedTime = Math.round(Date.now() / 1000) - serverQueue.pausedTimeInSec;
+        serverQueue.startTimeInSec = serverQueue.startTimeInSec + pausedTime;
+    }
+
+    const channel = client.channels.cache.get(serverQueue.textChannelId)! as TextChannel;
+
+    const songEmbed = new EmbedBuilder();
+    if (!serverQueue.filters.includes('reverb')) {
+        serverQueue.addFilter('reverb');
+        songEmbed
+            .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
+            .setDescription('Reverb habilitado ♪')
+            .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({ forceStatic: false })! })
+    } else {
+        serverQueue.removeFilter('reverb');
+        songEmbed
+            .setColor(config.embeds.colors.defaultColor2 as ColorResolvable)
+            .setDescription('Reverb deshabilitado.')
+            .setFooter({ text: `Pedido por ${requester!.user.tag}`, iconURL: requester!.user.avatarURL({ forceStatic: false })! })
+    }
+    channel.send({ embeds: [songEmbed] });
+
+    // Modify stream.
+    const loadStartTime = Math.round(Date.now() / 1000);
+    const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeInSec!;
+    const stream = modifyStream(currentSong.getStream(), { outputOption: serverQueue.filters, startTimeInSec: currentTime }) as any;
+    const resource = createAudioResource(stream);
+    serverQueue.player.pause();
+    serverQueue.player.play(resource);
+    serverQueue.startTimeInSec = serverQueue.startTimeInSec + (Math.round(Date.now() / 1000) - loadStartTime);
+
+    serverQueues.set(guildId, serverQueue);
 }
 
-async function disableFilters(guildId: string) {
+async function disableFilters(guildId: string, requester: GuildMember) {
     const serverQueue = serverQueues.get(guildId) as ServerQueue;
     if (!serverQueue) return;
 
@@ -832,13 +871,17 @@ async function disableFilters(guildId: string) {
         serverQueue.startTimeInSec = serverQueue.startTimeInSec + pausedTime;
     }
 
-    const loadStartTime = Math.round(Date.now() / 1000);
-    const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeInSec!;
-    const stream = modifyStream(currentSong.getStream(), { outputOption: serverQueue.filters, startTimeInSec: currentTime }) as any;
-    const resource = createAudioResource(stream);
-    serverQueue.player.pause();
-    serverQueue.player.play(resource);
-    serverQueue.startTimeInSec = serverQueue.startTimeInSec + (Math.round(Date.now() / 1000) - loadStartTime);
+    if(!serverQueue.playing) {
+        serverQueue.removeAllFilters();
+    } else {
+        const loadStartTime = Math.round(Date.now() / 1000);
+        const currentTime = Math.round(Date.now() / 1000) - serverQueue.startTimeInSec!;
+        const stream = modifyStream(currentSong.getStream(), { outputOption: serverQueue.filters, startTimeInSec: currentTime }) as any;
+        const resource = createAudioResource(stream);
+        serverQueue.player.pause();
+        serverQueue.player.play(resource);
+        serverQueue.startTimeInSec = serverQueue.startTimeInSec + (Math.round(Date.now() / 1000) - loadStartTime);
+    }
 
     serverQueues.set(guildId, serverQueue);
 }
