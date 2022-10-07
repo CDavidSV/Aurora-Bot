@@ -1,9 +1,17 @@
 // Bans a guild member.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, User } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, User, SlashCommandBuilder } from 'discord.js';
+import MCommand from '../../Classes/MCommand';
+
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('ban')
+        .setDescription('Bans a guild member.'),
     aliases: ['ban'],
+    category: 'Moderación',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // Convert args to lowercase.
@@ -60,10 +68,10 @@ export default {
                 user = await client.users.fetch(userID);
             } catch {
                 banEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'Ese usuario no existe.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [banEmbed], files: [errorImg] });
-            return;
+                    .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                    .setAuthor({ name: 'Ese usuario no existe.', iconURL: 'attachment://error-icon.png' })
+                message.reply({ embeds: [banEmbed], files: [errorImg] });
+                return;
             }
         } else {
             // Avoids user from banning moderators and administrators.
@@ -80,10 +88,10 @@ export default {
         message.delete();
 
         // Attempts to ban the mentioned member.
-        message.guild!.members.ban(user, {reason: banReason}).then(() => {
+        message.guild!.members.ban(user, { reason: banReason }).then(() => {
             banEmbed
                 .setColor(config.embeds.colors.defaultColor as ColorResolvable)
-                .setAuthor({ name: `${user.tag} fue banead@ del servidor.`, iconURL: String(user.avatarURL({forceStatic: false})) })
+                .setAuthor({ name: `${user.tag} fue banead@ del servidor.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
                 .setDescription(`****Razón:**** ${banReason}`)
             message.channel.send({ embeds: [banEmbed] });
         }).catch(() => {
@@ -93,4 +101,4 @@ export default {
             message.channel.send({ embeds: [banEmbed], files: [errorImg] });
         });
     }
-}
+} as MCommand

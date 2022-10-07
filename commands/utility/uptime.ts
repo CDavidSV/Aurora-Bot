@@ -1,10 +1,18 @@
 // Shows the bot's uptime.
-import { Client, Message, EmbedBuilder, ColorResolvable } from 'discord.js';
+import { Client, Message, EmbedBuilder, ColorResolvable, SlashCommandBuilder, CacheType, ChatInputCommandInteraction, PermissionsBitField } from 'discord.js';
+import MCommand from '../../Classes/MCommand';
 import config from '../../config.json';
 import startTime from '../../events/ready';
+import { client } from "../../index";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('uptime')
+        .setDescription("Shows the bot's current uptime."),
     aliases: ['uptime'],
+    category: 'Utilidad',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         const uptime = Date.now() - startTime;
         const days = Math.floor(uptime / 86400000);
@@ -24,7 +32,6 @@ export default {
         }
         currentUptime += `${sec}s`;
 
-
         const uptimeEmbed = new EmbedBuilder()
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setAuthor({ name: client.user!.username, iconURL: client.user!.avatarURL({ forceStatic: false })! })
@@ -33,6 +40,7 @@ export default {
                 { name: "Tiempo de actividad actual", value: `${currentUptime}`, inline: true },
                 { name: "Inicio", value: `<t:${Math.round(startTime / 1000)}> `, inline: true }
             )
-        message.channel.send({ embeds: [uptimeEmbed] });
+
+        message.reply({ embeds: [uptimeEmbed], allowedMentions: { repliedUser: false } });
     }
-}
+} as MCommand

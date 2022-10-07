@@ -1,5 +1,5 @@
 import ytsr from "ytsr";
-import Metadata from "../Classes/SongMetadata";
+import Metadata from "../../Classes/SongMetadata";
 
 // gets metadata from search query.
 export async function getMetadataFromSearchQuery(query: string) {

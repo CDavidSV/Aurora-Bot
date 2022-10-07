@@ -1,11 +1,18 @@
 // Displays queue in the chat with all songs for that particular guild.
 
-import { Client, Message, EmbedBuilder } from 'discord.js';
+import { Client, Message, EmbedBuilder, SlashCommandBuilder, PermissionsBitField } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('queue')
+        .setDescription("Displays the queue of songs."),
     aliases: ['queue'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -32,4 +39,4 @@ export default {
 
         // Display the queue in an embed.
     }
-}
+} as MCommand

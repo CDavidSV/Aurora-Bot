@@ -1,6 +1,6 @@
 import { EmbedBuilder, ColorResolvable } from 'discord.js';
 import ytdl from 'ytdl-core';
-import config from '../../config.json';
+import config from '../config.json';
 
 export default class Song {
     // Variables.

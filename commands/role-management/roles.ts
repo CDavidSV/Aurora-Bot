@@ -1,9 +1,16 @@
-// Displays all roles for the specified user.
+// Displays all roles for the specified user or all roles in a server.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import MCommand from '../../Classes/MCommand';
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('roles')
+        .setDescription('Displays all roles for the specified user or all roles in a server.'),
     aliases: ['roles'],
+    category: 'Gestión de roles',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // Convert args to lowercase.
@@ -59,4 +66,4 @@ export default {
             .setThumbnail(member!.displayAvatarURL({ forceStatic: false }))
         message.channel.send({ embeds: [rolesEmbed] });
     }
-}
+} as MCommand

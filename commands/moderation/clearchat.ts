@@ -1,9 +1,16 @@
 // Deletes specified ammount of messages in a channel.
 import config from '../../config.json';
-import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, TextChannel, ChannelType } from 'discord.js';
+import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, TextChannel, ChannelType, SlashCommandBuilder } from 'discord.js';
+import MCommand from '../../Classes/MCommand';
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('clearchat')
+        .setDescription('Deletes specified ammount of messages in a channel.'),
     aliases: ['clearchat', 'clear', 'purge'],
+    category: 'Moderación',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
@@ -121,4 +128,4 @@ export default {
         }
 
     }
-}
+} as MCommand

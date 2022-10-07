@@ -1,6 +1,5 @@
 import ytdl from "ytdl-core";
-import ytpl from "ytpl";
-import Metadata from "../Classes/SongMetadata";
+import Metadata from "../../Classes/SongMetadata";
 
 // Gets metadata for the song.
 export async function getSongMetadata(request: string, type: string) {

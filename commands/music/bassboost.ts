@@ -1,11 +1,18 @@
 // Add bassboost to the stream.
 
 import { getVoiceConnection } from "@discordjs/voice";
-import { Client, Message } from "discord.js";
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import MCommand from "../../Classes/MCommand";
 import playercore from "../../player/playercore";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('bassboost')
+        .setDescription("Add bassboost to the song."),
     aliases: ['bassboost'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -37,4 +44,4 @@ export default {
         playercore.bassBoost(message.guildId!, message.member!);
 
     }
-}
+} as MCommand

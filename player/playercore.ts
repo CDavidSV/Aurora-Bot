@@ -3,15 +3,15 @@ import config from '../config.json';
 import { Message, EmbedBuilder, ColorResolvable, TextChannel, ButtonInteraction, ButtonBuilder, ActionRowBuilder, ButtonStyle, GuildMember } from 'discord.js';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection, PlayerSubscription, NoSubscriberBehavior, VoiceConnectionStatus, entersState, joinVoiceChannel, DiscordGatewayAdapterCreator } from '@discordjs/voice';
 import { client } from '../index';
-import Song from './Classes/Song';
-import ServerQueue from './Classes/SongQueue';
-import SongMetadata from './Classes/SongMetadata';
+import Song from '../Classes/Song';
+import ServerQueue from '../Classes/ServerQueue';
+import SongMetadata from '../Classes/SongMetadata';
 import { getSongMetadata } from './functions/getSongMetadata';
 import { getMetadataFromSearchQuery } from './functions/getMetadataFromSearchQuery';
 import { progressBar } from './functions/progressbar';
 import { getPlaylistMetadata } from './functions/getPlaylistMetadata';
 import { modifyStream } from './functions/modifyStream';
-import PlaylistMetadata from './Classes/PlaylistMetadata';
+import PlaylistMetadata from '../Classes/PlaylistMetadata';
 
 const serverQueues: Map<string, ServerQueue> = new Map();
 

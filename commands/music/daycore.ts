@@ -1,11 +1,18 @@
 // Add daycore to the stream.
 
 import { getVoiceConnection } from "@discordjs/voice";
-import { Client, Message } from "discord.js";
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import playercore from "../../player/playercore";
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('daycore')
+        .setDescription("Add daycore to the stream."),
     aliases: ['daycore'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -37,4 +44,4 @@ export default {
         playercore.daycore(message.guildId!, message.member!);
 
     }
-}
+} as MCommand

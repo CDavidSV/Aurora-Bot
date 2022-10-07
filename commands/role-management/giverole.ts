@@ -1,9 +1,16 @@
 // Gives the specified role to a user.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import MCommand from '../../Classes/MCommand';
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('giverole')
+        .setDescription('Gives the specified role to a user.'),
     aliases: ['giverole', 'grantrole'],
+    category: 'Gestión de roles',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // Convert args to lowercase.
@@ -81,4 +88,4 @@ export default {
             message.channel.send({ embeds: [roleAction], files: [errorImg] })
         });
     }
-}
+} as MCommand

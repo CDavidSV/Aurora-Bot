@@ -1,11 +1,18 @@
 // Displays currently playing song with its current progress.
 
 import { getVoiceConnection } from "@discordjs/voice";
-import { Client, Message } from "discord.js";
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import playercore from "../../player/playercore";
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('nowplaying')
+        .setDescription("Displays currently playing song with its current progress"),
     aliases: ['nowplaying'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -36,4 +43,4 @@ export default {
 
         playercore.nowplaying(message.guildId!);
     }
-}
+} as MCommand

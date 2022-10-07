@@ -1,7 +1,7 @@
 import fs, { Dirent } from 'fs';
 
 // Recursive function that gets all directories and command script files.
-const getFiles = (dir: string, suffix: string, handler: string): string[] => {
+const getFiles = (dir: string, suffix: string, handler: string, log: boolean): string[] => {
     const files: Dirent[] = fs.readdirSync(dir, {
         withFileTypes: true,
     })
@@ -14,12 +14,12 @@ const getFiles = (dir: string, suffix: string, handler: string): string[] => {
         if (file.isDirectory()) {
             Files = [
                 ...Files,
-                ...getFiles(`${dir}/${file.name}`, suffix, handler),
+                ...getFiles(`${dir}/${file.name}`, suffix, handler, log),
             ]
 
         } else if (file.name.endsWith(suffix)) { // path is a script file.
             Files.push(`${dir}/${file.name}`);
-            console.log(`[GET-FILES][${handler.toUpperCase()} HANDLER] - File ${file.name} was loaded successfully.`);
+            if (log) console.log(`[GET-FILES][${handler.toUpperCase()} HANDLER] - File ${file.name} was loaded successfully.`);
         }
     }
 

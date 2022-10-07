@@ -1,6 +1,6 @@
 // Gets playlist object and its information.
 import ytpl from "ytpl";
-import PlaylistMetadata from "../Classes/PlaylistMetadata";
+import PlaylistMetadata from "../../Classes/PlaylistMetadata";
 
 export async function getPlaylistMetadata(request: string) {
     let title;

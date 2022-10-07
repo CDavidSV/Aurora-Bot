@@ -1,11 +1,18 @@
 // Removes the selected song from queue.
 
-import { Client, Message } from 'discord.js';
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('remove')
+        .setDescription("Removes the selected song from queue."),
     aliases: ['remove'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -42,4 +49,4 @@ export default {
 
         playercore.remove(message.guildId!, index, message.member!);
     }
-}
+} as MCommand

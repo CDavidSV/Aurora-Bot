@@ -1,11 +1,18 @@
 // Clears the song queue for that guild.
 
-import { Client, Message } from 'discord.js';
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('clearqueue')
+        .setDescription("Clears the song queue for that guild."),
     aliases: ['clearqueue'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -32,4 +39,4 @@ export default {
 
         playercore.clear(message.guildId!, message.member!);
     }
-}
+} as MCommand

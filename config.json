@@ -1,5 +1,7 @@
 {
     "version": "v1.0.0",
+    "clientId": "970506702799646730",
+    "testGuildId": "970508802602455122",
     "globalPrefixes": [
         "ma!",
         "!",

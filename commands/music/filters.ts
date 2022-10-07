@@ -1,12 +1,19 @@
-// Dissables all filters.
+// Displays all active filters
 
 import { getVoiceConnection } from "@discordjs/voice";
-import { Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
+import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import playercore from "../../player/playercore";
 import config from '../../config.json';
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('filters')
+        .setDescription("Displays all active filters"),
     aliases: ['filters'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -42,4 +49,4 @@ export default {
             .setTitle('Filtros activos ♪')
             .setDescription(filters.toString().replace(',', '\n'))
     }
-}
+} as MCommand

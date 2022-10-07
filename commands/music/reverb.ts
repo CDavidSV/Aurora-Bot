@@ -1,11 +1,18 @@
 // Adds reverb to the stream.
 
 import { getVoiceConnection } from "@discordjs/voice";
-import { Client, Message } from "discord.js";
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import playercore from "../../player/playercore";
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('reverb')
+        .setDescription("Adds reverb to the song."),
     aliases: ['reverb'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -36,4 +43,4 @@ export default {
 
         playercore.reverb(message.guildId!, message.member!);
     }
-}
+} as MCommand

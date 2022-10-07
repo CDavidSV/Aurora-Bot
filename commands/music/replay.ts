@@ -1,10 +1,17 @@
 // Replays the current song.
-import { Client, Message } from 'discord.js';
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('replay')
+        .setDescription("Replays the current song."),
     aliases: ['replay'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -31,4 +38,4 @@ export default {
 
         playercore.replay(message.guildId!, message.member!);
     }
-}
+} as MCommand

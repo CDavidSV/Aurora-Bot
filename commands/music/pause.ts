@@ -1,11 +1,18 @@
 // Command to pause current song if there is a player.
 
-import { Client, Message } from 'discord.js';
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('pause')
+        .setDescription("Command to pause current song if there is a player."),
     aliases: ['pause'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
@@ -32,4 +39,4 @@ export default {
 
         playercore.pause(message.guildId!, message.member!);
     }
-}
+} as MCommand

@@ -1,11 +1,18 @@
 // Command to loop the current song.
 
-import { Client, Message } from 'discord.js';
+import { Client, Message, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import playercore from '../../player/playercore';
 import { getVoiceConnection } from '@discordjs/voice';
+import MCommand from "../../Classes/MCommand";
 
 export default {
+    data: new SlashCommandBuilder()
+        .setName('loop')
+        .setDescription("Command to loop the current song"),
     aliases: ['loop'],
+    category: 'Música',
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    userPerms: [],
     // Main function.
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         if (!message.member!.voice.channel) {
@@ -31,4 +38,4 @@ export default {
 
         playercore.loop(message.guildId!, message.member!);
     }
-}
+} as MCommand
