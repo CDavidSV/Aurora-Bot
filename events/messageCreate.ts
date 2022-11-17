@@ -34,7 +34,7 @@ client.on('messageCreate', async (message: Message) => {
     const command = client.commands.find(c => c.aliases.includes(commandName));
 
     // No such command name found or is only of slash command type.
-    if (!command) return;
+    if (!command || command.commandType === 'Slash') return;
 
     if (!message.member!.permissions.has(command.userPerms)) {
         const noPermissions = new EmbedBuilder()

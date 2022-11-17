@@ -6,6 +6,23 @@ import config from '../../config.json';
 const prefixScheema = require('../../mongoDB/schemas/prefix-scheema');
 import prefixHandler from '../../handlers/prefix-handler';
 
+const errorImg = new AttachmentBuilder('./assets/command-images/error-icon.png');
+const successImg = new AttachmentBuilder('./assets/command-images/success-icon.png');
+const setPrefixEmbed = new EmbedBuilder();
+
+async function changePrefix(newPrefix: string, guildId: string | null) {
+    // Change the prefix and update the database.
+    await prefixScheema.findOneAndUpdate({
+        _id: guildId
+    }, {
+        _id: guildId,
+        prefix: newPrefix
+    }, {
+        upsert: true
+    })
+    prefixHandler.updateGuildPrefix(guildId as string, newPrefix!);
+}
+
 export default {
     data: new SlashCommandBuilder()
         .setName('setprefix')
@@ -16,25 +33,15 @@ export default {
                 .setDescription('El nuevo prefijo para el servidor')
                 .setRequired(true)
                 .setMaxLength(3)
-                .setMinLength(1)),
+                .setMinLength(1))
+        .setDMPermission(false),
     aliases: ['setprefix'],
     category: 'Utilidad',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    userPerms: [],
+    userPerms: [PermissionsBitField.Flags.Administrator],
+    cooldown: 0,
+    commandType: 'Slash&Prefix',
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
-
-        const errorImg = new AttachmentBuilder('./assets/command-images/error-icon.png');
-        const successImg = new AttachmentBuilder('./assets/command-images/success-icon.png');
-        const setPrefixEmbed = new EmbedBuilder();
-
-        // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
-        if (!message.member!.permissions.has([PermissionsBitField.Flags.Administrator])) {
-            setPrefixEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [setPrefixEmbed], files: [errorImg] });
-            return;
-        }
         if (args.length < 2) {
             setPrefixEmbed
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
@@ -54,16 +61,7 @@ export default {
         const guildId = message.guildId;
         const newPrefix = args[1];
 
-        // Change the prefix and update the database.
-        await prefixScheema.findOneAndUpdate({
-            _id: guildId
-        }, {
-            _id: guildId,
-            prefix: newPrefix
-        }, {
-            upsert: true
-        })
-        prefixHandler.updateGuildPrefix(guildId as string, newPrefix!);
+        changePrefix(newPrefix, guildId);
 
         setPrefixEmbed
             .setColor(config.embeds.colors.successColor as ColorResolvable)
@@ -71,5 +69,19 @@ export default {
 
         // Depending if the command is slash command or not.
         message.reply({ embeds: [setPrefixEmbed], files: [successImg] });
+    },
+
+    async executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        const guildId = interaction.guildId;
+        const newPrefix = interaction.options.getString('prefix', true);
+
+        changePrefix(newPrefix, guildId);
+
+        setPrefixEmbed
+            .setColor(config.embeds.colors.successColor as ColorResolvable)
+            .setAuthor({ name: `El prefijo del servidor se cambió a ${newPrefix}`, iconURL: 'attachment://success-icon.png' })
+
+        // Depending if the command is slash command or not.
+        interaction.reply({ embeds: [setPrefixEmbed], files: [successImg] });
     }
 } as MCommand

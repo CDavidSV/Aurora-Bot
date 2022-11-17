@@ -19,11 +19,17 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
-    try {
+    const member = interaction.guild!.members.cache.get(interaction.member!.user.id)!;
+    if (!member.permissions.has(command.userPerms)) {
         const noPermissions = new EmbedBuilder()
-            .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: 'Slash Commands en desarrollo.', iconURL: 'attachment://error-icon.png' })
-        interaction.reply({ embeds: [noPermissions], ephemeral: true });
+            .setColor(config.embeds.colors.errorColor as ColorResolvable)
+            .setAuthor({ name: 'No tienes suficientes permisos para usar este comando.', iconURL: 'attachment://error-icon.png' })
+        interaction.reply({ embeds: [noPermissions], files: [file], allowedMentions: { repliedUser: false }, ephemeral: true });
+        return;
+    }
+
+    try {
+        command.executeSlash(interaction);
     } catch (error) {
         console.error(error);
 

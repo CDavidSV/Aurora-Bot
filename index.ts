@@ -5,8 +5,8 @@ import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
 import commandHandler from './handlers/command-handler';
 import eventHandler from './handlers/event-handler';
-import ServerQueue from './Classes/ServerQueue';
 import MCommand from './Classes/MCommand';
+//import KitagawaPlayer from './player/KitagawaPlayer';
 dotenv.config();
 
 // Create client and add intents.
@@ -21,8 +21,8 @@ const client = new Client({
 
 declare module "discord.js" {
     export interface Client {
-        commands: Collection<string, MCommand>
-        serverQueues: Collection<string, ServerQueue>
+        commands: Collection<string, MCommand>;
+        //serverQueues: Collection<string, KitagawaPlayer>;
     }
 }
 
@@ -30,7 +30,7 @@ declare module "discord.js" {
 client.commands = new Collection<string, MCommand>();
 
 // Declare serverqueues collection to store music data per guild.
-client.serverQueues = new Collection<string, ServerQueue>();
+//client.serverQueues = new Collection<string, KitagawaPlayer>();
 
 // -------------------------------------------------------
 // -------------------- EVENT HANDLER --------------------

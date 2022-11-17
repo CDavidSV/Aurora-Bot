@@ -1,5 +1,5 @@
 // Class that all command scrips use.
-import { PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 type Categories =
     'Moderación' |
@@ -9,6 +9,8 @@ type Categories =
     'Canales de voz temporales' |
     'Utilidad';
 
+type CommandType = 'Slash' | 'Prefix' | 'Slash&Prefix';
+
 export default class MCommand {
     // Variables.
     public data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
@@ -16,22 +18,29 @@ export default class MCommand {
     public category: Categories;
     public botPerms: bigint[];
     public userPerms: bigint[];
+    public cooldown: number;
+    public commandType: CommandType;
     public execute: Function;
+    public executeSlash: Function = () => { return; };
     // Constructor.
     /**
-     * @param name Name of the command.
+     * 
      * @param aliases Array of all possible aliases for that comamnd.
-     * @param category Category for that command. Can be: 'Moderación' , 'Música' , 'Random' , 'Gestión de roles' , 'Canales de voz temporales' , 'Utilidad'.
+     * @param category Category for that command. Can be: 'Moderación', 'Música', 'Random', 'Gestión de roles', 'Canales de voz temporales', 'Utilidad'.
      * @param botPerms Necessary permissions the bot requires to run the command.
-     * @param onlySlash If the command can only be a slash command and not a normal one.
+     * @param userPerms Permissions the user requires to run the command.
+     * @param cooldown Cooldown for using the command in seconds.
+     * @param commandType Type of command to be executed ('Slash', 'Prefix', 'Slash&Prefix')
      * @param execute Function that executes the command. execute(client: Client, message: Message, prefix: string, ...args: string[]).
      */
-    constructor(data: SlashCommandBuilder, aliases: string[], category: Categories, botPerms: bigint[], userPerms: bigint[], execute: Function) {
+    constructor(data: SlashCommandBuilder, aliases: string[], category: Categories, botPerms: bigint[], userPerms: bigint[], cooldown: number, commandType: CommandType, execute: Function) {
         this.data = data;
         this.aliases = aliases;
         this.category = category;
         this.botPerms = botPerms;
         this.userPerms = userPerms;
+        this.cooldown = cooldown;
+        this.commandType = commandType;
         this.execute = execute;
     }
 }

@@ -1,31 +1,40 @@
 // Deletes specified ammount of messages in a channel.
 import config from '../../config.json';
-import { Client, Message, Permissions, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, TextChannel, ChannelType, SlashCommandBuilder } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, TextChannel, ChannelType, SlashCommandBuilder, ChatInputCommandInteraction, CacheType, Collection, DMChannel } from 'discord.js';
 import MCommand from '../../Classes/MCommand';
+
+let msg = "mensaje";
+const clearEmbed = new EmbedBuilder();
+const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('clearchat')
-        .setDescription('Deletes specified ammount of messages in a channel.'),
+        .setName('purge_messages')
+        .setDescription('Deletes specified ammount of messages in a channel.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageChannels && PermissionsBitField.Flags.ManageMessages)
+        .addIntegerOption(option =>
+            option.setName('ammount')
+                .setDescription('Ammount of messages to delete.')
+                .setRequired(true)
+                .setMaxValue(1000)
+                .setMinValue(1))
+        .addUserOption(option =>
+            option.setName('user')
+                .setDescription('User\' messages')
+                .setRequired(false))
+        .setDMPermission(false),
     aliases: ['clearchat', 'clear', 'purge'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    userPerms: [],
+    userPerms: [PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.ManageMessages],
+    cooldown: 0,
+    commandType: 'Slash&Prefix',
+
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
 
-        const clearEmbed = new EmbedBuilder();
-        const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
-
-        // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
-        if (!message.member!.permissions.has([PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.ManageMessages])) {
-            clearEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [clearEmbed], files: [errorImg] });
-            return;
-        }
+        // Evaluate initial conditions.
         if (message.channel.type !== ChannelType.GuildText) {
             clearEmbed
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
@@ -59,13 +68,6 @@ export default {
                 message.reply({ embeds: [clearEmbed], files: [errorImg] });
                 return;
             }
-        }
-        if (!message.guild!.members.me!.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
-            clearEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [clearEmbed], files: [errorImg] });
-            return;
         }
 
         let fetched;
@@ -112,7 +114,6 @@ export default {
             totalLimit = requested - counter.length - 1;
         } while (totalLimit > 0)
 
-        let msg = "mensaje";
         if (counter.indexOf(message.id) > -1) {
             counter.splice(counter.indexOf(message.id), 1);
         }
@@ -126,6 +127,78 @@ export default {
         } else {
             message.channel.send(`He borrado \`${deleted} ${msg}\``).then(msg => setTimeout(() => msg.delete().catch(error => { }), 5000));
         }
+    },
 
+    async executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        let totalLimit = interaction.options.getInteger('ammount', true);
+        const member = interaction.guild!.members.cache.get(interaction.options.getUser('User', true).id);
+        let fetched;
+        let limit;
+        let counter: any = [];
+        let filteredArray;
+        let newArr;
+        let oldmessages = false;
+        const days14ms = 1209600000;
+        const requested = totalLimit;
+
+        // Evaluate initial conditions.
+        if (interaction.channel!.type !== ChannelType.GuildText) {
+            clearEmbed
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                .setAuthor({ name: 'No puedes eliminar mensajes en canales que no sean de texto.', iconURL: 'attachment://error-icon.png' })
+            interaction.reply({ embeds: [clearEmbed], files: [errorImg], ephemeral: true });
+            return;
+        }
+
+        do {
+            // Check if the limit given by the user exceeds 100.
+            totalLimit > 100 ? limit = 100 : limit = totalLimit;
+
+            // Fetch messages.
+            fetched = await interaction.channel!.messages.fetch({ limit: limit }) as Collection<string, Message<true>>;
+            if (fetched.size < 1) break;
+
+            // Check if there is a member.
+            if (member !== undefined) {
+                fetched = fetched.filter(msg => msg.member! === member);
+            }
+
+            // Attempt to bulk delete all fetched messages
+            try {
+                const channel = interaction.channel! as TextChannel;
+                await channel.bulkDelete(fetched, true);
+            } catch (error) {
+                continue;
+            }
+
+            // filter old messages.
+            if (fetched.some(msg => Date.now() - msg.createdTimestamp > days14ms)) {
+                fetched = fetched.filter(msg => Date.now() - msg.createdTimestamp < days14ms);
+                oldmessages = true;
+            }
+
+            // Count messages.
+            filteredArray = fetched.map(msg => msg.id);
+            newArr = counter.concat(filteredArray);
+            newArr = [...new Set([...counter, ...filteredArray])];
+            counter = newArr;
+
+            if (fetched.size < 100) break;
+            totalLimit = requested - counter.length - 1;
+        } while (totalLimit > 0)
+
+        if (counter.indexOf(interaction.id) > -1) {
+            counter.splice(counter.indexOf(interaction.id), 1);
+        }
+        let deleted = counter.length;
+        if (deleted > 1 || deleted < 1) {
+            msg = "mensajes";
+        }
+
+        if (oldmessages) {
+            interaction.reply({ content: `He borrado \`${deleted} ${msg}\`\nDebido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de \`14 días.\``, ephemeral: true });
+        } else {
+            interaction.reply({ content: `He borrado \`${deleted} ${msg}\``, ephemeral: true });
+        }
     }
 } as MCommand

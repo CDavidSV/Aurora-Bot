@@ -1,16 +1,32 @@
 // Removes the specified role from a user.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, SlashCommandBuilder, ChatInputCommandInteraction, CacheType } from 'discord.js';
 import MCommand from '../../Classes/MCommand';
+
+const roleAction = new EmbedBuilder();
+const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
+const successImg = new AttachmentBuilder(config.embeds.images.successImg);
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('removerole')
-        .setDescription('Removes the specified role from a user.'),
+        .setName('remove_role')
+        .setDescription('Removes the specified role from a user.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles)
+        .addUserOption(option =>
+            option.setName('user')
+                .setDescription('User Mention.')
+                .setRequired(true))
+        .addRoleOption(option =>
+            option.setName('role')
+                .setDescription('Role Mention.')
+                .setRequired(true)),
     aliases: ['removerole'],
     category: 'Gestión de roles',
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    userPerms: [],
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ManageRoles],
+    userPerms: [PermissionsBitField.Flags.ManageRoles],
+    cooldown: 0,
+    commandType: 'Slash&Prefix',
+
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // Convert args to lowercase.
@@ -18,18 +34,7 @@ export default {
 
         // Variables.
         const { guild } = message;
-        const roleAction = new EmbedBuilder();
-        const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
-        const successImg = new AttachmentBuilder(config.embeds.images.successImg);
 
-        // Evaluate initial conditions (checks if the user has enogh permissions and that he has entered the correct commands or arguments)
-        if (!message.member!.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
-            roleAction
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [roleAction], files: [errorImg] });
-            return;
-        }
         if (args.length <= 2) {
             roleAction
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
@@ -58,14 +63,6 @@ export default {
             return;
         }
 
-        if (!guild!.members.me!.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
-            roleAction
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [roleAction], files: [errorImg] });
-            return;
-        }
-
         // Checks if the user's role has enought rank to give the same role. (In case a user is trying to give his highest ranked role)
         if (message.member!.roles.highest <= role && message.member!.id !== guild!.ownerId) {
             roleAction
@@ -87,6 +84,37 @@ export default {
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No tengo suficientes permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
             message.channel.send({ embeds: [roleAction], files: [errorImg] })
+        });
+    },
+
+    executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        const guild = interaction.guild;
+        const user = interaction.options.getUser('user', true);
+        const role = interaction.options.getRole('role', true);
+
+        // Checks if the user's role has enought rank to give the same role. (In case a user is trying to give his highest ranked role)
+        const interationmember = guild!.members.cache.get(interaction.member!.user.id)!;
+        const member = guild!.members.cache.get(user.id)!;
+
+        if (interationmember.roles.highest <= role && interaction.member!.user.id !== guild!.ownerId) {
+            roleAction
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                .setAuthor({ name: 'El rol está bloqueado porque es un rango más alto que tu rol más alto.', iconURL: 'attachment://error-icon.png' })
+            interaction.reply({ embeds: [roleAction], files: [errorImg] });
+            return;
+        }
+
+        // Attempt to give the role.
+        member.roles.remove(role.id).then(() => {
+            roleAction
+                .setColor(config.embeds.colors.successColor as ColorResolvable)
+                .setAuthor({ name: 'Rol removido exitosamente.', iconURL: 'attachment://success-icon.png' })
+            interaction.reply({ embeds: [roleAction], files: [successImg] })
+        }).catch(() => {
+            roleAction
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                .setAuthor({ name: 'No tengo suficientes permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
+            interaction.reply({ embeds: [roleAction], files: [errorImg] })
         });
     }
 } as MCommand

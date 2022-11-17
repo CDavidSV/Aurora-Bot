@@ -1,38 +1,43 @@
 // Bans a guild member.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, User, SlashCommandBuilder } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, User, SlashCommandBuilder, ChatInputCommandInteraction, CacheType } from 'discord.js';
 import MCommand from '../../Classes/MCommand';
 
+// error image.
+const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
+// Create message embed.
+const banEmbed = new EmbedBuilder();
+// Ban reason.
+let banReason = 'No especificada';
 
 export default {
     data: new SlashCommandBuilder()
         .setName('ban')
-        .setDescription('Bans a guild member.'),
+        .setDescription('Bans a guild member.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers)
+        .addUserOption(option =>
+            option.setName('user')
+                .setDescription('User Mention')
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName('reason')
+                .setDescription('Reason for the ban')
+                .setRequired(false)
+                .setMaxLength(256))
+        .setDMPermission(false),
     aliases: ['ban'],
     category: 'Moderación',
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    userPerms: [],
+    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.BanMembers],
+    userPerms: [PermissionsBitField.Flags.BanMembers],
+    cooldown: 0,
+    commandType: 'Slash&Prefix',
+
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
 
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
-        // error and success images.
-        const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
         // Get guild 
         const { guild } = message;
-        // Create message embed.
-        const banEmbed = new EmbedBuilder();
-        // Ban reason.
-        let banReason = 'No especificada';
-
-        // Validate that the user requesting the action has enough Permissions.
-        if (!message.member!.permissions.has([PermissionsBitField.Flags.BanMembers])) {
-            banEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No tienes permiso para usar este comando.', iconURL: 'attachment://error-icon.png' })
-            message.reply({ embeds: [banEmbed], files: [errorImg] });
-            return;
-        }
 
         // In case the no member is mentioned.
         if (args.length < 2) {
@@ -40,14 +45,6 @@ export default {
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'Debes de mencionar al miembro.', iconURL: 'attachment://error-icon.png' })
                 .setDescription(`Intenta ingresando: \`${prefix}ban <@miembro> (razón opcional)\``)
-            message.reply({ embeds: [banEmbed], files: [errorImg] });
-            return;
-        }
-
-        if (!guild!.members.me!.permissions.has([PermissionsBitField.Flags.KickMembers])) {
-            banEmbed
-                .setColor(config.embeds.colors.errorColor as ColorResolvable)
-                .setAuthor({ name: 'No tengo permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
             message.reply({ embeds: [banEmbed], files: [errorImg] });
             return;
         }
@@ -99,6 +96,37 @@ export default {
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'No puedo hacer eso porque mi rol más alto está demasiado bajo en la jerarquía.', iconURL: 'attachment://error-icon.png' })
             message.channel.send({ embeds: [banEmbed], files: [errorImg] });
+        });
+    },
+
+    async executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        const guild = interaction.guild;
+        const user = interaction.options.getUser('user', true);
+        const member = guild!.members.cache.get(user.id)!;
+
+        // Avoids user from banning moderators and administrators.
+        if ((member!.permissions.has([PermissionsBitField.Flags.Administrator]) || !member!.bannable) && interaction.member!.user.id !== guild!.ownerId) {
+            banEmbed
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                .setAuthor({ name: 'No puedes banear a un administrador.', iconURL: 'attachment://error-icon.png' })
+            interaction.reply({ embeds: [banEmbed], files: [errorImg] });
+            return;
+        }
+
+        banReason = interaction.options.getString('reason', true);
+
+        // Attempts to ban the mentioned member.
+        interaction.guild!.members.ban(user, { reason: banReason }).then(() => {
+            banEmbed
+                .setColor(config.embeds.colors.defaultColor as ColorResolvable)
+                .setAuthor({ name: `${user.tag} fue banead@ del servidor.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+                .setDescription(`****Razón:**** ${banReason}`)
+            interaction.reply({ embeds: [banEmbed] });
+        }).catch(() => {
+            banEmbed
+                .setColor(config.embeds.colors.errorColor as ColorResolvable)
+                .setAuthor({ name: 'No puedo hacer eso porque mi rol más alto está demasiado bajo en la jerarquía.', iconURL: 'attachment://error-icon.png' })
+            interaction.reply({ embeds: [banEmbed], files: [errorImg] });
         });
     }
 } as MCommand
