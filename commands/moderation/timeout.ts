@@ -5,7 +5,8 @@ import MCommand from '../../Classes/MCommand';
 export default {
     data: new SlashCommandBuilder()
         .setName('timeout')
-        .setDescription("Times out a member"),
+        .setDescription("Times out a member")
+        .setDMPermission(false),
     aliases: ['timeout'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],

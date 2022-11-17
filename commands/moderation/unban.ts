@@ -5,7 +5,8 @@ import MCommand from '../../Classes/MCommand';
 export default {
     data: new SlashCommandBuilder()
         .setName('unban')
-        .setDescription("unbans a member"),
+        .setDescription("unbans a member")
+        .setDMPermission(false),
     aliases: ['unban'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],

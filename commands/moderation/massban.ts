@@ -5,7 +5,8 @@ import MCommand from '../../Classes/MCommand';
 export default {
     data: new SlashCommandBuilder()
         .setName('massban')
-        .setDescription('Bans multiple members'),
+        .setDescription('Bans multiple members')
+        .setDMPermission(false),
     aliases: ['massban'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],

@@ -5,7 +5,8 @@ import MCommand from '../../Classes/MCommand';
 export default {
     data: new SlashCommandBuilder()
         .setName('clearwarn')
-        .setDescription("Removes a member's warning."),
+        .setDescription("Removes a member's warning.")
+        .setDMPermission(false),
     aliases: ['clearwarn'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],

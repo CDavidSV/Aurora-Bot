@@ -50,7 +50,7 @@ export default {
                 )
                 .setFooter({ text: config.version })
                 .setTimestamp()
-            await resultMessage.edit({ embeds: [pingEmbed] });
+            await interaction.editReply({ embeds: [pingEmbed] });
         })
     }
 } as MCommand

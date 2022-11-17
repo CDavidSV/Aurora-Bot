@@ -5,7 +5,8 @@ import MCommand from '../../Classes/MCommand';
 export default {
     data: new SlashCommandBuilder()
         .setName('tempban')
-        .setDescription("temporarily bans a member"),
+        .setDescription("temporarily bans a member")
+        .setDMPermission(false),
     aliases: ['tempban'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],

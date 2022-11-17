@@ -4,7 +4,8 @@ import MCommand from '../../Classes/MCommand';
 export default {
     data: new SlashCommandBuilder()
         .setName('mute')
-        .setDescription('mutes a guild member'),
+        .setDescription('mutes a guild member')
+        .setDMPermission(false),
     aliases: ['mute'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],

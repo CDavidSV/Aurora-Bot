@@ -5,7 +5,8 @@ import MCommand from '../../Classes/MCommand';
 export default {
     data: new SlashCommandBuilder()
         .setName('unmute')
-        .setDescription("unmutes a member"),
+        .setDescription("unmutes a member")
+        .setDMPermission(false),
     aliases: ['unmute'],
     category: 'Moderación',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
