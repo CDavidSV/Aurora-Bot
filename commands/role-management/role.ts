@@ -13,7 +13,8 @@ export default {
         .addRoleOption(option =>
             option.setName('role')
                 .setDescription('Role Mention')
-                .setRequired(true)),
+                .setRequired(true))
+        .setDMPermission(false),
     aliases: ['role'],
     category: 'Gestión de roles',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ManageRoles],

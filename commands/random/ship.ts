@@ -6,7 +6,8 @@ import MCommand from "../../Classes/MCommand";
 export default {
     data: new SlashCommandBuilder()
         .setName('ship')
-        .setDescription('Shows compatibility of two users by randomly generated percentage.'),
+        .setDescription('Shows compatibility of two users by randomly generated percentage.')
+        .setDMPermission(false),
     aliases: ['ship'],
     category: 'Random',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],

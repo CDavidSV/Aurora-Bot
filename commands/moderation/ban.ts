@@ -5,8 +5,6 @@ import MCommand from '../../Classes/MCommand';
 
 // error image.
 const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
-// Create message embed.
-const banEmbed = new EmbedBuilder();
 // Ban reason.
 let banReason = 'No especificada';
 
@@ -33,6 +31,8 @@ export default {
     commandType: 'Slash&Prefix',
 
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+        // Create message embed.
+        const banEmbed = new EmbedBuilder();
 
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
@@ -100,6 +100,9 @@ export default {
     },
 
     async executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        // Create message embed.
+        const banEmbed = new EmbedBuilder();
+
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
         const member = guild!.members.cache.get(user.id)!;

@@ -1,5 +1,4 @@
 // Returns the prefix for that server.
-
 import { CacheType, ChatInputCommandInteraction, Client, Message, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import MCommand from '../../Classes/MCommand';
 const prefixScheema = require('../../mongoDB/schemas/prefix-scheema');

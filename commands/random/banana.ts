@@ -2,8 +2,7 @@
 // Copied from Nekotina xD.
 
 import { Client, Message, EmbedBuilder, ColorResolvable, SlashCommandBuilder, PermissionsBitField, ChatInputCommandInteraction, CacheType, GuildMember, User, } from 'discord.js';
-import MCommand from '../../Classes/MCommand';
-
+import MCommand from '../../Classes/MCommand'
 
 function generateRandom() {
     // limits.

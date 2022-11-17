@@ -3,13 +3,12 @@ import config from '../../config.json';
 import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, SlashCommandBuilder, ChatInputCommandInteraction, CacheType } from 'discord.js';
 import MCommand from '../../Classes/MCommand';
 
-const roleAction = new EmbedBuilder();
 const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
 const successImg = new AttachmentBuilder(config.embeds.images.successImg);
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('remove_role')
+        .setName('removerole')
         .setDescription('Removes the specified role from a user.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles)
         .addUserOption(option =>
@@ -19,7 +18,8 @@ export default {
         .addRoleOption(option =>
             option.setName('role')
                 .setDescription('Role Mention.')
-                .setRequired(true)),
+                .setRequired(true))
+        .setDMPermission(false),
     aliases: ['removerole'],
     category: 'Gestión de roles',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ManageRoles],
@@ -28,7 +28,7 @@ export default {
     commandType: 'Slash&Prefix',
 
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
-
+        const roleAction = new EmbedBuilder();
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
 
@@ -88,6 +88,7 @@ export default {
     },
 
     executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        const roleAction = new EmbedBuilder();
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
         const role = interaction.options.getRole('role', true);

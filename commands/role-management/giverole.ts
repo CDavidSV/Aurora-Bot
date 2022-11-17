@@ -4,13 +4,12 @@ import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, Perm
 import MCommand from '../../Classes/MCommand';
 
 // Variables.
-const roleAction = new EmbedBuilder();
 const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
 const successImg = new AttachmentBuilder(config.embeds.images.successImg);
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('give_role')
+        .setName('giverole')
         .setDescription('Gives the specified role to a user.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles)
         .addUserOption(option =>
@@ -30,6 +29,8 @@ export default {
     commandType: 'Slash&Prefix',
 
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+        const roleAction = new EmbedBuilder();
+
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
 
@@ -88,6 +89,8 @@ export default {
     },
 
     executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        const roleAction = new EmbedBuilder();
+
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
         const role = interaction.options.getRole('role', true);

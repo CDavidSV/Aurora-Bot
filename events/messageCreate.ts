@@ -29,6 +29,8 @@ client.on('messageCreate', async (message: Message) => {
     const sliceParameter = prefix.length;
 
     const args = message.content.slice(sliceParameter).split(" ").filter((element: String) => element != '');
+    if(args.length === 0) return; 
+
     const commandName = args.slice().shift()!.toLowerCase();
 
     const command = client.commands.find(c => c.aliases.includes(commandName));
@@ -55,7 +57,7 @@ client.on('messageCreate', async (message: Message) => {
 
     // Execute Commands.
     try {
-        command.execute(client, message, prefix, null, ...args); // Executes command.
+        command.execute(client, message, prefix, ...args); // Executes command.
     } catch (error) {
         const unexpectedError = new EmbedBuilder()
             .setColor(config.embeds.colors.errorColor as ColorResolvable)

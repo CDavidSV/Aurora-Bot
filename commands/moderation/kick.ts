@@ -3,8 +3,6 @@ import config from '../../config.json';
 import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, SlashCommandBuilder, ChatInputCommandInteraction, CacheType } from 'discord.js';
 import MCommand from '../../Classes/MCommand';
 
-// Create message embed.
-const kickEmbed = new EmbedBuilder();
 // Kick reason.
 let kickReason = 'No especificada';
 // error and success images.
@@ -33,6 +31,9 @@ export default {
     commandType: 'Slash&Prefix',
 
     execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+        // Create message embed.
+        const kickEmbed = new EmbedBuilder();
+
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
         // Get guild 
@@ -92,6 +93,9 @@ export default {
     },
 
     async executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        // Create message embed.
+        const kickEmbed = new EmbedBuilder();
+
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
         const member = guild!.members.cache.get(user.id)!;

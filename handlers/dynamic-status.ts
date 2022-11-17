@@ -3,6 +3,7 @@ import { ActivityType, Client } from 'discord.js';
 import { client } from '../index';
 
 let statuses: string[] = [];
+let currentIndex = 0;
 
 function updateStatuses() {
     const statuses: string[] = [
@@ -36,8 +37,9 @@ function formatNumbers(number: number) {
 }
 
 function changeStatus(client: Client) {
-    const randomIndex = Math.floor(Math.random() * statuses.length);
-    client.user!.setActivity(statuses[randomIndex], { type: ActivityType.Listening })
+    if(currentIndex > statuses.length - 1) currentIndex = 0;
+    client.user!.setActivity(statuses[currentIndex], { type: ActivityType.Listening });
+    currentIndex++;
 }
 
 export default {

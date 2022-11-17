@@ -1,10 +1,9 @@
 // Deletes specified ammount of messages in a channel.
 import config from '../../config.json';
-import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, TextChannel, ChannelType, SlashCommandBuilder, ChatInputCommandInteraction, CacheType, Collection, DMChannel } from 'discord.js';
+import { Client, Message, EmbedBuilder, AttachmentBuilder, ColorResolvable, PermissionsBitField, TextChannel, ChannelType, SlashCommandBuilder, ChatInputCommandInteraction, CacheType, Collection, DMChannel, GuildMember } from 'discord.js';
 import MCommand from '../../Classes/MCommand';
 
 let msg = "mensaje";
-const clearEmbed = new EmbedBuilder();
 const errorImg = new AttachmentBuilder(config.embeds.images.errorImg);
 
 export default {
@@ -20,7 +19,7 @@ export default {
                 .setMinValue(1))
         .addUserOption(option =>
             option.setName('user')
-                .setDescription('User\' messages')
+                .setDescription('User\'s messages')
                 .setRequired(false))
         .setDMPermission(false),
     aliases: ['clearchat', 'clear', 'purge'],
@@ -31,6 +30,7 @@ export default {
     commandType: 'Slash&Prefix',
 
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+        const clearEmbed = new EmbedBuilder();
         // Convert args to lowercase.
         args = args.map(arg => arg.toLowerCase());
 
@@ -130,8 +130,13 @@ export default {
     },
 
     async executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        const clearEmbed = new EmbedBuilder();
         let totalLimit = interaction.options.getInteger('ammount', true);
-        const member = interaction.guild!.members.cache.get(interaction.options.getUser('User', true).id);
+
+        let member: GuildMember | undefined;
+        if(interaction.options.getUser('user')) {
+            member = interaction.guild!.members.cache.get(interaction.options.getUser('user', true).id);
+        }
         let fetched;
         let limit;
         let counter: any = [];
@@ -150,6 +155,7 @@ export default {
             return;
         }
 
+        interaction.deferReply({ephemeral: true});
         do {
             // Check if the limit given by the user exceeds 100.
             totalLimit > 100 ? limit = 100 : limit = totalLimit;
@@ -196,9 +202,9 @@ export default {
         }
 
         if (oldmessages) {
-            interaction.reply({ content: `He borrado \`${deleted} ${msg}\`\nDebido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de \`14 días.\``, ephemeral: true });
+            interaction.editReply({ content: `He borrado \`${deleted} ${msg}\`\nDebido a las limitaciones de Discord, no puedo eliminar mensajes que tengan más de \`14 días.\``});
         } else {
-            interaction.reply({ content: `He borrado \`${deleted} ${msg}\``, ephemeral: true });
+            interaction.editReply({ content: `He borrado \`${deleted} ${msg}\``});
         }
     }
 } as MCommand

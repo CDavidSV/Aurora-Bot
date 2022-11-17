@@ -8,7 +8,6 @@ import prefixHandler from '../../handlers/prefix-handler';
 
 const errorImg = new AttachmentBuilder('./assets/command-images/error-icon.png');
 const successImg = new AttachmentBuilder('./assets/command-images/success-icon.png');
-const setPrefixEmbed = new EmbedBuilder();
 
 async function changePrefix(newPrefix: string, guildId: string | null) {
     // Change the prefix and update the database.
@@ -42,6 +41,8 @@ export default {
     cooldown: 0,
     commandType: 'Slash&Prefix',
     async execute(client: Client, message: Message, prefix: string, ...args: string[]) {
+        const setPrefixEmbed = new EmbedBuilder();
+
         if (args.length < 2) {
             setPrefixEmbed
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
@@ -72,6 +73,8 @@ export default {
     },
 
     async executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
+        const setPrefixEmbed = new EmbedBuilder();
+
         const guildId = interaction.guildId;
         const newPrefix = interaction.options.getString('prefix', true);
 

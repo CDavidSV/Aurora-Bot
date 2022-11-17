@@ -9,7 +9,8 @@ const rolesEmbed = new EmbedBuilder();
 export default {
     data: new SlashCommandBuilder()
         .setName('roles')
-        .setDescription('Displays all roles for the specified user or all roles in a server.'),
+        .setDescription('Displays all roles for the specified user or all roles in a server.')
+        .setDMPermission(false),
     aliases: ['roles'],
     category: 'Gestión de roles',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ManageRoles],
