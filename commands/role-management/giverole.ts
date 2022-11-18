@@ -66,7 +66,7 @@ export default {
         }
 
         // Checks if the user's role has enought rank to give the same role. (In case a user is trying to give his highest ranked role)
-        if (message.member!.roles.highest <= role && message.member!.id !== guild!.ownerId) {
+        if (message.member!.roles.highest.position <= role.position && message.member!.id !== guild!.ownerId) {
             roleAction
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'El rol está bloqueado porque es un rango más alto que tu rol más alto.', iconURL: 'attachment://error-icon.png' })
@@ -99,7 +99,7 @@ export default {
         const interationmember = guild!.members.cache.get(interaction.member!.user.id)!;
         const member = guild!.members.cache.get(user.id)!;
 
-        if (interationmember.roles.highest <= role && interaction.member!.user.id !== guild!.ownerId) {
+        if (interationmember.roles.highest.position <= role.position && interaction.member!.user.id !== guild!.ownerId) {
             roleAction
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)
                 .setAuthor({ name: 'El rol está bloqueado porque es un rango más alto que tu rol más alto.', iconURL: 'attachment://error-icon.png' })

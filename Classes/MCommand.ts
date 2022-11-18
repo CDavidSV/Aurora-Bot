@@ -7,7 +7,8 @@ type Categories =
     'Random' |
     'Gestión de roles' |
     'Canales de voz temporales' |
-    'Utilidad';
+    'Utilidad' |
+    'Juegos';
 
 type CommandType = 'Slash' | 'Prefix' | 'Slash&Prefix';
 
