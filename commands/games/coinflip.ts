@@ -1,7 +1,7 @@
-// Returns random "banana" size for the user. For fun!
+ // Returns random "banana" size for the user. For fun!
 // Copied from Nekotina xD.
 
-import { Client, Message, EmbedBuilder, ColorResolvable, SlashCommandBuilder, PermissionsBitField, ChatInputCommandInteraction, CacheType, GuildMember, User, } from 'discord.js';
+import { Client, Message, SlashCommandBuilder, PermissionsBitField, ChatInputCommandInteraction, CacheType } from 'discord.js';
 import MCommand from '../../Classes/MCommand'
 
 export default {
@@ -19,9 +19,9 @@ export default {
         const random = Math.floor(Math.random() * 2);
 
         if (random == 1) {
-            message.reply({ content: `🪙${message.member!.displayName} flipped a coin and got **Tails**`, allowedMentions: { repliedUser: false } });
+            message.reply({ content: `🪙**${message.member!.displayName}** flipped a coin and got **Tails**`, allowedMentions: { repliedUser: false } });
         } else {
-            message.reply({ content: `🪙${message.member!.displayName} flipped a coin and got **heads**`, allowedMentions: { repliedUser: false } });
+            message.reply({ content: `🪙**${message.member!.displayName}** flipped a coin and got **heads**`, allowedMentions: { repliedUser: false } });
         }
     },
 

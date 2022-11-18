@@ -32,7 +32,7 @@ export default {
 
         const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
         
-        await rest.put(Routes.applicationCommands(clientId), { body: slashCommands })
+        await rest.put(Routes.applicationGuildCommands(clientId, testGuildId), { body: slashCommands })
             .then((data: any) => console.log(`Successfully registered ${data.length} application commands`))
             .catch(console.error);
     }
