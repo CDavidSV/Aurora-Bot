@@ -10,7 +10,7 @@ client.on('interactionCreate', async (interaction) => {
 
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
-    if(interaction.channel! !== null) {
+    if (interaction.channel! !== null) {
         if (!interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
             const noPermissions = new EmbedBuilder()
                 .setColor(config.embeds.colors.errorColor as ColorResolvable)

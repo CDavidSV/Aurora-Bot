@@ -1,13 +1,16 @@
- // Returns random "banana" size for the user. For fun!
+// Returns random "banana" size for the user. For fun!
 // Copied from Nekotina xD.
 
-import { Client, Message, SlashCommandBuilder, PermissionsBitField, ChatInputCommandInteraction, CacheType } from 'discord.js';
+import { Client, Message, PermissionsBitField, ChatInputCommandInteraction, CacheType, SlashCommandSubcommandBuilder } from 'discord.js';
 import MCommand from '../../Classes/MCommand'
 
 export default {
-    data: new SlashCommandBuilder()
-        .setName('coinflip')
-        .setDescription('Flip a coin'),
+    slashCategory: 'games',
+    name: 'coinflip',
+    description: 'Flip a coin',
+    DM: true,
+    subOptions: [],
+    inputOptions: [],
     aliases: ['coinflip'],
     category: 'Juegos',
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
@@ -20,9 +23,9 @@ export default {
 
         if (random == 1) {
             message.reply({ content: `🪙**${message.member!.displayName}** flipped a coin and got **Tails**`, allowedMentions: { repliedUser: false } });
-        } else {
-            message.reply({ content: `🪙**${message.member!.displayName}** flipped a coin and got **heads**`, allowedMentions: { repliedUser: false } });
+            return;
         }
+        message.reply({ content: `🪙**${message.member!.displayName}** flipped a coin and got **heads**`, allowedMentions: { repliedUser: false } });
     },
 
     executeSlash(interaction: ChatInputCommandInteraction<CacheType>) {
@@ -32,8 +35,8 @@ export default {
 
         if (random == 1) {
             interaction.reply({ content: `🪙${member!.displayName} flipped a coin and got **Tails**` });
-        } else {
-            interaction.reply({ content: `🪙${member!.displayName} flipped a coin and got **heads**` });
+            return;
         }
+        interaction.reply({ content: `🪙${member!.displayName} flipped a coin and got **heads**` });
     }
 } as MCommand

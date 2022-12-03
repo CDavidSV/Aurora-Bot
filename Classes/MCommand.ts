@@ -1,7 +1,6 @@
 // Class that all command scrips use.
-import { SlashCommandBuilder } from 'discord.js';
 
-type Categories =
+export type Categories =
     'Moderación' |
     'Música' |
     'Random' |
@@ -10,32 +9,57 @@ type Categories =
     'Utilidad' |
     'Juegos';
 
-type CommandType = 'Slash' | 'Prefix' | 'Slash&Prefix';
+export type InputOption = {
+    name: string,
+    description: string,
+    type: InputType,
+    maxLen: number | null,
+    minLen: number | null,
+    required: boolean
+};
+
+export type InputType = 'Role' | 'User' | 'Number' | 'String' | 'Boolean' | 'Channel' | 'Integer' | 'Attachment' | 'Mentionable';
+
+export type CommandType = 'Slash' | 'Prefix' | 'Slash&Prefix';
 
 export default class MCommand {
     // Variables.
-    public data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+    public slashCategory: string | null;
+    public name: string;
+    public description: string;
+    public DM: boolean;
+    public subOptions: { name: string, description: string, inputOptions: InputOption[] }[];
+    public inputOptions: InputOption[];
     public aliases: string[];
     public category: Categories;
     public botPerms: bigint[];
     public userPerms: bigint[];
     public cooldown: number;
     public commandType: CommandType;
-    public execute: Function;
+    public execute: Function = () => { return; };
     public executeSlash: Function = () => { return; };
+
     // Constructor.
     /**
-     * 
-     * @param aliases Array of all possible aliases for that comamnd.
-     * @param category Category for that command. Can be: 'Moderación', 'Música', 'Random', 'Gestión de roles', 'Canales de voz temporales', 'Utilidad'.
-     * @param botPerms Necessary permissions the bot requires to run the command.
-     * @param userPerms Permissions the user requires to run the command.
-     * @param cooldown Cooldown for using the command in seconds.
-     * @param commandType Type of command to be executed ('Slash', 'Prefix', 'Slash&Prefix')
-     * @param execute Function that executes the command. execute(client: Client, message: Message, prefix: string, ...args: string[]).
+     * @param slashCategory
+     * @param name
+     * @param description
+     * @param DM
+     * @param aliases
+     * @param category
+     * @param botPerms
+     * @param userPerms
+     * @param cooldown
+     * @param commandType
+     * @param execute
      */
-    constructor(data: SlashCommandBuilder, aliases: string[], category: Categories, botPerms: bigint[], userPerms: bigint[], cooldown: number, commandType: CommandType, execute: Function) {
-        this.data = data;
+    constructor(slashCategory: string | null, name: string, description: string, DM: boolean, options: { name: string, description: string, inputOptions: InputOption[] }[], inputOptions: InputOption[], aliases: string[], category: Categories, botPerms: bigint[], userPerms: bigint[], cooldown: number, commandType: CommandType, execute: Function) {
+        this.slashCategory = slashCategory;
+        this.name = name;
+        this.description = description;
+        this.DM = DM;
+        this.subOptions = options;
+        this.inputOptions = inputOptions;
         this.aliases = aliases;
         this.category = category;
         this.botPerms = botPerms;
