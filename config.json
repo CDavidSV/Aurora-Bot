@@ -1,36 +1,20 @@
 {
-    "version": "v1.0.0",
-    "clientId": "970506702799646730",
+    "name": "aurora",
+    "version": "v0.1.0",
+    "clientId": "1101954090667348029",
     "testGuildId": "970508802602455122",
     "globalPrefixes": [
-        "ma!",
-        "!",
-        "<@970506702799646730>"
+        "au!",
+        "<@1101954090667348029>"
     ],
-    "mongoPath": "mongodb://localhost:27017/marin-bot",
     "embeds": {
         "colors": {
-            "errorColor": "#F14946",
-            "successColor": "#43B582",
-            "defaultColor": "#393C3A",
-            "defaultColor2": "#f4eeec",
-            "main": "#FFDA2E"
+            "main": "#b917ff",
+            "error": "#e60000"
         },
         "images": {
-            "successImg": "./assets/command-images/success-icon.png",
-            "errorImg": "./assets/command-images/error-icon.png"
-        }
-    },
-    "playerEmbeds": {
-        "colors": {
-            "stoppedColor": "#F14946",
-            "skipedColor": "#2877D6",
-            "playingColor": "#FFDA2E",
-            "queuedColor": "#f4eeec"
-        },
-        "images": {
-            "playingImage": "https://media1.tenor.com/images/6bccf62f1691173159c35373068551c2/tenor.gif?itemid=26309669",
-            "skippedImage": ""
+            "errorImg": "./assets/command-images/error-icon.png",
+            "successImg": "./assets/command-images/success-icon.png"
         }
     }
 }
