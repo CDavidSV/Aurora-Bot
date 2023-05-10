@@ -20,13 +20,18 @@ declare module "discord.js" {
 const token: string = process.env.TOKEN as string;
 
 // Bot Setup.
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-client.slashCommands = new Collection();
-client.subCommands = new Collection();
+const client = new Client({ 
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates
+    ] 
+});
 
-setupEvents(client);
-setupCommands(client, token);
+setupEvents();
+setupCommands(token);
 
 client.login(token);
 
-export default client;
+export { client };

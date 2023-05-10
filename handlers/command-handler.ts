@@ -1,8 +1,11 @@
-import { Client, REST, Routes } from "discord.js";
+import { Collection, REST, Routes } from "discord.js";
 import getFiles from "../util/get-files";
 import config from "../config.json";
+import { client } from "../index";
 
-const setupCommands = (client: Client, token: string) => {
+const setupCommands = (token: string) => {
+    client.slashCommands = new Collection();
+
     // Get all Commands and determine the type.
     getFiles('./commands/slash', '.ts', 'SLASH COMMANDS').forEach((commandFile) => {
         const command = require(`${commandFile}`).default;

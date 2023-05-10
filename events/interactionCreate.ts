@@ -13,6 +13,7 @@ export default {
         const { commandName, client, options } = interaction;
         const command = client.slashCommands.get(commandName)!;
 
+        // Check if the bot has sufficient permissions to perform the command.
         if (command.botPerms && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
             const noPermissions = new EmbedBuilder()
             .setColor(config.embeds.colors.error as ColorResolvable)
@@ -21,13 +22,14 @@ export default {
             return;
         }
 
+        // Check if it's a sub command.
         try {
-            const subCommand = options.getSubcommand();
+            const subCommand = options.getSubcommand(); // Get corresponding sub command and file.
             const subCommandGroup = options.getSubcommandGroup();
             const subCommandName = subCommandGroup ? `${subCommandGroup}.${subCommand}` : subCommand;
 
             const subCommandFile = client.subCommands.get(`${commandName}.${subCommandName}`);
-            if (!subCommandFile && !command.callback) return interaction.reply({
+            if (!subCommandFile && !command.callback) return interaction.reply({ // If no such sub command exits then it is outdated (check for outdated commands).
                 content: "This sub command is outdated.",
                 ephemeral: true
             });

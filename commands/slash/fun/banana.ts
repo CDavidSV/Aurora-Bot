@@ -22,7 +22,7 @@ export default {
         const bananaSizeEmbed = new EmbedBuilder()
             .setColor(randomColor as ColorResolvable)
             .setTitle(`${username}'s banana is ${randomSize} cm long.`)
-            .setImage("https://cdn.discordapp.com/attachments/1102351325120974979/1102351503592796201/banana.png");
+            .setImage("https://cdn.discordapp.com/attachments/1102351325120974979/1105891025089744968/banana.png");
 
         interaction.reply({ embeds: [bananaSizeEmbed], allowedMentions: { repliedUser: false } })
     },
