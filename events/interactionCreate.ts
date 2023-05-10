@@ -10,7 +10,9 @@ export default {
     async execute(interaction: Interaction) {
         if (!interaction.isChatInputCommand()) return;
 
-        const command = interaction.client.commands.get(interaction.commandName)!;
+        const { commandName, client, options } = interaction;
+        const command = client.slashCommands.get(commandName)!;
+
         if (command.botPerms && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
             const noPermissions = new EmbedBuilder()
             .setColor(config.embeds.colors.error as ColorResolvable)
@@ -19,6 +21,20 @@ export default {
             return;
         }
 
-        command.callback(interaction);
+        try {
+            const subCommand = options.getSubcommand();
+            const subCommandGroup = options.getSubcommandGroup();
+            const subCommandName = subCommandGroup ? `${subCommandGroup}.${subCommand}` : subCommand;
+
+            const subCommandFile = client.subCommands.get(`${commandName}.${subCommandName}`);
+            if (!subCommandFile && !command.callback) return interaction.reply({
+                content: "This sub command is outdated.",
+                ephemeral: true
+            });
+            subCommandFile.callback(interaction);
+            return;
+        } catch {
+            command.callback(interaction);
+        }
     }
 };

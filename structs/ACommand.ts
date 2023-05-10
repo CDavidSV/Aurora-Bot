@@ -23,7 +23,7 @@ export enum CommandOptionType {
     Number = 'number',
     Role = 'role',  
     Attachment = 'attachment',
-    Boolean = 'channel',
+    Boolean = 'bool',
     Channel = 'channel',
     Mentionable = 'mentionable'
 }

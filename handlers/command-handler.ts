@@ -6,16 +6,20 @@ const setupCommands = (client: Client, token: string) => {
     // Get all Commands and determine the type.
     getFiles('./commands/slash', '.ts', 'SLASH COMMANDS').forEach((commandFile) => {
         const command = require(`${commandFile}`).default;
-        if (!command || !command.data) return;
+        if (!command) return;
 
-        client.commands.set(command.data.name, command);
+        if (command.subCommand) {
+            return client.subCommands.set(command.subCommand, command);
+        }
+
+        client.slashCommands.set(command.data.name, command);
     });
 
     const rest = new REST().setToken(token);
     (async () => {
         await rest.put(
             Routes.applicationGuildCommands(config.clientId, config.testGuildId),
-            { body: Array.from(client.commands.values()).map((command) => {
+            { body: Array.from(client.slashCommands.values()).map((command) => {
                 return command.data.toJSON();
             })} // Convert slash command data into json.,
         )
