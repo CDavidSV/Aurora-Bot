@@ -15,7 +15,7 @@ export default {
         const channel = interaction.client.channels.cache.get(interaction.channel!.id)! as TextChannel;
         const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 15000 });
         const avatarEmbed = new EmbedBuilder();
-
+    
         let member: GuildMember;
         if(!interaction.options.getUser('user')) {
             member = interaction.guild!.members.cache.get(interaction.member!.user.id)!;
@@ -24,7 +24,7 @@ export default {
         }
         
         avatarEmbed
-            .setTitle(`${member.user.username}'s Avatar`)
+            .setTitle(`${member.user.username}'s Server Avatar`)
             .setImage(member.displayAvatarURL({size: 2048}))
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setDescription(`[Image URL](${member.displayAvatarURL({size: 2048})})`)
@@ -34,17 +34,18 @@ export default {
         } else {
             interaction.reply({embeds: [avatarEmbed], components: [row]});
         }
-
+    
         collector.once('collect', async (interactionBtn: ButtonInteraction) => {
             avatarEmbed
-                .setTitle(`Avatar of ${member.user.tag}`)
+                .setTitle(`${member.user.username}'s Avatar`)
                 .setImage(member.user.displayAvatarURL({size: 2048}))
                 .setColor(config.embeds.colors.main as ColorResolvable)
                 .setDescription(`[Image URL](${member.user.displayAvatarURL({size: 2048})})`)
-
+    
             interaction.editReply({components: []});
             
             await interactionBtn.reply({embeds: [avatarEmbed]}).catch(() => {});
+            collector.removeAllListeners();
             collector.stop();
         });
     }

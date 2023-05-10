@@ -13,6 +13,15 @@ export default {
                     option
                         .setName('user')
                         .setDescription('User Mention')
+                        .setRequired(false)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('banner')
+                .setDescription("Shows a user's banner")
+                .addUserOption(option =>
+                    option
+                        .setName('user')
+                        .setDescription('User Mention')
                         .setRequired(false))),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
 }
