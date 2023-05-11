@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ColorResolvable, EmbedBuilder, Events, Interaction, TextBasedChannel } from "discord.js";
+import { AttachmentBuilder, ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
 import config from "../config.json";
 
 // Error image.
