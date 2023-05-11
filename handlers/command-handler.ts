@@ -24,7 +24,12 @@ const setupCommands = (token: string) => {
             Routes.applicationGuildCommands(config.clientId, config.testGuildId),
             { body: Array.from(client.slashCommands.values()).map((command) => {
                 return command.data.toJSON();
-            })} // Convert slash command data into json.,
+            })} // Convert slash command data into json.
+
+            // Routes.applicationCommands(config.clientId),
+            // { body: Array.from(client.slashCommands.values()).map((command) => {
+            //     return command.data.toJSON();
+            // })}
         )
         .then(() => console.log(`Successfully reloaded application (/) commands.`.green))
         .catch((e => console.error(e)));
