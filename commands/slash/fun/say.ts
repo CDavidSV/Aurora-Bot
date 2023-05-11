@@ -54,10 +54,14 @@ export default {
             if (modalSubmitInteraction) {
                 message = modalSubmitInteraction.fields.getTextInputValue('messageInput');
                 
-                modalSubmitInteraction.reply({ content: "*Message successfully sent*", ephemeral: true}).catch(() => {});
-                channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
+                try {
+                    await modalSubmitInteraction.reply({ content: "*Message successfully sent*", ephemeral: true});
+                    channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
+                } finally {
+                    return;
+                }
+                
             }
-            return; 
         }
 
         interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
