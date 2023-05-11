@@ -4,11 +4,11 @@ import {SlashCommandBuilder, PermissionsBitField } from 'discord.js';
 export default {
     data: new SlashCommandBuilder()
         .setName('user')
-        .setDescription('🎮 Play a variety of games')
+        .setDescription('👤 Shows user related information')
         .addSubcommand(subcommand =>
             subcommand
                 .setName('avatar')
-                .setDescription("Shows a user's avatar")
+                .setDescription("👤 Shows a user's avatar")
                 .addUserOption(option =>
                     option
                         .setName('user')
@@ -17,7 +17,7 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('banner')
-                .setDescription("Shows a user's banner")
+                .setDescription("👤 Shows a user's banner")
                 .addUserOption(option =>
                     option
                         .setName('user')

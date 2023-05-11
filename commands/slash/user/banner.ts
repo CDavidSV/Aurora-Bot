@@ -3,7 +3,7 @@ import config from "../../../config.json";
 
 export default {
     subCommand: "user.banner",
-    async callback(interaction: CommandInteraction) {
+    callback: (interaction: CommandInteraction) => {
         const bannerEmbed = new EmbedBuilder();
     
         let member: GuildMember;

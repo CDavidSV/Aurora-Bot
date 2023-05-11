@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
+import { AttachmentBuilder, ColorResolvable, EmbedBuilder, Events, Interaction, TextBasedChannel } from "discord.js";
 import config from "../config.json";
 
 // Error image.
@@ -8,35 +8,49 @@ export default {
     name: Events.InteractionCreate,
     once: false,
     async execute(interaction: Interaction) {
-        if (!interaction.isChatInputCommand()) return;
+        if (interaction.isModalSubmit()) {
+            switch (interaction.customId) {
+                case "sayMessageModal":
+                    const channel = interaction.channel as TextBasedChannel;
+                    const message = interaction.fields.getTextInputValue('messageInput');
 
-        const { commandName, client, options } = interaction;
-        const command = client.slashCommands.get(commandName)!;
-
-        // Check if the bot has sufficient permissions to perform the command.
-        if (command.botPerms && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
-            const noPermissions = new EmbedBuilder()
-            .setColor(config.embeds.colors.error as ColorResolvable)
-            .setAuthor({ name: 'No tengo suficiente permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
-            interaction.reply({ embeds: [noPermissions], files: [file], ephemeral: true });
+                    channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
+                    interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
+                    break;
+            }
             return;
         }
 
-        // Check if it's a sub command.
-        try {
-            const subCommand = options.getSubcommand(); // Get corresponding sub command and file.
-            const subCommandGroup = options.getSubcommandGroup();
-            const subCommandName = subCommandGroup ? `${subCommandGroup}.${subCommand}` : subCommand;
-
-            const subCommandFile = client.subCommands.get(`${commandName}.${subCommandName}`);
-            if (!subCommandFile && !command.callback) return interaction.reply({ // If no such sub command exits then it is outdated (check for outdated commands).
-                content: "This sub command is outdated.",
-                ephemeral: true
-            });
-            subCommandFile.callback(interaction);
+        if (interaction.isChatInputCommand()) {
+            const { commandName, client, options } = interaction;
+            const command = client.slashCommands.get(commandName)!;
+    
+            // Check if the bot has sufficient permissions to perform the command.
+            if (command.botPerms && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
+                const noPermissions = new EmbedBuilder()
+                .setColor(config.embeds.colors.error as ColorResolvable)
+                .setAuthor({ name: 'No tengo suficiente permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
+                interaction.reply({ embeds: [noPermissions], files: [file], ephemeral: true });
+                return;
+            }
+    
+            // Check if it's a sub command.
+            try {
+                const subCommand = options.getSubcommand(); // Get corresponding sub command and file.
+                const subCommandGroup = options.getSubcommandGroup();
+                const subCommandName = subCommandGroup ? `${subCommandGroup}.${subCommand}` : subCommand;
+    
+                const subCommandFile = client.subCommands.get(`${commandName}.${subCommandName}`);
+                if (!subCommandFile && !command.callback) return interaction.reply({ // If no such sub command exits then it is outdated (check for outdated commands).
+                    content: "This sub command is outdated.",
+                    ephemeral: true
+                });
+                subCommandFile.callback(interaction);
+                return;
+            } catch {
+                command.callback(interaction);
+            }
             return;
-        } catch {
-            command.callback(interaction);
-        }
+        };
     }
 };

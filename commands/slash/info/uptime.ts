@@ -28,7 +28,7 @@ export default {
         .setName('uptime')
         .setDescription(`⏱️ Shows the bot's uptime`),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    callback(interaction: CommandInteraction) {
+    callback: (interaction: CommandInteraction) => {
         const currentUptime = calculateUptime(interaction.client.startTime);
 
         const uptimeEmbed = new EmbedBuilder()

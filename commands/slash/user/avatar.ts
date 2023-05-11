@@ -11,7 +11,7 @@ const row = new ActionRowBuilder<ButtonBuilder>()
 
 export default {
     subCommand: "user.avatar",
-    async callback(interaction: CommandInteraction) {
+    callback: (interaction: CommandInteraction) => {
         const channel = interaction.client.channels.cache.get(interaction.channel!.id)! as TextChannel;
         const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 15000 });
         const avatarEmbed = new EmbedBuilder();

@@ -27,7 +27,7 @@ export default {
                         .setDescription('Ask anything')
                         .setRequired(true))),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    async callback(interaction: ChatInputCommandInteraction<CacheType>) {
+    callback: (interaction: ChatInputCommandInteraction<CacheType>) => {
         const subcommands = interaction.options.getSubcommand()
 
         switch (subcommands) {
