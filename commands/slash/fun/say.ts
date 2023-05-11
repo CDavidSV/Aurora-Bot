@@ -27,7 +27,6 @@ export default {
         }
         
         let message: string = interaction.options.getString("message")!;
-        let modalSubmitInteraction: ModalSubmitInteraction<CacheType> | undefined;
 
         if (!message) {
             const modal = new ModalBuilder()
@@ -44,27 +43,19 @@ export default {
             modal.addComponents(firstRow)
 
             await interaction.showModal(modal);
-            modalSubmitInteraction = await interaction.awaitModalSubmit({
+            await interaction.awaitModalSubmit({
                 filter: (modalInteraction) => modalInteraction.customId === 'sayMessageModal' && modalInteraction.user.id === interaction.user.id,
                 time: 900_000,
-            }).catch(() => {
-                return undefined;
+            })
+            .then(async (modalInteraction: ModalSubmitInteraction<CacheType>) => {
+                message = modalInteraction.fields.getTextInputValue('messageInput');
+                
+                modalInteraction.reply({ content: "*Message successfully sent*", ephemeral: true });
+                channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
             });
-
-            if (modalSubmitInteraction) {
-                message = modalSubmitInteraction.fields.getTextInputValue('messageInput');
-                
-                try {
-                    await modalSubmitInteraction.reply({ content: "*Message successfully sent*", ephemeral: true});
-                    channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
-                } finally {
-                    return;
-                }
-                
-            }
+        } else {
+            interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
+            channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);       
         }
-
-        interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
-        channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
     },
 };
