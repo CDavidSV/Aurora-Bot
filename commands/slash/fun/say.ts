@@ -1,9 +1,5 @@
 import { ActionRowBuilder, CacheType, ChannelType, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, PermissionsBitField, SlashCommandBuilder, TextBasedChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 
-const modal = new ModalBuilder()
-    .setCustomId('sayMessageModal')
-    .setTitle('Your Message');
-
 export default {
     data: new SlashCommandBuilder()
         .setName('say')
@@ -34,6 +30,10 @@ export default {
         let modalSubmitInteraction: ModalSubmitInteraction<CacheType> | undefined;
 
         if (!message) {
+            const modal = new ModalBuilder()
+                .setCustomId('sayMessageModal')
+                .setTitle('Your Message');
+
             const messageInput = new TextInputBuilder()
                 .setCustomId('messageInput')
                 .setLabel('message')
@@ -45,19 +45,22 @@ export default {
 
             await interaction.showModal(modal);
             modalSubmitInteraction = await interaction.awaitModalSubmit({
-                filter: (modalInteraction) => modalInteraction.customId === 'sayMessageModal',
-                time: 1_200_000
+                filter: (modalInteraction) => modalInteraction.customId === 'sayMessageModal' && modalInteraction.user.id === interaction.user.id,
+                time: 900_000,
+            }).catch(() => {
+                return undefined;
             });
+
+            if (modalSubmitInteraction) {
+                message = modalSubmitInteraction.fields.getTextInputValue('messageInput');
+                
+                modalSubmitInteraction.reply({ content: "*Message successfully sent*", ephemeral: true}).catch(() => {});
+                channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
+            }
+            return; 
         }
 
-        if (modalSubmitInteraction) {
-            message = modalSubmitInteraction.fields.getTextInputValue('messageInput');
-
-            modalSubmitInteraction.reply({ content: "*Message successfully sent*", ephemeral: true});
-        } else {
-            interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
-        }
-
+        interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
         channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
     },
 };
