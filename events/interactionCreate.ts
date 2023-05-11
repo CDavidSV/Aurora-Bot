@@ -9,15 +9,6 @@ export default {
     once: false,
     async execute(interaction: Interaction) {
         if (interaction.isModalSubmit()) {
-            switch (interaction.customId) {
-                case "sayMessageModal":
-                    const channel = interaction.channel as TextBasedChannel;
-                    const message = interaction.fields.getTextInputValue('messageInput');
-
-                    channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
-                    interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
-                    break;
-            }
             return;
         }
 
