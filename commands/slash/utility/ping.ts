@@ -9,7 +9,7 @@ export default {
     callback: async (interaction: CommandInteraction) => {
         const pingEmbed = new EmbedBuilder().setDescription('Calculating...');
 
-        interaction.reply({ embeds: [pingEmbed], fetchReply: true }).then(async resultMessage => {
+        await interaction.reply({ embeds: [pingEmbed], fetchReply: true }).then(async resultMessage => {
             const ping = resultMessage.createdTimestamp - interaction!.createdTimestamp;
             pingEmbed
                 .setAuthor({ name: 'Marin Bot', iconURL: interaction.client!.user!.avatarURL()! })

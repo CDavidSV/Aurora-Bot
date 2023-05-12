@@ -35,7 +35,7 @@ export default {
 
         client.user!.setActivity(statuses[currentIndex].text, statuses[currentIndex].object);
         setInterval(() => {
-            if (currentIndex + 1 > statuses.length) {
+            if (currentIndex + 1 > statuses.length - 1) {
                 currentIndex = 0;
             } else {
                 currentIndex++;

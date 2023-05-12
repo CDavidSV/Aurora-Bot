@@ -8,6 +8,7 @@ export default {
             option
                 .setName('message')
                 .setDescription('Whatever you want to say.')
+                .setMinLength(1)
                 .setRequired(false))
         .addChannelOption(option =>
             option
@@ -29,13 +30,16 @@ export default {
         let message: string = interaction.options.getString("message")!;
 
         if (!message) {
+            const modalId = `sayMessageModal${interaction.id}`;
+
             const modal = new ModalBuilder()
-                .setCustomId('sayMessageModal')
+                .setCustomId(modalId)
                 .setTitle('Your Message');
 
             const messageInput = new TextInputBuilder()
                 .setCustomId('messageInput')
                 .setLabel('message')
+                .setMinLength(1)
                 .setStyle(TextInputStyle.Paragraph)
                 .setRequired(true)
 
@@ -44,17 +48,21 @@ export default {
 
             await interaction.showModal(modal);
             await interaction.awaitModalSubmit({
-                filter: (modalInteraction) => modalInteraction.customId === 'sayMessageModal' && modalInteraction.user.id === interaction.user.id,
-                time: 900_000,
+                filter: (modalInteraction) => modalInteraction.customId === modalId && modalInteraction.user.id === interaction.user.id,
+                time: 12_00_000,
             })
             .then(async (modalInteraction: ModalSubmitInteraction<CacheType>) => {
                 message = modalInteraction.fields.getTextInputValue('messageInput');
-                
-                modalInteraction.reply({ content: "*Message successfully sent*", ephemeral: true });
-                channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
+           
+                await modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true }).then(() => {
+                    channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
+                }).catch(() => {});
+            })
+            .catch(() => {
+                return null;
             });
         } else {
-            interaction.reply({ content: "*Message successfully sent*", ephemeral: true});
+            interaction.reply({ content: "*Message sent successfully*", ephemeral: true});
             channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);       
         }
     },
