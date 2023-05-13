@@ -16,7 +16,7 @@ export default {
         try {
             const result = evaluate(expression);
             const mathEmbed = new EmbedBuilder()
-                .setAuthor({ name: 'Aurora', iconURL: interaction.client!.user!.avatarURL()! })
+                .setAuthor({ name: 'Aurora Calculator', iconURL: interaction.client!.user!.avatarURL()! })
                 .setColor(config.embeds.colors.main as ColorResolvable)
                 .addFields(
                     { name: "Math Expression: ", value: "```css\n" + expression + " \n```"},

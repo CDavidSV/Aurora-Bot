@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
+import { AttachmentBuilder, ChannelType, ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
 import config from "../config.json";
 
 // Error image.
@@ -15,9 +15,9 @@ export default {
         if (interaction.isChatInputCommand()) {
             const { commandName, client, options } = interaction;
             const command = client.slashCommands.get(commandName)!;
-    
+
             // Check if the bot has sufficient permissions to perform the command.
-            if (command.botPerms && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
+            if (command.botPerms && interaction.guild && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
                 const noPermissions = new EmbedBuilder()
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: 'No tengo suficiente permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })

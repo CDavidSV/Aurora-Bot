@@ -22,6 +22,7 @@ export default {
                     option
                         .setName('user')
                         .setDescription('User Mention')
-                        .setRequired(false))),
+                        .setRequired(false)))
+        .setDMPermission(false),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
 }

@@ -14,7 +14,8 @@ export default {
             option
                 .setName('channel')
                 .setDescription('Channel you want the message to be sent to.')
-                .setRequired(false)),
+                .setRequired(false))
+        .setDMPermission(false),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         let channel: TextBasedChannel = interaction.options.getChannel("channel") as TextBasedChannel;
