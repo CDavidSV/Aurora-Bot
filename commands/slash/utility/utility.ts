@@ -18,7 +18,12 @@ export default {
         // .addSubcommand(subcommand =>
         //     subcommand
         //         .setName('translate')
-        //         .setDescription('📝 Translate an image or text to any language'))
+        //         .setDescription('📝 Translate an image or text to any language')
+        //         .addStringOption(option => 
+        //             option
+        //                 .setName("language")
+        //                 .setDescription("Languaguage you want the text to be translated to.")
+        //                 .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('define')

@@ -38,19 +38,19 @@ export default {
                 });
                 definitionEmbed.addFields({ name: '\n', value: '\n' });
 
-                definitionEmbed
-                    .addFields(
-                        { name: "Phoenetic", value: response.data[0].phonetic },
-                    )
-                .setFooter({ text: config.version })
+                if (response.data[0].phonetic) {
+                    definitionEmbed.addFields({ name: "Phoenetic", value: response.data[0].phonetic })
+                }
 
                 if (response.data[0].origin) {
                     definitionEmbed.addFields({ name: "Origin" , value: response.data[0].origin });
                 }
             
+            definitionEmbed.setFooter({ text: config.version })
             interaction.followUp({embeds: [definitionEmbed]});
         })
         .catch((err) => {
+            console.log(err)
             interaction.followUp({ content: `No definitions found for "*${interaction.options.getString('word')}*"`, ephemeral: true});
         });
     },

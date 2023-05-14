@@ -35,9 +35,6 @@
 
 //     const command = message.client.commands.find(c => c.aliases.includes(commandName))!;
 
-//     // No such command name found or is only of slash command type.
-//     if (!command || command.type === CommandType.LEGACY) return;
-
 //     if (!message.member!.permissions.has(command.userPerms)) {
 //         const noPermissions = new EmbedBuilder()
 //             .setColor(config.embeds.colors.error as ColorResolvable)
@@ -71,7 +68,7 @@
 //     } catch (error) {
 //         const unexpectedError = new EmbedBuilder() 
 //             .setColor(config.embeds.colors.error as ColorResolvable)
-//             .setAuthor({ name: 'Unnexpected Error on my part, sorry for the inconvinience', iconURL: 'attachment://error-icon.png' })
+//             .setAuthor({ name: 'Unnexpected Error on our part, please try again later., iconURL: 'attachment://error-icon.png' })
 //         message.reply({ embeds: [unexpectedError], files: [file] });
 //     }
 //     }
