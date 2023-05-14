@@ -9,6 +9,7 @@ export default {
                 .setName('message')
                 .setDescription('Whatever you want to say.')
                 .setMinLength(1)
+                .setMaxLength(2000)
                 .setRequired(false))
         .addChannelOption(option =>
             option
@@ -42,6 +43,7 @@ export default {
                 .setCustomId('messageInput')
                 .setLabel('message')
                 .setMinLength(1)
+                .setMaxLength(2000)
                 .setStyle(TextInputStyle.Paragraph)
                 .setRequired(true)
 
