@@ -12,7 +12,7 @@ export default {
         await interaction.reply({ embeds: [pingEmbed], fetchReply: true }).then(async resultMessage => {
             const ping = resultMessage.createdTimestamp - interaction!.createdTimestamp;
             pingEmbed
-                .setAuthor({ name: 'Marin Bot', iconURL: interaction.client!.user!.avatarURL()! })
+                .setAuthor({ name: 'Aurora Bot', iconURL: interaction.client!.user!.avatarURL()! })
                 .setDescription('🏓Pong!')
                 .setColor(config.embeds.colors.main as ColorResolvable)
                 .addFields(

@@ -25,7 +25,7 @@ export default {
         axios.get(`${APIURL}/${interaction.options.getString('word')}`)
         .then(response => {
             const definitionEmbed = new EmbedBuilder()
-                .setAuthor({ name: 'Marin Bot', iconURL: interaction.client!.user!.avatarURL()! })
+                .setAuthor({ name: 'Aurora Bot', iconURL: interaction.client!.user!.avatarURL()! })
                 .setTitle(`Definition for *${interaction.options.getString('word')}*`)
                 .setColor(config.embeds.colors.main as ColorResolvable)
                 
@@ -45,7 +45,7 @@ export default {
                 definitionEmbed.addFields({ name: '\n', value: '\n' });
 
                 if (response.data[0].phonetic) {
-                    definitionEmbed.addFields({ name: "Phoenetic", value: response.data[0].phonetic })
+                    definitionEmbed.addFields({ name: "Phonetic", value: response.data[0].phonetic })
                 }
 
                 if (response.data[0].origin) {
@@ -56,7 +56,6 @@ export default {
             interaction.followUp({embeds: [definitionEmbed]});
         })
         .catch((err) => {
-            console.log(err)
             interaction.followUp({ content: `No definitions found for "*${interaction.options.getString('word')}*"`, ephemeral: true});
         });
     },
