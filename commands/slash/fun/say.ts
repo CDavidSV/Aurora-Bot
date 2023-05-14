@@ -1,4 +1,4 @@
-import { ActionRowBuilder, CacheType, ChannelType, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, PermissionsBitField, SlashCommandBuilder, TextBasedChannel, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, CacheType, ChannelType, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, PermissionFlagsBits, PermissionsBitField, SlashCommandBuilder, TextBasedChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -15,7 +15,8 @@ export default {
                 .setName('channel')
                 .setDescription('Channel you want the message to be sent to.')
                 .setRequired(false))
-        .setDMPermission(false),
+        .setDMPermission(false)
+        .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages | PermissionFlagsBits.ManageChannels | PermissionFlagsBits.ManageMessages),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         let channel: TextBasedChannel = interaction.options.getChannel("channel") as TextBasedChannel;
