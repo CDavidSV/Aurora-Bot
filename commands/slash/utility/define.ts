@@ -30,11 +30,17 @@ export default {
                 .setColor(config.embeds.colors.main as ColorResolvable)
                 
                 response.data[0].meanings.forEach((meaning: Meaning, i: number) => {
-                    if (meaning.definitions[0].example) {
-                        definitionEmbed.addFields({ name: meaning.partOfSpeech, value: `${i + 1}. ${meaning.definitions[0].definition}\n\`${meaning.definitions[0].example}\`\n`});
-                    } else {
-                        definitionEmbed.addFields({ name: meaning.partOfSpeech, value: `${i + 1}. ${meaning.definitions[0].definition}\n`});
+                    let count = 0;
+                    let definitions = "";
+                    while(count < 3 && meaning.definitions[count]) {
+                        if (meaning.definitions[count].example) {
+                            definitions += `​ ​ ​ ​​${count + 1}. ${meaning.definitions[count].definition}\n​​ ​ ​ ​\`${meaning.definitions[count].example}\`\n\n`;
+                        } else {
+                            definitions += `​​ ​ ​ ​ ${count + 1}. ${meaning.definitions[count].definition}\n\n`;
+                        }
+                        count++;
                     }
+                    definitionEmbed.addFields({ name: meaning.partOfSpeech, value: definitions});
                 });
                 definitionEmbed.addFields({ name: '\n', value: '\n' });
 
