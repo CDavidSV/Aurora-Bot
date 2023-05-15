@@ -16,11 +16,11 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('double_dice')
-                .setDescription('🎱 Throw two dices'))
+                .setDescription('🎲🎲 Throw two dices'))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('8ball')
-                .setDescription('🎲 Ask a Magical BALL something')
+                .setDescription('🎱 Ask a Magical BALL something')
                 .addStringOption(option =>
                     option
                         .setName('prompt')

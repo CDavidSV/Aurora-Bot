@@ -33,7 +33,7 @@ export default {
         let message: string = interaction.options.getString("message")!;
 
         if (!message) {
-            const modalId = `sayMessageModal${interaction.id}`;
+            const modalId = `sayMessageModal${interaction.id}${interaction.guild?.id}`;
 
             const modal = new ModalBuilder()
                 .setCustomId(modalId)
@@ -60,7 +60,7 @@ export default {
            
                 await modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true }).then(() => {
                     channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
-                }).catch(() => {});
+                });
             })
             .catch(() => {
                 return null;

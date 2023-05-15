@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction, EmbedBuilder, GuildMember, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { CommandInteraction, EmbedBuilder, GuildMember, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import random from "../../../util/random";
 
 export default {
@@ -20,7 +20,7 @@ export default {
         }
 
         const bananaSizeEmbed = new EmbedBuilder()
-            .setColor(randomColor as ColorResolvable)
+            .setColor("Random")
             .setTitle(`${username}'s banana is ${randomSize} cm long.`)
             .setImage("https://cdn.discordapp.com/attachments/1102351325120974979/1105891025089744968/banana.png");
 
