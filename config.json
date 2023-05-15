@@ -1,6 +1,6 @@
 {
     "name": "aurora",
-    "version": "v0.2.4",
+    "version": "v0.3.0",
     "clientId": "1101954090667348029",
     "testGuildId": "970508802602455122",
     "globalPrefixes": [
@@ -10,11 +10,12 @@
     "embeds": {
         "colors": {
             "main": "#b917ff",
-            "error": "#e60000"
+            "error": "#e60000",
+            "success": "#00d46a"
         },
         "images": {
-            "errorImg": "./assets/command-images/error-icon.png",
-            "successImg": "./assets/command-images/success-icon.png"
+            "errorImg": "https://cdn.discordapp.com/attachments/1107660251286745108/1107661783457599619/error-icon.png",
+            "successImg": "https://cdn.discordapp.com/attachments/1107660251286745108/1107661769582854144/success-icon.png"
         }
     }
 }

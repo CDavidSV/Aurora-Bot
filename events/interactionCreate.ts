@@ -1,8 +1,5 @@
-import { AttachmentBuilder, ChannelType, ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
+import { ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
 import config from "../config.json";
-
-// Error image.
-const file = new AttachmentBuilder(config.embeds.images.errorImg);
 
 export default {
     name: Events.InteractionCreate,
@@ -20,8 +17,8 @@ export default {
             if (command.botPerms && interaction.guild && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
                 const noPermissions = new EmbedBuilder()
                 .setColor(config.embeds.colors.error as ColorResolvable)
-                .setAuthor({ name: 'No tengo suficiente permisos para realizar esta acción.', iconURL: 'attachment://error-icon.png' })
-                interaction.reply({ embeds: [noPermissions], files: [file], ephemeral: true });
+                .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
+                interaction.reply({ embeds: [noPermissions], ephemeral: true });
                 return;
             }
     
