@@ -27,22 +27,22 @@ export default {
                         .setDescription('Ask anything')
                         .setRequired(true))),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    callback: (interaction: ChatInputCommandInteraction<CacheType>) => {
+    callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         const subcommands = interaction.options.getSubcommand()
 
         switch (subcommands) {
             case 'coinflip':
-                interaction.reply(simpleGames.coinflip(interaction.member?.user.username as string));
+                await interaction.reply(simpleGames.coinflip(interaction.member?.user.username as string));
                 break;
             case 'dice':
-                interaction.reply(`${interaction.member?.user.username} Flipped a dice and got ${simpleGames.dice()}`);
+                await interaction.reply(`${interaction.member?.user.username} Flipped a dice and got ${simpleGames.dice()}`);
                 break;
             case 'double_dice':
-                interaction.reply(`${interaction.member?.user.username} Flipped two dices and got ${simpleGames.dice()} ${simpleGames.dice()}`);    
+                await interaction.reply(`${interaction.member?.user.username} Flipped two dices and got ${simpleGames.dice()} ${simpleGames.dice()}`);    
                 break;
             case '8ball':
                 const responseEmbed = simpleGames.eightBall(interaction.client!.user!.avatarURL()!, interaction.options.getString('prompt') as string);
-                interaction.reply({ embeds: [responseEmbed]});
+                await interaction.reply({ embeds: [responseEmbed]});
                 break;
         }
     }

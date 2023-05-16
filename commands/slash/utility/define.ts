@@ -23,7 +23,7 @@ export default {
 
         // Get the definition.
         axios.get(`${APIURL}/${interaction.options.getString('word')}`)
-        .then(response => {
+        .then(async (response) => {
             const definitionEmbed = new EmbedBuilder()
                 .setAuthor({ name: 'Aurora Bot', iconURL: interaction.client!.user!.avatarURL()! })
                 .setTitle(`Definition for *${interaction.options.getString('word')}*`)
@@ -53,10 +53,10 @@ export default {
                 }
             
             definitionEmbed.setFooter({ text: config.version })
-            interaction.followUp({embeds: [definitionEmbed]});
+            await interaction.followUp({embeds: [definitionEmbed]});
         })
-        .catch((err) => {
-            interaction.followUp({ content: `No definitions found for "*${interaction.options.getString('word')}*"`, ephemeral: true});
+        .catch(async (err) => {
+            await interaction.followUp({ content: `No definitions found for "*${interaction.options.getString('word')}*"`, ephemeral: true});
         });
     },
 }

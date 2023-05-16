@@ -28,7 +28,7 @@ export default {
         .setName('uptime')
         .setDescription(`⏱️ Shows the bot's uptime`),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-    callback: (interaction: CommandInteraction) => {
+    callback: async (interaction: CommandInteraction) => {
         const currentUptime = calculateUptime(interaction.client.startTime);
 
         const uptimeEmbed = new EmbedBuilder()
@@ -39,6 +39,6 @@ export default {
                 { name: "Current Uptime", value: `${currentUptime}`, inline: true },
                 { name: "Start Time", value: `<t:${Math.round(interaction.client.startTime / 1000)}> `, inline: true }
             )
-        interaction.reply({ embeds: [uptimeEmbed], allowedMentions: { repliedUser: false } });
+        await interaction.reply({ embeds: [uptimeEmbed], allowedMentions: { repliedUser: false } });
     }
 }

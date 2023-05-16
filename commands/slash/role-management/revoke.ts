@@ -3,7 +3,7 @@ import config from "../../../config.json";
 
 export default {
     subCommand: "role.revoke",
-    callback: (interaction: ChatInputCommandInteraction<CacheType>) => {
+    callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         const roleAction = new EmbedBuilder();
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
@@ -22,16 +22,16 @@ export default {
         }
 
         // Attempt to give the role.
-        member.roles.remove(role.id).then(() => {
+        member.roles.remove(role.id).then(async () => {
             roleAction
                 .setColor(config.embeds.colors.success as ColorResolvable)
                 .setAuthor({ name: 'Role successfully removed.', iconURL: config.embeds.images.successImg })
-            interaction.reply({ embeds: [roleAction] })
-        }).catch(() => {
+            await interaction.reply({ embeds: [roleAction] })
+        }).catch(async () => {
             roleAction
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
-            interaction.reply({ embeds: [roleAction] })
+            await interaction.reply({ embeds: [roleAction] })
         });
     }
 }

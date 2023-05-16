@@ -4,12 +4,12 @@ import config from "../../../config.json";
 
 export default {
     subCommand: "utility.math",
-    callback: (interaction: ChatInputCommandInteraction<CacheType>) => {
+    callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         const expression = interaction.options.getString("expression")!;
         const mathRegex = /^(?:[\d]+[.][\d]+|[\d]+|\+|\-|\*|\/|\^|\(|\)|sin+|cos+|tan+|E+|LN10+|e+|ln10+|ln2+|LN2+|LOG2E+|log2e+|pi+|PI+|SQRT1_2+|sqrt1_2+|SQRT2+|sqrt2+|abs+|acos+|acosh+|asin+|asinh+|atan+|atan2+|atanh+|cbrt+|ceil+|clz32+|cosh+|exp+|expm1+|floor+|fround+|hypot+|imul+|log+|log10+|log1p+|log2+|max+|min+|pow+|random+|round+|sign+|sinh+|sqrt+|tanh+|trunc+|det+| )+$/g;
 
         if (!mathRegex.test(expression)) {
-            interaction.reply({content: `Incorrect math expression for: **${expression}**`});
+            await interaction.reply({content: `Incorrect math expression for: **${expression}**`});
             return;
         }  
 
@@ -23,10 +23,10 @@ export default {
                     { name: "Answer: ", value: "```css\n" + result.toString() + " \n```"}
                 )
                 .setFooter({ text: config.version })
-            interaction.reply({ embeds: [mathEmbed] });
+            await interaction.reply({ embeds: [mathEmbed] });
 
         } catch {
-            interaction.reply({content: `Incorrect math expression for: **${expression}**`});
+            await interaction.reply({content: `Incorrect math expression for: **${expression}**`});
         }
     }
 }

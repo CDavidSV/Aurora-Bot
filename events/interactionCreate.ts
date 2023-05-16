@@ -1,4 +1,4 @@
-import { ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
+import { ColorResolvable, CommandInteractionOptionResolver, EmbedBuilder, Events, Interaction } from "discord.js";
 import config from "../config.json";
 
 export default {
@@ -7,12 +7,10 @@ export default {
     async execute(interaction: Interaction) {
         if (interaction.isModalSubmit()) {
             return;
-        }
-
-        if (interaction.isChatInputCommand()) {
+        } else if (interaction.isChatInputCommand()) {
             const { commandName, client, options } = interaction;
             const command = client.slashCommands.get(commandName)!;
-
+            
             // Check if the bot has sufficient permissions to perform the command.
             if (command.botPerms && interaction.guild && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
                 const noPermissions = new EmbedBuilder()
@@ -21,24 +19,27 @@ export default {
                 interaction.reply({ embeds: [noPermissions], ephemeral: true });
                 return;
             }
-    
-            // Check if it's a sub command.
-            try {
-                const subCommand = options.getSubcommand(); // Get corresponding sub command and file.
-                const subCommandGroup = options.getSubcommandGroup();
-                const subCommandName = subCommandGroup ? `${subCommandGroup}.${subCommand}` : subCommand;
-    
-                const subCommandFile = client.subCommands.get(`${commandName}.${subCommandName}`);
-                if (!subCommandFile && !command.callback) return interaction.reply({ // If no such sub command exits then it is outdated (check for outdated commands).
-                    content: "This sub command is outdated.",
+
+            const subCommand = options.getSubcommand(false);
+            const subCommandGroup = options.getSubcommandGroup();
+            const subCommandName = subCommandGroup ? `${subCommandGroup}.${subCommand}` : subCommand;
+            const subCommandFile = client.subCommands.get(`${commandName}.${subCommandName}`);
+
+            if (!subCommandFile && !command.callback) {
+                await interaction.reply({
+                    content: "This command is outdated.",
                     ephemeral: true
                 });
-                subCommandFile.callback(interaction);
                 return;
-            } catch {
-                command.callback(interaction);
             }
+            
+            try {
+                await (subCommandFile?.callback ?? command.callback)(interaction);
+            } catch {
+                interaction.reply({ content: "An unexpected error occurred while running this command. Please try again later.", ephemeral: true });
+            }
+        } else if (interaction.isAutocomplete()) {
             return;
-        };
+        }
     }
 };

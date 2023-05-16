@@ -3,7 +3,7 @@ import config from "../../../config.json";
 
 export default {
     subCommand: "user.banner",
-    callback: (interaction: CommandInteraction) => {
+    callback: async (interaction: CommandInteraction) => {
         const bannerEmbed = new EmbedBuilder();
     
         let member: GuildMember;
@@ -15,11 +15,11 @@ export default {
         
         if (!member.user.bannerURL()) {
             if (member.user === interaction.user) {
-                interaction.reply(`**You** don't have a banner silly T_T`);
+                await interaction.reply(`**You** don't have a banner silly T_T`);
                 return;
             }
 
-            interaction.reply(`**${member.displayName}** does not have a banner.`);
+            await interaction.reply(`**${member.displayName}** does not have a banner.`);
             return;
         }
 
@@ -29,6 +29,6 @@ export default {
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setDescription(`[Image URL](${member.user.bannerURL({size: 2048})})`)
 
-        interaction.reply({embeds: [bannerEmbed]});
+        await interaction.reply({embeds: [bannerEmbed]});
     }
 }

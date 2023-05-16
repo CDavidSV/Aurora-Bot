@@ -15,15 +15,6 @@ export default {
                         .setMinLength(1)
                         .setRequired(true)
                 ))
-        // .addSubcommand(subcommand =>
-        //     subcommand
-        //         .setName('translate')
-        //         .setDescription('📝 Translate an image or text to any language')
-        //         .addStringOption(option => 
-        //             option
-        //                 .setName("language")
-        //                 .setDescription("Languaguage you want the text to be translated to.")
-        //                 .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('define')
@@ -33,6 +24,40 @@ export default {
                         .setName('word')
                         .setDescription('word you want to get the definition for.')
                         .setRequired(true)))
+        .addSubcommandGroup(group =>
+            group
+                .setName('translate')
+                .setDescription('📝 Translate an image or text to any language')
+                .addSubcommand(subcommand =>
+                    subcommand
+                        .setName("image")
+                        .setDescription("Translate text in an image")
+                        .addAttachmentOption(attachment =>
+                            attachment
+                                .setName("image")
+                                .setDescription("Image you want to have ranslated.")
+                                .setRequired(true))
+                        .addStringOption(option =>
+                            option
+                                .setName('language')
+                                .setDescription('Language you want to have the text translated to (Default is English)')
+                                .setAutocomplete(true)))
+                .addSubcommand(subcommand =>
+                    subcommand
+                        .setName('text')
+                        .setDescription('Translate text')
+                        .addStringOption(option =>
+                            option
+                                .setName('text')
+                                .setDescription('Text you want to have translated.')
+                                .setMinLength(2)
+                                .setMaxLength(2000)
+                                .setRequired(true))
+                        .addStringOption(option =>
+                            option
+                                .setName('language')
+                                .setDescription('Language you want to have the text translated to (Default is English)')
+                                .setAutocomplete(true))))
         .setDMPermission(true),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
 }

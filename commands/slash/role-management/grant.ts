@@ -3,7 +3,7 @@ import config from "../../../config.json";
 
 export default {
     subCommand: "role.grant",
-    callback: (interaction: ChatInputCommandInteraction<CacheType>) => {
+    callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         const roleAction = new EmbedBuilder();
 
         const guild = interaction.guild;
@@ -18,21 +18,21 @@ export default {
             roleAction
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: 'The role is locked because it is ranked higher than your highest role.', iconURL: config.embeds.images.errorImg })
-            interaction.reply({ embeds: [roleAction] });
+            await interaction.reply({ embeds: [roleAction] });
             return;
         }
 
         // Attempt to give the role.
-        member.roles.add(role.id).then(() => {
+        member.roles.add(role.id).then(async () => {
             roleAction
                 .setColor(config.embeds.colors.success as ColorResolvable)
                 .setAuthor({ name: 'Role added successfully.', iconURL: config.embeds.images.successImg })
-            interaction.reply({ embeds: [roleAction] })
-        }).catch(() => {
+            await interaction.reply({ embeds: [roleAction] })
+        }).catch(async () => {
             roleAction
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
-            interaction.reply({ embeds: [roleAction] })
+            await interaction.reply({ embeds: [roleAction] })
         });
     }
 }

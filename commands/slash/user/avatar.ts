@@ -3,7 +3,7 @@ import config from "../../../config.json";
 
 export default {
     subCommand: "user.avatar",
-    callback: (interaction: CommandInteraction) => {
+    callback: async (interaction: CommandInteraction) => {
         const channel = interaction.client.channels.cache.get(interaction.channel!.id)! as TextChannel;
         const avatarEmbed = new EmbedBuilder();
         let server = true;
@@ -22,7 +22,7 @@ export default {
             .setDescription(`[Image URL](${member.displayAvatarURL({size: 2048})})`)
         
         if(member.displayAvatarURL({size: 2048}) == member.user.displayAvatarURL({size: 2048})) {
-            interaction.reply({embeds: [avatarEmbed]});
+            await interaction.reply({embeds: [avatarEmbed]});
         } else {
             const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -34,7 +34,7 @@ export default {
             
             const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button });
 
-            interaction.reply({embeds: [avatarEmbed], components: [row]});
+            await interaction.reply({embeds: [avatarEmbed], components: [row]});
 
             collector.on('collect', async (interactionBtn: ButtonInteraction) => {
                 if (interactionBtn.customId === `user${interaction.id}`) {   
@@ -65,7 +65,7 @@ export default {
                         return;
                     });
 
-                    interactionBtn.deferUpdate();
+                    await interactionBtn.deferUpdate();
                 }
             });
         }
