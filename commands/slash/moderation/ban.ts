@@ -4,7 +4,7 @@ import config from "../../../config.json";
 export default {
     data: new SlashCommandBuilder()
         .setName('ban')
-        .setDescription('Bans the selected member from the server.')
+        .setDescription('🚫 Bans the selected member from the server.')
         .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
         .addUserOption(option => 
             option

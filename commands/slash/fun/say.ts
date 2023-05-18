@@ -57,9 +57,9 @@ export default {
             })
             .then(async (modalInteraction: ModalSubmitInteraction<CacheType>) => {
                 message = modalInteraction.fields.getTextInputValue('messageInput');
-           
-                await modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true }).then(() => {
-                    channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);
+
+                channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`).then(async () => {
+                    modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true });
                 });
             })
             .catch(() => {

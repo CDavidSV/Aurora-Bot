@@ -41,7 +41,7 @@ export default {
         });
     },
     autoComplete: async (interaction: AutocompleteInteraction) => {
-        const focusedValue = interaction.options.getFocused();
+        const focusedValue = interaction.options.getFocused().toLowerCase();
 
         let choices: string[] = [];
         let keys: string[] = [];

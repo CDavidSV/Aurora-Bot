@@ -4,7 +4,7 @@ import config from "../../../config.json";
 export default {
     data: new SlashCommandBuilder()
         .setName('kick')
-        .setDescription('Kicks the selected member from the server.')
+        .setDescription('👟 Kicks the selected member from the server.')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addUserOption(option => 
             option
@@ -14,7 +14,7 @@ export default {
         .addStringOption(option => 
             option
                 .setName('reason')
-                .setDescription('Reason for ban')
+                .setDescription('Reason for kick')
                 .setRequired(false))
         .setDMPermission(false),
     botPerms: [PermissionFlagsBits.KickMembers, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
