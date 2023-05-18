@@ -31,7 +31,7 @@ export default {
                 .addSubcommand(subcommand =>
                     subcommand
                         .setName("image")
-                        .setDescription("Translate text in an image")
+                        .setDescription("📷 Translate text in an image")
                         .addAttachmentOption(attachment =>
                             attachment
                                 .setName("image")
@@ -45,7 +45,7 @@ export default {
                 .addSubcommand(subcommand =>
                     subcommand
                         .setName('text')
-                        .setDescription('Translate text')
+                        .setDescription('📝 Translate text')
                         .addStringOption(option =>
                             option
                                 .setName('text')
@@ -58,6 +58,15 @@ export default {
                                 .setName('language')
                                 .setDescription('Language you want to have the text translated to (Default is English)')
                                 .setAutocomplete(true))))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('ocr')
+                .setDescription('🖼️ Extracts the text from an image.')
+                .addAttachmentOption(option =>
+                    option
+                        .setName('image')
+                        .setDescription('Image yo want to get the text from.')
+                        .setRequired(true)))
         .setDMPermission(true),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
 }
