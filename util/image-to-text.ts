@@ -15,7 +15,7 @@ const client = new vision.ImageAnnotatorClient({
 const validateImageFormat = (url: string) => {
     try {
         const extension = url.split(".").pop();
-        const imageExtensions = ["jpg", "jpeg", "png", "gif"]; // Add more extensions if needed
+        const imageExtensions = ["jpg", "jpeg", "png", "gif", "tiff", "webp"]; // Add more extensions if needed
     
         if (extension && imageExtensions.includes(extension.toLowerCase())) {
           return true; // The file is an image
