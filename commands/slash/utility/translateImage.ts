@@ -17,7 +17,7 @@ export default {
         const imageText = await getImageText(image.url);
 
         if (!imageText) {
-            await interaction.followUp({ content: "An Error Ocurred while processing the image, please try again.", ephemeral: true })
+            await interaction.followUp({ content: "An Error ocurred while processing the image, please try again.", ephemeral: true })
             return;
         }
 
