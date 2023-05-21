@@ -19,7 +19,7 @@ export default {
                 .addChannelTypes(ChannelType.GuildText))
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages | PermissionFlagsBits.ManageChannels | PermissionFlagsBits.ManageMessages),
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    botPerms: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ManageMessages],
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         let channel: TextBasedChannel = interaction.options.getChannel("channel") as TextBasedChannel;
         if (!channel) {

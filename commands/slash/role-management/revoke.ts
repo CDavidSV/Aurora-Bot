@@ -17,7 +17,7 @@ export default {
             roleAction
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: 'The role is locked because it is ranked higher than your highest role.', iconURL: config.embeds.images.errorImg })
-            interaction.reply({ embeds: [roleAction] });
+            interaction.reply({ embeds: [roleAction], ephemeral: true });
             return;
         }
 
@@ -26,12 +26,12 @@ export default {
             roleAction
                 .setColor(config.embeds.colors.success as ColorResolvable)
                 .setAuthor({ name: 'Role successfully removed.', iconURL: config.embeds.images.successImg })
-            await interaction.reply({ embeds: [roleAction] })
+            await interaction.reply({ embeds: [roleAction], ephemeral: true })
         }).catch(async () => {
             roleAction
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [roleAction] })
+            await interaction.reply({ embeds: [roleAction], ephemeral: true })
         });
     }
 }

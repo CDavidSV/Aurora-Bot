@@ -1,11 +1,11 @@
-import { CommandInteraction, EmbedBuilder, GuildMember, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { CommandInteraction, EmbedBuilder, GuildMember, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import random from "../../../util/random";
 
 export default {
     data: new SlashCommandBuilder()
         .setName('banana')
         .setDescription('🍌 How long is your banana'),
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: (interaction: CommandInteraction) => {
         // Generate random size and color.
         const randomColor  = random.randomColor();

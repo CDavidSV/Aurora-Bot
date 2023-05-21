@@ -1,4 +1,4 @@
-import { PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -68,5 +68,5 @@ export default {
                         .setDescription('Image yo want to get the text from.')
                         .setRequired(true)))
         .setDMPermission(true),
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
 }

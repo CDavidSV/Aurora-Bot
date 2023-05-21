@@ -1,5 +1,5 @@
 // Show a user´s avatar.
-import {SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import {SlashCommandBuilder, PermissionsBitField, PermissionFlagsBits } from 'discord.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -24,5 +24,5 @@ export default {
                         .setDescription('User Mention')
                         .setRequired(false)))
         .setDMPermission(false),
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
 }

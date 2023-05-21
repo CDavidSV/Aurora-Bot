@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { ColorResolvable, CommandInteraction, EmbedBuilder, PermissionFlagsBits, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import config from "../../../config.json";
 
 const calculateUptime = (startTime: number) => {
@@ -27,7 +27,7 @@ export default {
     data: new SlashCommandBuilder()
         .setName('uptime')
         .setDescription(`⏱️ Shows the bot's uptime`),
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: async (interaction: CommandInteraction) => {
         const currentUptime = calculateUptime(interaction.client.startTime);
 

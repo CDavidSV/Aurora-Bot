@@ -1,11 +1,11 @@
-import { CacheType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import config from "../../../config.json";
 
 export default {
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('🏓 Pong!'),
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         const pingEmbed = new EmbedBuilder().setDescription('Calculating...');
 

@@ -40,7 +40,7 @@ export default {
             banEmbed
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "You can't ban an Administrator.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [banEmbed] });
+            await interaction.reply({ embeds: [banEmbed], ephemeral: true });
             return;
         }
 
@@ -55,8 +55,8 @@ export default {
             console.log(err);
             banEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
-            .setAuthor({ name: "I'm Sorry but I can't ban this member right now.", iconURL: config.embeds.images.errorImg })
-        await interaction.reply({ embeds: [banEmbed] });
+            .setAuthor({ name: "I'm Sorry but I can't ban this member.", iconURL: config.embeds.images.errorImg })
+        await interaction.reply({ embeds: [banEmbed], ephemeral: true });
         })
     }
 }

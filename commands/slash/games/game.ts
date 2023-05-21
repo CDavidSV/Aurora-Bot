@@ -1,4 +1,4 @@
-import { CacheType, ChatInputCommandInteraction, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import simpleGames from "../../../games/simple-games";
 
 export default {
@@ -26,7 +26,7 @@ export default {
                         .setName('prompt')
                         .setDescription('Ask anything')
                         .setRequired(true))),
-    botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         const subcommands = interaction.options.getSubcommand()
 
