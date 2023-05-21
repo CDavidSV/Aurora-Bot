@@ -60,6 +60,8 @@ export default {
 
                 channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`).then(async () => {
                     modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true });
+                }).catch(() => {
+                    modalInteraction.reply({ content: "An Unexpected Error occurred while sending the message to the specified channel. Please try again.", ephemeral: true})
                 });
             })
             .catch(() => {

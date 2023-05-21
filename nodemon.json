@@ -1,7 +1,7 @@
 {
     "restartable": "rs",
     "ignore": ["node_modules/"],
-    "watch": ["/"],
+    "watch": ["./"],
     "execMap": {
       "ts": "node -r ts-node/register"
     },

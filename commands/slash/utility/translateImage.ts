@@ -50,7 +50,7 @@ export default {
             keys.push(key);
         }
 
-        let filtered = choices.filter(choice => choice.startsWith(focusedValue));
+        let filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue));
 
         if (filtered.length > 25) {
             filtered = filtered.slice(0, 25);

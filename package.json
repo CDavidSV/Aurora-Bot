@@ -1,11 +1,11 @@
 {
   "name": "aurora-bot",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "",
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon --config nodemon.json index.ts",
-    "start": "ts-node-esm index.ts"
+    "start": "ts-node index.ts"
   },
   "keywords": [],
   "author": "Carlos David Sandoval Vargas",
