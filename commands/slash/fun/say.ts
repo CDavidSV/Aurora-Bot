@@ -15,7 +15,8 @@ export default {
             option
                 .setName('channel')
                 .setDescription('Channel you want the message to be sent to.')
-                .setRequired(false))
+                .setRequired(false)
+                .addChannelTypes(ChannelType.GuildText))
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages | PermissionFlagsBits.ManageChannels | PermissionFlagsBits.ManageMessages),
     botPerms: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
@@ -32,44 +33,48 @@ export default {
         
         let message: string = interaction.options.getString("message")!;
 
-        if (!message) {
-            const modalId = `sayMessageModal${interaction.id}${interaction.guild?.id}`;
-
-            const modal = new ModalBuilder()
-                .setCustomId(modalId)
-                .setTitle('Your Message');
-
-            const messageInput = new TextInputBuilder()
-                .setCustomId('messageInput')
-                .setLabel('message')
-                .setMinLength(1)
-                .setMaxLength(2000)
-                .setStyle(TextInputStyle.Paragraph)
-                .setRequired(true)
-
-            const firstRow = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(messageInput);
-            modal.addComponents(firstRow)
-
-            await interaction.showModal(modal);
-            await interaction.awaitModalSubmit({
-                filter: (modalInteraction) => modalInteraction.customId === modalId && modalInteraction.user.id === interaction.user.id,
-                time: 12_00_000,
-            })
-            .then(async (modalInteraction: ModalSubmitInteraction<CacheType>) => {
-                message = modalInteraction.fields.getTextInputValue('messageInput');
-
-                channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`).then(async () => {
-                    modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true });
-                }).catch(() => {
-                    modalInteraction.reply({ content: "An Unexpected Error occurred while sending the message to the specified channel. Please try again.", ephemeral: true})
-                });
-            })
-            .catch(() => {
-                return null;
+        if (message) {
+            channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`).then(async () => {
+                interaction.reply({ content: "*Message sent successfully*", ephemeral: true });
+            }).catch(() => {
+                interaction.reply({ content: "An Unexpected Error occurred while sending the message to the specified channel. Please try again.", ephemeral: true})
             });
-        } else {
-            interaction.reply({ content: "*Message sent successfully*", ephemeral: true});
-            channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`);       
+            return;
+        }
+
+        const modalId = `sayMessageModal${interaction.id}${interaction.guild?.id}`;
+
+        const modal = new ModalBuilder()
+            .setCustomId(modalId)
+            .setTitle('Your Message');
+
+        const messageInput = new TextInputBuilder()
+            .setCustomId('messageInput')
+            .setLabel('message')
+            .setMinLength(1)
+            .setMaxLength(2000)
+            .setStyle(TextInputStyle.Paragraph)
+            .setRequired(true)
+
+        const firstRow = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(messageInput);
+        modal.addComponents(firstRow)
+
+        await interaction.showModal(modal);
+        const modalInteraction = await interaction.awaitModalSubmit({
+            filter: (modalInteraction) => modalInteraction.customId === modalId && modalInteraction.user.id === interaction.user.id,
+            time: 12_00_000,
+        }).catch(() => {
+            return null;
+        });
+
+        if (modalInteraction) {
+            message = modalInteraction.fields.getTextInputValue('messageInput');
+
+            channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`).then(async () => {
+                modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true });
+            }).catch(() => {
+                modalInteraction.reply({ content: "An Unexpected Error occurred while sending the message to the specified channel. Please try again.", ephemeral: true})
+            });
         }
     },
 };
