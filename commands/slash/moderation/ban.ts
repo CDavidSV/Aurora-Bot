@@ -1,4 +1,4 @@
-import { CacheType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, GuildMember, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, GuildMember, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import config from "../../../config.json";
 
 export default {
@@ -63,7 +63,40 @@ export default {
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setAuthor({ name: `${user.tag} was banned for the server.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
             .setDescription(`****Reason:**** ${banReason}`)
-            await interaction.reply({ embeds: [banEmbed] });
+
+            // Initialize unban button collector.
+            const collector = interaction.channel!.createMessageComponentCollector({ 
+                filter: (btnInteraction) => btnInteraction.customId === `user${interaction.id}`, 
+                componentType: ComponentType.Button,
+                time: 900_000
+            });
+    
+            const row = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`user${interaction.id}`)
+                    .setLabel('Unban User')
+                    .setStyle(ButtonStyle.Primary),
+            );
+
+            await interaction.reply({ components: [row], embeds: [banEmbed] });
+
+            collector.on('collect', async (interactionBtn: ButtonInteraction) => {
+                if (interactionBtn.user.id !== interaction.user.id) {
+                    await interactionBtn.reply({ content: `You do not have permission to run this command.`, ephemeral: true});
+                    return;
+                }
+
+                row.components[0].setDisabled().setLabel('User unbanned');
+                interaction.guild?.members.unban(user).then(async () => {
+                    await interactionBtn.reply({ content: `${user.username} has been unbanned.`, ephemeral: true});
+                }).catch(async () => {
+                    await interactionBtn.reply({ content: `Unnable to unban user.`, ephemeral: true});
+                });
+                interactionBtn.message.edit({ components: [row], embeds: [banEmbed] }).catch((err) => console.error('Unnable to edit message: ', err));
+                collector.stop();
+                collector.removeAllListeners();
+            });
         }).catch(async (err) => {
             console.log(err);
             banEmbed

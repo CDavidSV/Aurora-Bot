@@ -14,6 +14,11 @@ export default {
         } else {
             member = interaction.guild!.members.cache.get(interaction.options.getUser('user')!.id) as GuildMember;
         }
+
+        if (!member) {
+            await interaction.reply({ content: "That user is not in this server.", ephemeral: true });
+            return;
+        }
         
         avatarEmbed
             .setTitle(`${member.user.username}'s Server Avatar`)
@@ -21,7 +26,7 @@ export default {
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setDescription(`[Image URL](${member.displayAvatarURL({size: 2048})})`)
         
-        if(member.displayAvatarURL({size: 2048}) == member.user.displayAvatarURL({size: 2048})) {
+        if(member.displayAvatarURL({size: 2048}) === member.user.displayAvatarURL({size: 2048})) {
             await interaction.reply({embeds: [avatarEmbed]});
         } else {
             const row = new ActionRowBuilder<ButtonBuilder>()
@@ -57,13 +62,8 @@ export default {
                         row.components[0].setLabel('View User Avatar');
                         server = true;
                     }
-
-                    interaction.editReply({embeds: [avatarEmbed], components: [row]}).catch(async () =>{
-                        await interactionBtn.reply({content: "This interaction has timed out, please run the command again.", ephemeral: true});
-                        collector.removeAllListeners();
-                        collector.stop();
-                        return;
-                    });
+                    
+                    interactionBtn.message.edit({embeds: [avatarEmbed], components: [row]}).catch((err) => console.error('Unable edit message: ', err));
 
                     await interactionBtn.deferUpdate();
                 }

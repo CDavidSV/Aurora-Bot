@@ -25,7 +25,6 @@ export default {
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
         const banReason = interaction.options.getString('reason') || "Not specified";
-        const deleteMessagesTimeSec = interaction.options.getString('delete_messages') || "0";
 
         let member: GuildMember;
         try {
@@ -55,7 +54,7 @@ export default {
             console.log(err);
             banEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
-            .setAuthor({ name: "I'm Sorry but I can't ban this member.", iconURL: config.embeds.images.errorImg })
+            .setAuthor({ name: "I'm Sorry but I can't kick this member.", iconURL: config.embeds.images.errorImg })
         await interaction.reply({ embeds: [banEmbed], ephemeral: true });
         })
     }

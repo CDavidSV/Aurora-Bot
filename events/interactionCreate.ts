@@ -61,7 +61,7 @@ export default {
             try {
                 await (subCommandFile?.autoComplete ?? command.autoComplete)(interaction);
             } catch (err) {
-                console.log(err);
+                console.error('Unhandled Error: ', err);
             }
         }
     }
