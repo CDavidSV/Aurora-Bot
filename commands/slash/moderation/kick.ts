@@ -35,7 +35,7 @@ export default {
         }
 
         // Avoids user from banning moderators and administrators.
-        if ((member!.permissions.has([PermissionFlagsBits.Administrator]) || !member!.bannable) && interaction.member!.user.id !== guild!.ownerId) {
+        if ((member!.permissions.has([PermissionFlagsBits.Administrator]) || !member!.kickable)) {
             banEmbed
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "You can't ban an Administrator.", iconURL: config.embeds.images.errorImg })

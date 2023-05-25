@@ -49,7 +49,7 @@ export default {
         }
 
         // Avoids user from banning moderators and administrators.
-        if ((member!.permissions.has([PermissionFlagsBits.Administrator]) || !member!.bannable) && interaction.member!.user.id !== guild!.ownerId) {
+        if ((member!.permissions.has([PermissionFlagsBits.Administrator]) || !member!.bannable)) {
             banEmbed
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "You can't ban an Administrator.", iconURL: config.embeds.images.errorImg })
@@ -102,7 +102,7 @@ export default {
             banEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: "I'm Sorry but I can't ban this member.", iconURL: config.embeds.images.errorImg })
-        await interaction.reply({ embeds: [banEmbed], ephemeral: true });
+            await interaction.reply({ embeds: [banEmbed], ephemeral: true });
         })
     }
 }
