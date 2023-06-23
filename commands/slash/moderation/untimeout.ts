@@ -38,7 +38,7 @@ export default {
         member.timeout(null, untimeoutReason).then(async () => {
             timeoutEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: `Remoed timeout from ${user.tag}.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+            .setAuthor({ name: `Removed timeout from ${user.tag}.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
 
             await interaction.reply({ embeds: [timeoutEmbed] });
         }).catch(async () => {

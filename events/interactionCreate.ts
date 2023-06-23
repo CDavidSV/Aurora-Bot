@@ -1,4 +1,4 @@
-import { CacheType, Client, ColorResolvable, CommandInteractionOptionResolver, EmbedBuilder, Events, Interaction } from "discord.js";
+import { Client, ColorResolvable, EmbedBuilder, Events, Interaction } from "discord.js";
 import config from "../config.json";
 
 /**
@@ -21,9 +21,7 @@ export default {
     name: Events.InteractionCreate,
     once: false,
     async execute(interaction: Interaction) {
-        if (interaction.isModalSubmit()) {
-            return;
-        } else if (interaction.isChatInputCommand()) {
+        if (interaction.isChatInputCommand()) {
             const { commandName, client, options } = interaction;
             const command = client.slashCommands.get(commandName)!;
             
@@ -49,8 +47,12 @@ export default {
             try {
                 await (subCommandFile?.callback ?? command.callback)(interaction);
             } catch (err) {
-                console.log(err);
-                interaction.reply({ content: "An unexpected error occurred while running this command. Please try again later.", ephemeral: true });
+                console.error(err);
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+                } else {
+                    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+                }
             }
         } else if (interaction.isAutocomplete()) {
             const { commandName, client, options } = interaction;

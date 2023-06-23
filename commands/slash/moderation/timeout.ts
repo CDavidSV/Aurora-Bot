@@ -13,15 +13,15 @@ function convertTime(timestamp: number) {
 
     let timeStr = '';
     if (days > 0) {
-        timeStr += `${days} days`;
+        timeStr += `${days} days `;
     }
 
     if (hours > 0) {
-        timeStr += ` ${hours} hours`;
+        timeStr += `${hours} hours `;
     }
 
     if (minutes > 0) {
-        timeStr += ` ${minutes} minutes`
+        timeStr += `${minutes} minutes`
     }
 
     return timeStr;
@@ -100,7 +100,7 @@ export default {
             timeoutEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setAuthor({ name: `${user.tag} was timed out.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
-            .setDescription(`****Reason:**** ${timeoutReason}\n**Duration: ${convertTime(time)}**`)
+            .setDescription(`****Reason:**** ${timeoutReason}\n**Duration:** \`${convertTime(time)}\``)
 
             await interaction.reply({ embeds: [timeoutEmbed] });
         }).catch(async (err) => {

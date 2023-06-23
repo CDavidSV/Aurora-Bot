@@ -38,7 +38,7 @@ export default {
         if ((member!.permissions.has([PermissionFlagsBits.Administrator]) || !member!.kickable)) {
             banEmbed
                 .setColor(config.embeds.colors.error as ColorResolvable)
-                .setAuthor({ name: "You can't ban an Administrator.", iconURL: config.embeds.images.errorImg })
+                .setAuthor({ name: "You can't kick an Administrator.", iconURL: config.embeds.images.errorImg })
             await interaction.reply({ embeds: [banEmbed], ephemeral: true });
             return;
         }

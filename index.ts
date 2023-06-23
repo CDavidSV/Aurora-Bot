@@ -14,6 +14,9 @@ declare module "discord.js" {
         legacyCommands: Collection<string, ACommand>;
         slashCommands: Collection<string, any>;
         subCommands: Collection<string, any>;
+        cooldowns: Collection<string, Collection<string, number>>;
+        tempvcGenerators: Set<string>;
+        tempvChannels: Set<string>;
         startTime: number;
     }
 }
@@ -31,6 +34,9 @@ const client = new Client({
         GatewayIntentBits.GuildMembers
     ] 
 });
+
+client.tempvChannels = new Set();
+client.tempvcGenerators = new Set();
 
 setupEvents();
 setupCommands(token);
