@@ -8,7 +8,6 @@ export default {
     botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: (interaction: CommandInteraction) => {
         // Generate random size and color.
-        const randomColor  = random.randomColor();
         const randomSize = random.randomValue(7, 21);
         const member = interaction.member as GuildMember;
 

@@ -1,4 +1,4 @@
-import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, GuildMember, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import simpleGames from "../../../games/simple-games";
 
 export default {
@@ -29,16 +29,24 @@ export default {
     botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         const subcommands = interaction.options.getSubcommand()
+        const member = interaction.member as GuildMember;
+
+        let username;
+        if(!member) {
+            username = interaction.user.username as string;
+        } else {
+            username = member.displayName;
+        }
 
         switch (subcommands) {
             case 'coinflip':
-                await interaction.reply(simpleGames.coinflip(interaction.member?.user.username as string));
+                await interaction.reply(simpleGames.coinflip(username as string));
                 break;
             case 'dice':
-                await interaction.reply(`${interaction.member?.user.username} Flipped a dice and got ${simpleGames.dice()}`);
+                await interaction.reply(`${username} Flipped a dice and got ${simpleGames.dice()}`);
                 break;
             case 'double_dice':
-                await interaction.reply(`${interaction.member?.user.username} Flipped two dices and got ${simpleGames.dice()} ${simpleGames.dice()}`);    
+                await interaction.reply(`${username} Flipped two dices and got ${simpleGames.dice()} ${simpleGames.dice()}`);    
                 break;
             case '8ball':
                 const responseEmbed = simpleGames.eightBall(interaction.client!.user!.avatarURL()!, interaction.options.getString('prompt') as string);
