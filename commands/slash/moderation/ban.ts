@@ -61,7 +61,7 @@ export default {
         interaction.guild?.members.ban(user, { deleteMessageSeconds: parseInt(deleteMessagesTimeSec), reason: banReason }).then(async () => {
             banEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: `${user.tag} was banned for the server.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+            .setAuthor({ name: `${user.username} was banned for the server.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
             .setDescription(`****Reason:**** ${banReason}`)
 
             // Initialize unban button collector.

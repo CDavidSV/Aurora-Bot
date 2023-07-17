@@ -47,7 +47,7 @@ export default {
         member.kick(banReason).then(async () => {
             banEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: `${user.tag} was kicked from the server.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+            .setAuthor({ name: `${user.username} was kicked from the server.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
             .setDescription(`****Reason:**** ${banReason}`)
             await interaction.reply({ embeds: [banEmbed] });
         }).catch(async (err) => {

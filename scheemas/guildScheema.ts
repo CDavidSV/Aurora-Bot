@@ -1,26 +1,61 @@
 import { Schema, model } from "mongoose";
 
 const guildSchema = new Schema({
-    guild_id: {
+  _id: String,
+  prefix: {
+    type: String,
+    default: "!",
+  },
+  welcome: {
+    welcome_image: {
       type: String,
-      required: true,
-      unique: true,
+      default: null,
     },
-    prefix: {
+    welcome_message: {
       type: String,
-      default: '!',
+      default: null,
     },
-    welcome_image: String,
-    welcome_message: String,
-    goodbye_image: String,
-    goodbye_message: String,
-    welcome_channel: String,
-    goodbye_channel: String,
-    bday: {
-      channel: String,
-      time: String,
+    welcome_channel: {
+      type: String,
+      default: null,
     },
-    role_select_channel: String,
+    embed: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  goodbye: {
+    goodbye_image: {
+      type: String,
+      default: null,
+    },
+    goodbye_message: {
+      type: String,
+      default: null,
+    },
+    goodbye_channel: {
+      type: String,
+      default: null,
+    },
+    embed: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  bday: {
+    channel: {
+      type: String,
+      default: null,
+    },
+    time: {
+      type: String,
+      default: null,
+    },
+  },
+  role_select_channel: {
+    type: String,
+    default: null,
+  },
 });
 
 export default model('Guild', guildSchema);

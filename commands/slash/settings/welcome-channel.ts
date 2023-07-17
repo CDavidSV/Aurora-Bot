@@ -1,0 +1,22 @@
+import { ChatInputCommandInteraction } from "discord.js";
+import guildScheema from "../../../scheemas/guildScheema";
+
+export default {
+    subCommand: "settings.welcome.channel",
+    callback: async (interaction: ChatInputCommandInteraction) => {
+        const selectedChannel = interaction.options.getChannel('channel');
+
+        try {
+            const guildSettigns = await guildScheema.findByIdAndUpdate({ _id: interaction.guildId }, { $set: { 'welcome.welcome_channel': selectedChannel?.id } }, { upsert: true, new: true, setDefaultsOnInsert: true });
+
+            if (!guildSettigns.welcome?.welcome_message) {
+                await interaction.reply(`👋 Welcome messages will now be sent to <#${selectedChannel?.id}>. Try </settings welcome message:1129638877569765376> to change the welcome message and image.`);
+            } else {
+                await interaction.reply(`👋 Welcome messages will now be sent to <#${selectedChannel?.id}>. Try </welcome test:1130199690009395291> to test welcome messages.`);
+            }
+            
+        } catch (err) {
+            console.error(err);
+        }
+    }
+}

@@ -6,6 +6,10 @@ import { client } from "../index";
 const setupCommands = (token: string) => {
     client.slashCommands = new Collection();
 
+    // Client id 
+    const clientId = config.clientId;
+    // const clientId = config.testClientId; // For testing only.
+
     // Get all Commands and determine the type.
     getFiles('./commands/slash', '.ts', 'SLASH COMMANDS').forEach((commandFile) => {
         const command = require(`${commandFile}`).default;
@@ -21,14 +25,14 @@ const setupCommands = (token: string) => {
     const rest = new REST().setToken(token);
     (async () => {
         await rest.put(
-            //Routes.applicationGuildCommands(config.clientId, config.testGuildId),
-            //{ body: Array.from(client.slashCommands.values()).map((command) => {
-            //    return command.data.toJSON();
-            //})} // Convert slash command data into json.
+            // Routes.applicationGuildCommands(clientId, config.testGuildId),
+            // { body: Array.from(client.slashCommands.values()).map((command) => {
+            //     return command.data.toJSON();
+            // })} // Convert slash command data into json.
 
-            Routes.applicationCommands(config.clientId),
-             { body: Array.from(client.slashCommands.values()).map((command) => {
-                 return command.data.toJSON();
+            Routes.applicationCommands(clientId),
+            { body: Array.from(client.slashCommands.values()).map((command) => {
+                return command.data.toJSON();
             })}
         )
         .then(() => console.log(`Successfully reloaded application (/) commands.`.green))

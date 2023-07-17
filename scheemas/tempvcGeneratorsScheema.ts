@@ -1,3 +1,4 @@
+import { string } from "mathjs";
 import { Schema, model } from "mongoose";
 
 const tempvcGeneratorSchema = new Schema({
@@ -13,10 +14,18 @@ const tempvcGeneratorSchema = new Schema({
         type: String,
         required: true
     },
-    vc_user_limit: Number,
-    region: String,
-    allow_rename: Boolean,
-    custom_vc_name: String
+    vc_user_limit: {
+        type: Number
+    },
+    region: {
+        type: String
+    },
+    allow_rename: {
+        type: Boolean
+    },
+    custom_vc_name: {
+        type: String
+    }
 });
 
 export default model('TempVCGenerator', tempvcGeneratorSchema);

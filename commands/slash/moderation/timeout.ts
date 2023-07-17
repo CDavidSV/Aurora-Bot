@@ -99,7 +99,7 @@ export default {
         member.timeout(time, timeoutReason).then(async () => {
             timeoutEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: `${user.tag} was timed out.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+            .setAuthor({ name: `${user.username} was timed out.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
             .setDescription(`****Reason:**** ${timeoutReason}\n**Duration:** \`${convertTime(time)}\``)
 
             await interaction.reply({ embeds: [timeoutEmbed] });
