@@ -31,7 +31,7 @@ export default {
         ]
 
         let currentIndex = 0;
-        const halfHour = 1800000;
+        const oneHour = 3600000;
 
         client.user!.setActivity(statuses[currentIndex].text, statuses[currentIndex].object);
         setInterval(() => {
@@ -43,6 +43,6 @@ export default {
 
             const currentStatus = statuses[currentIndex];
             client.user!.setActivity(currentStatus.text, currentStatus.object);
-        }, halfHour)
+        }, oneHour)
     }
 }
