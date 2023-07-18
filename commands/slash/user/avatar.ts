@@ -19,16 +19,24 @@ export default {
             await interaction.reply({ content: "That user is not in this server.", ephemeral: true });
             return;
         }
-        
+
+        let userAvatarLinks = `[jpg](${member.user.displayAvatarURL({size: 2048, extension: 'jpg', forceStatic: true})}) | [jpeg](${member.user.displayAvatarURL({size: 2048, extension: 'jpeg', forceStatic: true})}) | [png](${member.user.displayAvatarURL({size: 2048, extension: 'png', forceStatic: true})}) | [webp](${member.user.displayAvatarURL({size: 2048, extension: 'webp', forceStatic: true})})`;
+        let guildAvatarLinks = `[jpg](${member.displayAvatarURL({size: 2048, extension: 'jpg', forceStatic: true})}) | [jpeg](${member.displayAvatarURL({size: 2048, extension: 'jpeg', forceStatic: true})}) | [png](${member.displayAvatarURL({size: 2048, extension: 'png', forceStatic: true})}) | [webp](${member.displayAvatarURL({size: 2048, extension: 'webp', forceStatic: true})})`;
+
+        if (member.user.avatarURL()?.endsWith('.gif')) userAvatarLinks += ` | [gif](${member.user.displayAvatarURL({size: 2048, extension: 'gif'})})`;
+        if (member.avatarURL()?.endsWith('.gif')) guildAvatarLinks += ` | [gif](${member.user.displayAvatarURL({size: 2048, extension: 'gif'})})`;
+
         avatarEmbed
             .setTitle(`${member.user.username}'s Server Avatar`)
             .setImage(member.displayAvatarURL({size: 2048}))
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setDescription(`[Image URL](${member.displayAvatarURL({size: 2048})})`)
         
         if(member.displayAvatarURL({size: 2048}) === member.user.displayAvatarURL({size: 2048})) {
+            avatarEmbed.setDescription(userAvatarLinks)
             await interaction.reply({embeds: [avatarEmbed]});
         } else {
+            avatarEmbed.setDescription(guildAvatarLinks);
+
             const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
@@ -37,9 +45,17 @@ export default {
                     .setStyle(ButtonStyle.Primary),
             );
             
-            const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button });
+            const hourInMs = 3600000;
+            const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: hourInMs });
 
-            await interaction.reply({embeds: [avatarEmbed], components: [row]});
+            // Disable the button after one hour
+            const reply = await interaction.reply({embeds: [avatarEmbed], components: [row]});
+            
+            setTimeout(() => {
+                row.components[0].setDisabled();
+
+                reply.edit({components: [row]}).catch(console.error);
+            }, hourInMs);
 
             collector.on('collect', async (interactionBtn: ButtonInteraction) => {
                 if (interactionBtn.customId === `user${interaction.id}`) {   
@@ -48,7 +64,7 @@ export default {
                         .setTitle(`${member.user.username}'s Avatar`)
                         .setImage(member.user.displayAvatarURL({size: 2048}))
                         .setColor(config.embeds.colors.main as ColorResolvable)
-                        .setDescription(`[Image URL](${member.user.displayAvatarURL({size: 2048})})`)
+                        .setDescription(userAvatarLinks)
 
                         row.components[0].setLabel('View Server Avatar');
                         server = false;
@@ -57,12 +73,12 @@ export default {
                         .setTitle(`${member.user.username}'s Server Avatar`)
                         .setImage(member.displayAvatarURL({size: 2048}))
                         .setColor(config.embeds.colors.main as ColorResolvable)
-                        .setDescription(`[Image URL](${member.displayAvatarURL({size: 2048})})`)
+                        .setDescription(guildAvatarLinks)
 
                         row.components[0].setLabel('View User Avatar');
                         server = true;
                     }
-                    
+
                     interactionBtn.message.edit({embeds: [avatarEmbed], components: [row]}).catch((err) => console.error('Unable edit message: ', err));
 
                     await interactionBtn.deferUpdate();

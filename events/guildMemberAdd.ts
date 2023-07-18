@@ -108,7 +108,8 @@ const generateWelcomeResponse = async (guildSettings: any, user: User, guild: Gu
             .setAuthor({ name: guild?.name as string, iconURL: guild?.iconURL() as string})
             .setDescription(message)
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setImage("attachment://welcome-image.png");
+            .setImage("attachment://welcome-image.png")
+            .setTimestamp()
         
         return { embeds: [welcomeEmbed], files: image };
     }

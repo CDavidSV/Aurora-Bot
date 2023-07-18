@@ -1,9 +1,10 @@
 {
     "name": "aurora",
-    "version": "v1.1.1",
+    "version": "v1.1.2",
     "clientId": "1101954090667348029",
     "testClientId": "1129609619069751326",
     "testGuildId": "970508802602455122",
+    "inviteLink": "https://discord.com/api/oauth2/authorize?client_id=1101954090667348029&permissions=1374658079766&scope=bot%20applications.commands",
     "globalPrefixes": [
         "au!",
         "<@1101954090667348029>"
