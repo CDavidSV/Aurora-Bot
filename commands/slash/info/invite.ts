@@ -19,7 +19,7 @@ export default {
             );
 
         const inviteEmbed = new EmbedBuilder()
-            .setAuthor({ name: `<a href="${inviteUrl}">Aurora Bot Invite</a>`, iconURL: interaction.client.user.avatarURL()!})
+            .setAuthor({ name: `Aurora Bot Invite`, iconURL: interaction.client.user.avatarURL()!})
             .setDescription("I'm always happy to join another server :)")
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setTimestamp()
