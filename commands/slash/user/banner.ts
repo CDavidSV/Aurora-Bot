@@ -1,33 +1,42 @@
-import { ColorResolvable, CommandInteraction, EmbedBuilder, GuildMember } from "discord.js";
+import { ColorResolvable, CommandInteraction, EmbedBuilder, GuildMember, User } from "discord.js";
 import config from "../../../config.json";
+import axios from "axios";
 
 export default {
     subCommand: "user.banner",
     callback: async (interaction: CommandInteraction) => {
         const bannerEmbed = new EmbedBuilder();
     
-        let member: GuildMember;
-        if(!interaction.options.getUser('user')) {
-            member = interaction.guild!.members.cache.get(interaction.member!.user.id)!;
-        } else {
-            member = interaction.guild!.members.cache.get(interaction.options.getUser('user')!.id) as GuildMember;
+        const id = interaction.options.getUser('user') || interaction.member?.user.id;
+
+        const user = await axios('https://discord.com/api/users/' + id, {
+            headers: {
+              Authorization: `Bot ${process.env.TOKEN}`,
+            },
+        }).then((res) => res.data).catch(() => null);
+
+        if (!user) {
+            await interaction.reply('An Error Ocurred. Please try again.');
+            return;
         }
         
-        if (!member.user.bannerURL()) {
-            if (member.user === interaction.user) {
+        if (!user.banner) {
+            if (user === interaction.user) {
                 await interaction.reply(`**You** don't have a banner silly T_T`);
                 return;
             }
 
-            await interaction.reply(`**${member.displayName}** does not have a banner.`);
+            await interaction.reply(`**${user.username}** does not have a banner.`);
             return;
         }
 
+        const bannerUrl = `https://cdn.discordapp.com/banners/${user.id}/${user.banner}?size=2048`;
+
         bannerEmbed
-            .setTitle(`${member.user.username}'s Banner`)
-            .setImage(member.displayAvatarURL({size: 2048}))
+            .setTitle(`${user.username}'s Banner`)
+            .setImage(bannerUrl)
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setDescription(`[Image URL](${member.user.bannerURL({size: 2048})})`)
+            .setDescription(`[Image URL](${bannerUrl})`)
 
         await interaction.reply({embeds: [bannerEmbed]});
     }
