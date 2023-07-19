@@ -9,13 +9,15 @@ function formatNumbers(n: number) {
     const numberArray = n.toString().split('');
     let formattedArray = [];
 
+    if (numberArray.length < 4) return numberArray.join("");
+
     let counter = 1;
     for (let i = numberArray.length - 1; i >= 0; i--) {
         formattedArray.unshift(numberArray[i]);
 
-        if (counter % 3 === 0) 
+        if (counter % 3 === 0 && i !== 0) 
             formattedArray.unshift(',');
-
+        
         counter++;
     }
     
