@@ -1,9 +1,8 @@
-import { Collection, REST, Routes } from "discord.js";
+import { Client, Collection, REST, Routes } from "discord.js";
 import getFiles from "../util/get-files";
 import config from "../config.json";
-import { client } from "../index";
 
-const setupCommands = (token: string) => {
+const setupCommands = (token: string, client: Client) => {
     client.slashCommands = new Collection();
 
     // Client id 

@@ -49,8 +49,7 @@ export default {
             const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: hourInMs });
 
             // Disable the button after one hour
-            const reply = await interaction.reply({embeds: [avatarEmbed], components: [row]});
-            
+            const reply = await interaction.reply({embeds: [avatarEmbed], components: [row], fetchReply: true});
             setTimeout(() => {
                 row.components[0].setDisabled();
 

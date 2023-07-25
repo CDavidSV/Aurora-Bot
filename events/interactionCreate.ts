@@ -49,9 +49,9 @@ export default {
             } catch (err) {
                 console.error(err);
                 if (interaction.replied || interaction.deferred) {
-                    await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+                    await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true }).catch((err) => console.error(err));
                 } else {
-                    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+                    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true }).catch((err) => console.error(err));
                 }
             }
         } else if (interaction.isAutocomplete()) {

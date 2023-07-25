@@ -23,7 +23,7 @@ declare module "discord.js" {
 
 // Tokens.
 const token: string = process.env.TOKEN as string;
-//const token: string = process.env.TOKEN_TEST as string;
+// const token: string = process.env.TOKEN_TEST as string;
 
 // Bot Setup.
 const client = new Client({ 
@@ -39,8 +39,8 @@ const client = new Client({
 client.tempvChannels = new Set();
 client.tempvcGenerators = new Set();
 
-setupEvents();
-setupCommands(token);
+setupEvents(client);
+setupCommands(token, client);
 
 client.login(token);
 
