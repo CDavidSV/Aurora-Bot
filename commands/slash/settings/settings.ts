@@ -35,6 +35,37 @@ export default {
                                 .setName('enable')
                                 .setDescription('Set to true or false')
                                 .setRequired(true))))
+        .addSubcommandGroup(subCommandGroup => 
+            subCommandGroup
+                .setName('leave')
+                .setDescription('👋 Change settings for leave messages')
+                .addSubcommand(subCommand =>
+                    subCommand
+                        .setName('channel')
+                        .setDescription('💬 Set a leave message channel')
+                        .addChannelOption(option => 
+                            option
+                                .setName('channel')
+                                .setDescription('Select a channel')
+                                .addChannelTypes(ChannelType.GuildText)
+                                .setRequired(true)))
+                .addSubcommand(subCommand => 
+                    subCommand
+                        .setName('disable')
+                        .setDescription('⛔️ Disable leave messages'))
+                .addSubcommand(subCommand => 
+                    subCommand
+                        .setName('message')
+                        .setDescription('📝 Set a leave message and image'))
+                .addSubcommand(subCommand => 
+                    subCommand
+                        .setName('embed')
+                        .setDescription('📄 Whether or not to use embeds for leave messages')
+                        .addBooleanOption(option =>
+                            option
+                                .setName('enable')
+                                .setDescription('Set to true or false')
+                                .setRequired(true))))
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages]
