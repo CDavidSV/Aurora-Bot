@@ -39,13 +39,17 @@ const handlePagination = async (interaction: ChatInputCommandInteraction, embeds
     }
 
     let replyMsg: Message<boolean>;
-    switch (replyType) {
-        case ReplyType.REPLY:
-            replyMsg = await interaction.reply({ embeds: [embeds[page - 1]], components: [...extraComponents, paginationButtons], fetchReply: true });
-            break;
-        case ReplyType.EDIT:
-            replyMsg = await interaction.editReply({ embeds: [embeds[page - 1]], components: [...extraComponents, paginationButtons] });
-            break;
+    try {
+        switch (replyType) {
+            case ReplyType.REPLY:
+                replyMsg = await interaction.reply({ embeds: [embeds[page - 1]], components: [...extraComponents, paginationButtons], fetchReply: true });
+                break;
+            case ReplyType.EDIT:
+                replyMsg = await interaction.editReply({ embeds: [embeds[page - 1]], components: [...extraComponents, paginationButtons] });
+                break;
+        }
+    } catch (error) {
+        return;
     }
     
     // Pagination button colletor.
@@ -56,7 +60,7 @@ const handlePagination = async (interaction: ChatInputCommandInteraction, embeds
 
     setTimeout(async () => {
         paginationButtons.components[0].setDisabled(true); 
-        paginationButtons.components[1].setDisabled(true);
+        paginationButtons.components[2].setDisabled(true);
 
         await replyMsg.edit({ components: [paginationButtons] }).catch(console.error);
     }, timeout); // Clear after specified ammount of time.
