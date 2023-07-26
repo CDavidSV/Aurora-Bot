@@ -59,7 +59,8 @@ const handlePagination = async (interaction: ChatInputCommandInteraction, embeds
     });
 
     setTimeout(async () => {
-        paginationButtons.components[0].setDisabled(true); 
+        paginationButtons.components[0].setDisabled(true);
+        paginationButtons.components[1].setDisabled(true);
         paginationButtons.components[2].setDisabled(true);
 
         await replyMsg.edit({ components: [paginationButtons] }).catch(console.error);
