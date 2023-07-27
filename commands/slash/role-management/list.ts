@@ -16,8 +16,8 @@ export default {
                 return;
             }
 
-            const embedsList = paginate(roles, { title: 'Roles', description: `List of roles in ${interaction.guild?.name}[${roles.length}]`, thumbnail: interaction.guild?.iconURL(), color: config.embeds.colors.main as ColorResolvable });
-            await handlePagination(interaction, embedsList, ReplyType.REPLY);
+            const embedsList = paginate(roles, 10, { title: 'Roles', description: `List of roles in ${interaction.guild?.name}[${roles.length}]`, thumbnail: interaction.guild?.iconURL(), color: config.embeds.colors.main as ColorResolvable });
+            await handlePagination(interaction, embedsList, { replyType: ReplyType.REPLY, ephemeralReply: false });
             return;
         }
 
@@ -35,7 +35,7 @@ export default {
             await interaction.reply({ content: 'This user has no roles.', ephemeral: true });
         }
 
-        const embedsList = paginate(roles, { title: 'Roles', description: `List of roles for ${member.user.username}`, thumbnail: interaction.guild?.iconURL(), color: config.embeds.colors.main as ColorResolvable });
-        await handlePagination(interaction, embedsList, ReplyType.REPLY);
+        const embedsList = paginate(roles, 10, { title: 'Roles', description: `List of roles for ${member.user.username}`, thumbnail: interaction.guild?.iconURL(), color: config.embeds.colors.main as ColorResolvable });
+        await handlePagination(interaction, embedsList, { replyType: ReplyType.REPLY, ephemeralReply: false });
     }
 }

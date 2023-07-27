@@ -6,8 +6,8 @@ const setupCommands = (token: string, client: Client) => {
     client.slashCommands = new Collection();
 
     // Client id 
-    // const clientId = config.clientId;
-    const clientId = config.testClientId; // For testing only.
+    const clientId = config.clientId;
+    // const clientId = config.testClientId; // For testing only.
 
     // Get all Commands and determine the type.
     getFiles('./commands/slash', '.ts', 'SLASH COMMANDS').forEach((commandFile) => {
