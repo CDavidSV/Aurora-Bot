@@ -1,4 +1,5 @@
-import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, Role } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, Role, RoleSelectMenuBuilder } from "discord.js";
+import { roleInfo } from "../../../util/general";
 import config from "../../../config.json";
 
 export default {
@@ -6,7 +7,7 @@ export default {
     callback: async (interaction: ChatInputCommandInteraction) => {
         let role = interaction.options.getRole('role') as Role;
 
-        const roleEmbed: EmbedBuilder = new EmbedBuilder();
+        let roleEmbed: EmbedBuilder = new EmbedBuilder();
         if (!role) {
             roleEmbed
                 .setColor(config.embeds.colors.error as ColorResolvable)
@@ -15,36 +16,33 @@ export default {
             return;
         }
 
+        // Build a select menu with all the roles.
+        const roleSelect = new RoleSelectMenuBuilder()
+            .setCustomId(`role.${interaction.id}`)
+            .setPlaceholder('Select a role')
+            .setMinValues(1)
+            .setMaxValues(1)
+
+        const row = new ActionRowBuilder<RoleSelectMenuBuilder>()
+            .addComponents(roleSelect);
+
         // Role info.
-        const name = role.name;
-        const ID = role.id;
-        const createdAt = Math.round(role.createdTimestamp / 1000);
-        const memberSize = role.members.size;
-        const color = role.color.toString(16);
-        const position = role.position;
+        roleEmbed = roleInfo(role);
+        const reply = await interaction.reply({ embeds: [roleEmbed], components: [row], fetchReply: true });
 
-        let hoist: string;
-        let managed: string;
-        let mentionable: string;
+        const collector = interaction.channel?.createMessageComponentCollector({
+            componentType: ComponentType.RoleSelect,
+            filter: (m) => m.message.id === reply.id
+        });
+        
+        collector?.on('collect', (collectedInteraction) => {
+            const role = collectedInteraction.guild?.roles.cache.get(collectedInteraction.values[0]);
 
-        role.hoist ? hoist = '✓' : hoist = 'Χ';
-        role.managed ? managed = '✓' : managed = 'Χ';
-        role.mentionable ? mentionable = '✓' : mentionable = 'Χ';
+            if (!role) return;
+            const embed = roleInfo(role);
 
-        roleEmbed
-            .setAuthor({ name: `${interaction.guild!.name}`, iconURL: interaction.guild?.iconURL({ forceStatic: false })! })
-            .setFields(
-                { name: 'Name', value: `${name}`, inline: true },
-                { name: 'ID', value: `${ID}`, inline: true },
-                { name: 'Creation Date', value: `<t:${createdAt}> (<t:${createdAt}:R>)`, inline: false },
-                { name: 'Members in cache', value: `${memberSize}`, inline: true },
-                { name: 'Position', value: `${position}`, inline: true },
-                { name: 'Hex Color', value: `#${color.toUpperCase()}`, inline: true },
-                { name: 'Hoisted', value: `${hoist}`, inline: true },
-                { name: 'Managed', value: `${managed}`, inline: true },
-                { name: 'Mantionable', value: `${mentionable}`, inline: true },
-            )
-            .setColor(role!.color);
-        interaction.reply({ embeds: [roleEmbed], ephemeral: true });
+            collectedInteraction.message.edit({ embeds: [embed], components: [row] }).catch(console.error);
+            collectedInteraction.deferUpdate();
+        });
     }
 }

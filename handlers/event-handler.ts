@@ -3,8 +3,6 @@ import getFiles from "../util/get-files";
 
 // Get all Events and listen.
 const setupEvents = (client: Client) => {
-    client.subCommands = new Collection();
-    
     getFiles('./events', '.ts', 'EVENTS').forEach((eventFile) => {
         const event = require(`${eventFile}`).default;
         if (!event) return;

@@ -3,6 +3,7 @@ import setupEvents from "./handlers/event-handler";
 import colors from 'colors';
 import dotenv from "dotenv"
 import setupCommands from "./handlers/command-handler";
+import setupButtons from "./handlers/component-handler";
 import { ACommand } from "./structs/ACommand";
 
 dotenv.config();
@@ -14,6 +15,7 @@ declare module "discord.js" {
         legacyCommands: Collection<string, ACommand>;
         slashCommands: Collection<string, any>;
         subCommands: Collection<string, any>;
+        messageComponents: Collection<string, any>
         cooldowns: Collection<string, Collection<string, number>>;
         tempvcGenerators: Set<string>;
         tempvChannels: Set<string>;
@@ -22,8 +24,8 @@ declare module "discord.js" {
 }
 
 // Tokens.
-const token: string = process.env.TOKEN as string;
-// const token: string = process.env.TOKEN_TEST as string;
+// const token: string = process.env.TOKEN as string;
+const token: string = process.env.TOKEN_TEST as string;
 
 // Bot Setup.
 const client = new Client({ 
@@ -37,11 +39,15 @@ const client = new Client({
     ],
 });
 
-
+// Initialize sets and collections.
 client.tempvChannels = new Set();
 client.tempvcGenerators = new Set();
+client.messageComponents = new Collection();
+client.slashCommands = new Collection();
+client.subCommands = new Collection();
 
 setupEvents(client);
+setupButtons(client);
 setupCommands(token, client);
 
 client.login(token);

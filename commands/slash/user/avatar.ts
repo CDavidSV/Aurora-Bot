@@ -1,12 +1,10 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ColorResolvable, CommandInteraction, ComponentType, EmbedBuilder, GuildMember, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ColorResolvable, CommandInteraction, ComponentType, EmbedBuilder, GuildMember } from "discord.js";
 import config from "../../../config.json";
 
 export default {
     subCommand: "user.avatar",
     callback: async (interaction: CommandInteraction) => {
-        const channel = interaction.client.channels.cache.get(interaction.channel!.id)! as TextChannel;
         const avatarEmbed = new EmbedBuilder();
-        let server = true;
     
         let member: GuildMember;
         if(!interaction.options.getUser('user')) {
@@ -40,49 +38,13 @@ export default {
             const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`user${interaction.id}`)
+                    .setCustomId(`userAvatar.${member.user.id}`)
                     .setLabel('View User Avatar')
                     .setStyle(ButtonStyle.Primary),
             );
-            
-            const hourInMs = 3600000;
-            const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: hourInMs });
 
             // Disable the button after one hour
-            const reply = await interaction.reply({embeds: [avatarEmbed], components: [row], fetchReply: true});
-            setTimeout(() => {
-                row.components[0].setDisabled();
-
-                reply.edit({components: [row]}).catch(console.error);
-            }, hourInMs);
-
-            collector.on('collect', async (interactionBtn: ButtonInteraction) => {
-                if (interactionBtn.customId === `user${interaction.id}`) {   
-                    if (server) {
-                        avatarEmbed
-                        .setTitle(`${member.user.username}'s Avatar`)
-                        .setImage(member.user.displayAvatarURL({size: 2048}))
-                        .setColor(config.embeds.colors.main as ColorResolvable)
-                        .setDescription(userAvatarLinks)
-
-                        row.components[0].setLabel('View Server Avatar');
-                        server = false;
-                    } else {
-                        avatarEmbed
-                        .setTitle(`${member.user.username}'s Server Avatar`)
-                        .setImage(member.displayAvatarURL({size: 2048}))
-                        .setColor(config.embeds.colors.main as ColorResolvable)
-                        .setDescription(guildAvatarLinks)
-
-                        row.components[0].setLabel('View User Avatar');
-                        server = true;
-                    }
-
-                    interactionBtn.message.edit({embeds: [avatarEmbed], components: [row]}).catch((err) => console.error('Unable edit message: ', err));
-
-                    await interactionBtn.deferUpdate();
-                }
-            });
+            await interaction.reply({embeds: [avatarEmbed], components: [row], fetchReply: true });
         }
     }
 }

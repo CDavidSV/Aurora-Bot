@@ -1,35 +1,33 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ColorResolvable, APIEmbedField, Message, APIActionRowComponent, APIMessageActionRowComponent, ActionRowData, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, InteractionResponse, InteractionEditReplyOptions, MessageEditOptions, Embed } from "discord.js";
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 
 export class PaginationHandler {
-    private id: string;
     private embeds: EmbedBuilder[];
     private pages: number;
     private currentPage: number;
     private paginationButtons: ActionRowBuilder<ButtonBuilder>;
 
-    constructor(interactionId: string, embeds: EmbedBuilder[], page: number = 1) { 
+    constructor(embeds: EmbedBuilder[], page: number = 1) { 
         this.embeds = embeds;
         this.pages = embeds.length;
-        this.id = interactionId;
 
         if (page > this.pages) {
-            throw new Error('Page number is greater than the number of pages.');
+            this.currentPage = this.pages - 1;
         }
         this.currentPage = page - 1;
         
         // Build Buttons.
         this.paginationButtons = new ActionRowBuilder<ButtonBuilder>()
         .addComponents([
-            new ButtonBuilder().setCustomId(`previous.${this.id}`).setEmoji('1133857717027614811').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId(`stop.${this.id}`).setEmoji('1133857126478008430').setStyle(ButtonStyle.Danger),
-            new ButtonBuilder().setCustomId(`next.${this.id}`).setEmoji('1133857705241620530').setStyle(ButtonStyle.Primary)
+            new ButtonBuilder().setCustomId('previous').setEmoji('1133857717027614811').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('stop').setEmoji('1133857126478008430').setStyle(ButtonStyle.Danger),
+            new ButtonBuilder().setCustomId('next').setEmoji('1133857705241620530').setStyle(ButtonStyle.Primary)
         ]);
 
         this.updateButtonState();
     }
 
-    getId(): string {
-        return this.id;
+    getPageNumber(): string {
+        return `Page **${this.currentPage + 1}** of **${this.pages}**`;
     }
 
     private updateButtonState() {
@@ -40,7 +38,7 @@ export class PaginationHandler {
         } else if (this.currentPage === 0) {
             this.paginationButtons.components[0].setDisabled(true);
             this.paginationButtons.components[2].setDisabled(false);
-        } else if (this.currentPage === this.pages - 1) {
+        } else if (this.currentPage >= this.pages - 1) {
             this.paginationButtons.components[0].setDisabled(false);
             this.paginationButtons.components[2].setDisabled(true);
         } else {
@@ -52,6 +50,10 @@ export class PaginationHandler {
     updateEmbeds(newEmbedsList: EmbedBuilder[]) {
         this.embeds = newEmbedsList;
         this.pages = this.embeds.length;
+
+        if (this.currentPage >= this.pages -1) {
+            this.currentPage = this.pages - 1;
+        }
 
         this.updateButtonState();
     }
@@ -66,8 +68,6 @@ export class PaginationHandler {
 
     nextPage(): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } {
         if (this.currentPage >= this.pages - 1) {
-            this.currentPage = this.pages - 1;
-            this.updateButtonState();
             return { pageNumber: `Page **${this.currentPage + 1}** of **${this.pages}**`, embed: this.embeds[-1], buttons: this.paginationButtons };
         }
 
@@ -109,11 +109,11 @@ export class PaginationHandler {
 
     getPageOnButtonId(buttonId: string): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } | null {
         switch (buttonId) {
-            case `next.${this.id}`:
+            case 'next':
                 return this.nextPage();
-            case `previous.${this.id}`:
+            case 'previous':
                 return this.previousPage();
-            case `stop.${this.id}`:
+            case 'stop':
                 return null;
             default:
                 throw new Error('Invalid button id');
