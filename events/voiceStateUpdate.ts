@@ -38,13 +38,11 @@ const generateTempVC = async (state: VoiceState) => {
             userLimit: generator.vc_user_limit
         });
 
-        state.client.tempvChannels.add(state.guild.id + channel.id); // Add the channel to the tempvc set.
         await state.member?.voice.setChannel(channel).then(async () => {
             await tempvcScheema.create({ guild_id: state.guild.id, generator_id: generator.generator_id, vc_id: channel.id, owner_id: state.member?.id, name: channelName });
+            state.client.tempvChannels.add(state.guild.id + channel.id); // Add the channel to the tempvc set.
         }).catch(async () => { 
             await channel.delete();
-            await tempvcScheema.findOneAndDelete({ guild_id: state.guild.id, vc_id: channel.id });
-            state.client.tempvChannels.delete(state.guild.id + channel.id); // I case the user ca't be moved, delete the channel.
         });
     } catch (err) {
         console.error(err);

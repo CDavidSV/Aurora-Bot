@@ -4,7 +4,7 @@ import guildScheema from "../../../scheemas/guildScheema";
 export default {
     subCommand: "settings.welcome.message",
     callback: async (interaction: ChatInputCommandInteraction) => {
-        const modalId = `${interaction.id}${interaction.guild?.id}`;
+        const modalId = 'welcomeMessageModal';
 
         const modal = new ModalBuilder()
             .setCustomId(modalId)
@@ -47,31 +47,5 @@ export default {
         modal.addComponents(firstRow, secondRow, thirdRow);
 
         await interaction.showModal(modal);
-        const modalInteraction = await interaction.awaitModalSubmit({
-            filter: (modalInteraction) => modalInteraction.customId === modalId && modalInteraction.user.id === interaction.user.id,
-            time: 12_00_000,
-        }).catch(() => {
-            return null;
-        });
-
-        if (modalInteraction) {
-            let welcomeText: string | null =  modalInteraction.fields.getTextInputValue('messageInput');
-            let imageUrl: string | null = modalInteraction.fields.getTextInputValue('imageInput');
-
-            welcomeText = welcomeText.length > 1 ? welcomeText : null;
-            imageUrl = imageUrl.length > 1 ? imageUrl : null;
-
-            await guildScheema.findByIdAndUpdate(
-                { _id: interaction.guildId },
-                {
-                    $set: {
-                        'welcome.welcome_message': welcomeText,
-                        'welcome.welcome_image': imageUrl
-                    }
-                },
-                { upsert: true, new: true, setDefaultsOnInsert: true });
-
-            modalInteraction.reply({ content: "Welcome message configuration changed successfully", ephemeral: true });
-        }
     }
 }

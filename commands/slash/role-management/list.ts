@@ -1,44 +1,8 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, Role, RoleSelectMenuBuilder, RoleSelectMenuInteraction } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, RoleSelectMenuBuilder } from "discord.js";
 import { PaginationHandler } from "../../../handlers/pagination-handler";
 import { paginate } from "../../../util/paginate";
 import config from "../../../config.json";
-import { roleInfo } from "../../../util/general";
-
-const roleInfoDisplay = async (interaction: RoleSelectMenuInteraction, role: Role) => {
-    // Build a select menu with all the roles.
-    const roleSelect = new RoleSelectMenuBuilder()
-        .setCustomId(`role.${interaction.id}`)
-        .setPlaceholder('Select a role')
-        .setMinValues(1)
-        .setMaxValues(1)
-
-    const row = new ActionRowBuilder<RoleSelectMenuBuilder>()
-        .addComponents(roleSelect);
-
-    // Role info.
-    const roleEmbed = roleInfo(role);
-    await interaction.reply({ embeds: [roleEmbed], components: [row], ephemeral: true }).catch(console.error);
-
-    const collector = interaction.channel?.createMessageComponentCollector({
-        componentType: ComponentType.RoleSelect,
-        filter: (m) => m.customId.split('.')[1] === interaction.id,
-        time: 840_000
-    });
-    
-    collector?.on('collect', (collectedInteraction) => {
-        const role = collectedInteraction.guild?.roles.cache.get(collectedInteraction.values[0]);
-
-        if (!role) return;
-        const embed = roleInfo(role);
-
-        interaction.editReply({ embeds: [embed], components: [row] }).catch(console.error);
-        collectedInteraction.deferUpdate();
-    });
-
-    collector?.on('end', () => {
-        interaction.deleteReply().catch(console.error);
-    });
-}
+import { getRoleInfo } from "../../../util/general";
 
 export default {
     subCommand: 'role.list',
@@ -61,14 +25,30 @@ export default {
 
             const collector = interaction.channel?.createMessageComponentCollector({ 
                 filter: (colectorInteraction) => colectorInteraction.message.id === replyMsg.id,
+                time: 3_600_000
+            });
+
+            collector?.on('end', () => {
+                replyMsg.edit({ components: [] }).catch(console.error);
             });
             
             collector?.on('collect', async (collectedInteraction) => {
                 if (collectedInteraction.componentType === ComponentType.RoleSelect) {
                     const role = collectedInteraction.guild?.roles.cache.get(collectedInteraction.values[0]);
                     
-                    if (!role) return;
-                    await roleInfoDisplay(collectedInteraction, role);
+                    if (!role) {
+                        await collectedInteraction.deferReply().catch(console.error);
+                        return;
+                    } 
+                    const embed = getRoleInfo(role);
+                    const roleRow = new ActionRowBuilder<RoleSelectMenuBuilder>()
+                        .addComponents(new RoleSelectMenuBuilder()
+                        .setCustomId(`roleInfo`)
+                        .setPlaceholder('Select a role')
+                        .setMinValues(1)
+                        .setMaxValues(1));
+
+                    await collectedInteraction.reply({ embeds: [embed], components: [roleRow], ephemeral: true }).catch(console.error);
                     return;
                 }
 

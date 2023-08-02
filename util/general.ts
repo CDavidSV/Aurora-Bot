@@ -1,6 +1,6 @@
 import { Role, EmbedBuilder } from 'discord.js';
 
-const roleInfo = (role: Role) => {
+const getRoleInfo = (role: Role) => {
     const name = role.name;
     const ID = role.id;
     const createdAt = Math.round(role.createdTimestamp / 1000);
@@ -34,4 +34,4 @@ const roleInfo = (role: Role) => {
     return roleEmbed;
 }
 
-export { roleInfo };
+export { getRoleInfo };

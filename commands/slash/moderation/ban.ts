@@ -74,29 +74,12 @@ export default {
             const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`user${interaction.id}`)
+                    .setCustomId(`unban.${user.id}.${interaction.user.id}`)
                     .setLabel('Unban User')
                     .setStyle(ButtonStyle.Primary),
             );
 
             await interaction.reply({ components: [row], embeds: [banEmbed] });
-
-            collector.on('collect', async (interactionBtn: ButtonInteraction) => {
-                if (interactionBtn.user.id !== interaction.user.id) {
-                    await interactionBtn.reply({ content: `You do not have permission to run this command.`, ephemeral: true});
-                    return;
-                }
-
-                row.components[0].setDisabled().setLabel('User unbanned');
-                interaction.guild?.members.unban(user).then(async () => {
-                    await interactionBtn.reply({ content: `${user.username} has been unbanned.`, ephemeral: true});
-                }).catch(async () => {
-                    await interactionBtn.reply({ content: `Unnable to unban user.`, ephemeral: true});
-                });
-                interactionBtn.message.edit({ components: [row], embeds: [banEmbed] }).catch((err) => console.error('Unnable to edit message: ', err));
-                collector.stop();
-                collector.removeAllListeners();
-            });
         }).catch(async (err) => {
             console.log(err);
             banEmbed

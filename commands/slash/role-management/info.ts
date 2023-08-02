@@ -1,5 +1,5 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, Role, RoleSelectMenuBuilder } from "discord.js";
-import { roleInfo } from "../../../util/general";
+import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, Role, RoleSelectMenuBuilder } from "discord.js";
+import { getRoleInfo } from "../../../util/general";
 import config from "../../../config.json";
 
 export default {
@@ -18,7 +18,7 @@ export default {
 
         // Build a select menu with all the roles.
         const roleSelect = new RoleSelectMenuBuilder()
-            .setCustomId(`role.${interaction.id}`)
+            .setCustomId(`roleInfo`)
             .setPlaceholder('Select a role')
             .setMinValues(1)
             .setMaxValues(1)
@@ -27,22 +27,7 @@ export default {
             .addComponents(roleSelect);
 
         // Role info.
-        roleEmbed = roleInfo(role);
-        const reply = await interaction.reply({ embeds: [roleEmbed], components: [row], fetchReply: true });
-
-        const collector = interaction.channel?.createMessageComponentCollector({
-            componentType: ComponentType.RoleSelect,
-            filter: (m) => m.message.id === reply.id
-        });
-        
-        collector?.on('collect', (collectedInteraction) => {
-            const role = collectedInteraction.guild?.roles.cache.get(collectedInteraction.values[0]);
-
-            if (!role) return;
-            const embed = roleInfo(role);
-
-            collectedInteraction.message.edit({ embeds: [embed], components: [row] }).catch(console.error);
-            collectedInteraction.deferUpdate();
-        });
+        roleEmbed = getRoleInfo(role);
+        await interaction.reply({ embeds: [roleEmbed], components: [row] });
     }
 }

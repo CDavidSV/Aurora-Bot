@@ -23,4 +23,5 @@ const tempvcSchema = new Schema({
     },
 });
 
+tempvcSchema.index({ guild_id: 1, vc_id: 1 });
 export default model('TempVC', tempvcSchema);

@@ -1,4 +1,4 @@
-import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, ButtonBuilder, ButtonStyle, ButtonInteraction } from "discord.js";
+import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, ButtonBuilder, ButtonStyle, ButtonInteraction, Interaction } from "discord.js";
 import tempvcScheema from "../scheemas/tempvcGeneratorsScheema";
 import config from "../config.json";
 
@@ -21,9 +21,9 @@ const getGenerators = async (guildId: string) => {
  * @param generators 
  * @returns Promise for select row builder
  */
-const buildSelector = async (interaction: ChatInputCommandInteraction<CacheType>, generators: any[]) => {
+const buildSelector = async (id: string, interaction: Interaction, generators: any[]) => {
     const select = new StringSelectMenuBuilder()
-    .setCustomId(`${interaction.id}`)
+    .setCustomId(id)
     .setPlaceholder('Select a generator')
 
     let selectOptions: StringSelectMenuOptionBuilder[] = [];
@@ -69,7 +69,7 @@ const generatorSelect = async (
   }
 
   // Build select menu and cancel button.
-  const selectRow = await buildSelector(interaction, generators);
+  const selectRow = await buildSelector(interaction.id, interaction, generators);
   const btnRow = new ActionRowBuilder<ButtonBuilder>()
   .addComponents(
     new ButtonBuilder()

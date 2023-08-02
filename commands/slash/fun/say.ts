@@ -42,7 +42,7 @@ export default {
             return;
         }
 
-        const modalId = `sayMessageModal${interaction.id}${interaction.guild?.id}`;
+        const modalId = `sayMessageModal.${channel.id}`;
 
         const modal = new ModalBuilder()
             .setCustomId(modalId)
@@ -60,21 +60,5 @@ export default {
         modal.addComponents(firstRow)
 
         await interaction.showModal(modal);
-        const modalInteraction = await interaction.awaitModalSubmit({
-            filter: (modalInteraction) => modalInteraction.customId === modalId && modalInteraction.user.id === interaction.user.id,
-            time: 12_00_000,
-        }).catch(() => {
-            return null;
-        });
-
-        if (modalInteraction) {
-            message = modalInteraction.fields.getTextInputValue('messageInput');
-
-            channel?.send(`${message} \n\n*By:* **${interaction.member?.user.username}**`).then(async () => {
-                modalInteraction.reply({ content: "*Message sent successfully*", ephemeral: true });
-            }).catch(() => {
-                modalInteraction.reply({ content: "An Unexpected Error occurred while sending the message to the specified channel. Please try again.", ephemeral: true})
-            });
-        }
     },
 };

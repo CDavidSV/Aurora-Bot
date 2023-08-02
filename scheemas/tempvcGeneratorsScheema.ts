@@ -1,4 +1,3 @@
-import { string } from "mathjs";
 import { Schema, model } from "mongoose";
 
 const tempvcGeneratorSchema = new Schema({
@@ -27,5 +26,5 @@ const tempvcGeneratorSchema = new Schema({
         type: String
     }
 });
-
+tempvcGeneratorSchema.index({ guild_id: 1, category_id: 1 });
 export default model('TempVCGenerator', tempvcGeneratorSchema);

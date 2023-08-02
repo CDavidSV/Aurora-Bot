@@ -66,7 +66,7 @@ export default {
                 try {
                     await (subCommandFile?.autoComplete ?? command.autoComplete)(interaction);
                 } catch (err) {
-                    console.error('Unhandled Error: ', err);
+                    console.error('Unhandled Command Error: ', err);
                 }
                 break;
             }
@@ -82,7 +82,22 @@ export default {
                     await componentFile.callback(interaction);
                 } catch (err) {
                     interaction.update({ components: [] }).catch(console.error);
-                    console.error('Unhandled Error: ', err);
+                    console.error('Unhandled Component Error: ', err);
+                }
+            }
+            case InteractionType.ModalSubmit: {
+                const { customId } = interaction
+                const modalName = customId.split('.')[0];
+
+                const modalFile = interaction.client.modals.get(modalName);
+
+                if (!modalFile) return;
+
+                try {
+                    await modalFile.callback(interaction);
+                } catch (err) {
+                    interaction.reply({ content: 'Unable to process modal', ephemeral: true });
+                    console.error('Unhandled Modal Error: ', err);
                 }
             }
         }
