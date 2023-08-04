@@ -1,31 +1,6 @@
 import { CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, GuildMember, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import config from "../../../config.json";
-
-
-/**
- * Converts seconds to a valid HH:MM:SS time format.
- * @param timestamp time value in miliseconds.
- */
-function convertTime(timestamp: number) {
-    const days = Math.floor(timestamp / 8.64e+7);
-    const hours = Math.floor(timestamp % 8.64e+7 / 3.6e+6);
-    const minutes = Math.floor(timestamp % 3.6e+6 / 60000);
-
-    let timeStr = '';
-    if (days > 0) {
-        timeStr += `${days} days `;
-    }
-
-    if (hours > 0) {
-        timeStr += `${hours} hours `;
-    }
-
-    if (minutes > 0) {
-        timeStr += `${minutes} minutes`
-    }
-
-    return timeStr;
-}
+import { convertTime, getTimestampFromString } from "../../../util/herper-functions";
 
 export default {
     data: new SlashCommandBuilder()
@@ -75,25 +50,7 @@ export default {
             return;
         }
 
-        let time = 300000;
-        const matches = duration.toLowerCase().match(/((\d+d\s?)|(\d+h\s?)|(\d+m\s?)|(\d+s\s?))/g);
-        if (matches) {
-            time = 0;
-            for (let match of matches) {
-                const num = parseInt(match.slice(0,-1));
-                switch(match.slice(-1)) {
-                    case "d":
-                        time += num * 8.64e+7;
-                        break;
-                    case "h":
-                        time += num * 3.6e+6;
-                        break;
-                    case "m":
-                        time += num * 60000;
-                        break;
-                }
-            }
-        }
+        const time = getTimestampFromString(duration, 300_000);
 
         // Attempts to ban the user.
         member.timeout(time, timeoutReason).then(async () => {

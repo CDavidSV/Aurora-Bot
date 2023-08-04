@@ -1,5 +1,5 @@
 import { ActionRowBuilder, RoleSelectMenuBuilder, RoleSelectMenuInteraction } from "discord.js";
-import { getRoleInfo } from "../util/general";
+import { getRoleInfo } from "../util/herper-functions";
 
 export default {
     name: 'roleInfo',

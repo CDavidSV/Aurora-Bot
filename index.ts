@@ -5,6 +5,10 @@ import setupEvents from "./handlers/event-handler";
 import setupCommands from "./handlers/command-handler";
 import setupButtons from "./handlers/component-handler";
 import setupModals from "./handlers/modal-handler";
+import mongoose from "mongoose";
+import tempvcScheema from "./scheemas/tempvcScheema";
+import tempvcGeneratorsScheema from "./scheemas/tempvcGeneratorsScheema";
+import config from "./config.json";
 import { ACommand } from "./structs/ACommand";
 
 dotenv.config();
@@ -29,6 +33,10 @@ declare module "discord.js" {
 const token: string = process.env.TOKEN as string;
 // const token: string = process.env.TOKEN_TEST as string;
 
+// Client id
+const clientId = config.clientId;
+// const clientId = config.testClientId; // For testing only.
+
 // Bot Setup.
 const client = new Client({ 
     intents: [
@@ -41,19 +49,42 @@ const client = new Client({
     ],
 });
 
-// Initialize sets and collections.
-client.tempvChannels = new Set();
-client.tempvcGenerators = new Set();
-client.messageComponents = new Collection();
-client.modals = new Collection();
-client.slashCommands = new Collection();
-client.subCommands = new Collection();
+async function main() {
+    // Initialize sets and collections.
+    client.tempvChannels = new Set();
+    client.tempvcGenerators = new Set();
+    client.messageComponents = new Collection();
+    client.modals = new Collection();
+    client.slashCommands = new Collection();
+    client.subCommands = new Collection();
 
-setupEvents(client);
-setupButtons(client);
-setupModals(client);
-setupCommands(token, client);
+    setupEvents(client);
+    setupButtons(client);
+    setupModals(client);
+    setupCommands(token, client, clientId);
 
-client.login(token);
+    // Connect to mongo
+    await mongoose.connect(process.env.MONGO_URI!).then(() => { // Connect to mongo, url needs to be provided in a .env file.
+        console.log('Connected to mongo'.green);
 
-export { client };
+        // Get temp vc generators and voice channels.
+        tempvcGeneratorsScheema.find().then((generators) => {
+            if (generators.length >= 1) {
+                generators.forEach((generator) => {
+                    client.tempvcGenerators.add(generator.guild_id + generator.generator_id);
+                });
+            }
+        });
+        tempvcScheema.find().then((voiceChannels) => {
+            if (voiceChannels.length >= 1) {
+                voiceChannels.forEach((voiceChannel) => {
+                    client.tempvChannels.add(voiceChannel.guild_id + voiceChannel.vc_id);
+                });
+            }
+        });
+    });
+
+    client.login(token);
+}
+
+main();

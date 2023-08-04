@@ -2,7 +2,7 @@ import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, Compone
 import { PaginationHandler } from "../../../handlers/pagination-handler";
 import { paginate } from "../../../util/paginate";
 import config from "../../../config.json";
-import { getRoleInfo } from "../../../util/general";
+import { getRoleInfo } from "../../../util/herper-functions";
 
 export default {
     subCommand: 'role.list',

@@ -34,4 +34,57 @@ const getRoleInfo = (role: Role) => {
     return roleEmbed;
 }
 
-export { getRoleInfo };
+/**
+ * Converts seconds to a valid HH:MM:SS time format.
+ * @param timestamp time value in miliseconds.
+ */
+const convertTime = (timestamp: number) => {
+    const days = Math.floor(timestamp / 8.64e+7);
+    const hours = Math.floor(timestamp % 8.64e+7 / 3.6e+6);
+    const minutes = Math.floor(timestamp % 3.6e+6 / 60000);
+
+    let timeStr = '';
+    if (days > 0) {
+        timeStr += `${days} days `;
+    }
+
+    if (hours > 0) {
+        timeStr += `${hours} hours `;
+    }
+
+    if (minutes > 0) {
+        timeStr += `${minutes} minutes`
+    }
+
+    return timeStr;
+}
+
+/**
+ * 
+ * @param duration Time duration e.g. (1m | 3h | 5d)
+ * @param time Initial time value in ms.
+ */
+const getTimestampFromString = (duration: string, time: number = 0) => {
+    const matches = duration.toLowerCase().match(/((\d+d\s?)|(\d+h\s?)|(\d+m\s?)|(\d+s\s?))/g);
+
+    if (matches) {
+        time = 0;
+        for (let match of matches) {
+            const num = parseInt(match.slice(0,-1));
+            switch(match.slice(-1)) {
+                case "d":
+                    time += num * 8.64e+7;
+                    break;
+                case "h":
+                    time += num * 3.6e+6;
+                    break;
+                case "m":
+                    time += num * 60000;
+                    break;
+            }
+        }
+    }
+    return time;
+}
+
+export { getRoleInfo, convertTime, getTimestampFromString };

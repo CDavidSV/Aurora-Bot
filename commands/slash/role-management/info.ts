@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, Role, RoleSelectMenuBuilder } from "discord.js";
-import { getRoleInfo } from "../../../util/general";
+import { getRoleInfo } from "../../../util/herper-functions";
 import config from "../../../config.json";
 
 export default {

@@ -35,7 +35,7 @@ export default {
                 .setDescription(`Are you sure you want to **delete** this generator?\n<#${selectedChannel}>`)
 
             if (!interaction.replied) {
-                await interaction.reply({ embeds: [deleteEmbed], components: [btnRow], ephemeral: true  });;
+                await interaction.reply({ embeds: [deleteEmbed], components: [btnRow], ephemeral: true });
             } else {
                 await interaction.editReply({ embeds: [deleteEmbed], components: [btnRow] });
             }
