@@ -55,7 +55,7 @@ export default {
                             .setDescription("The temporary voice channel generator has been deleted.")
                             .setTimestamp()
                             
-                            interaction.client.tempvcGenerators.add(interaction.guild?.id + selectedChannel);
+                            interaction.client.tempvcGenerators.delete(interaction.guild?.id + selectedChannel);
                             await interaction.editReply({ embeds: [deleteEmbed], components: [] });
                         } catch {
                             deleteEmbed
