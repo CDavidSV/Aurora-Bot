@@ -1,4 +1,4 @@
-import { Client, ColorResolvable, EmbedBuilder, Events, Interaction, InteractionType } from "discord.js";
+import { Client, ColorResolvable, EmbedBuilder, Events, Interaction, InteractionType, Collection } from "discord.js";
 import config from "../config.json";
 
 /**
@@ -23,6 +23,7 @@ export default {
     async execute(interaction: Interaction) {
         switch(interaction.type) {
             case InteractionType.ApplicationCommand: {
+                const { cooldowns } = interaction.client;
                 const { commandName, client, options } = interaction;
                 const command = client.slashCommands.get(commandName)!;
                 
@@ -44,6 +45,28 @@ export default {
                     });
                     return;
                 }
+
+                // Handle cooldowns.
+                if (!cooldowns.has(command.data.name)) {
+                    cooldowns.set(command.data.name, new Collection());
+                }
+
+                const currentTime = Date.now();
+                const timestamps = cooldowns.get(command.data.name)!;
+                const cooldownMs = (command.cooldown ?? 0) * 1000;
+
+                // Check if the user already executed this command before.
+                if (timestamps && timestamps.has(interaction.user.id)) {
+                    const expirationTime = timestamps.get(interaction.user.id)! + cooldownMs;
+
+                    if (expirationTime > currentTime) {
+                        return interaction.reply({ content: `Please wait, this command is on cooldown. You may use it again <t:${Math.round(expirationTime / 1000)}:R>.`, ephemeral: true });
+                    } 
+                }
+
+                // Set the cooldown for the user.
+                timestamps.set(interaction.user.id, currentTime);
+                setTimeout(() => timestamps.delete(interaction.user.id), cooldownMs);
                 
                 try {
                     await (subCommandFile?.callback ?? command.callback)(interaction);
