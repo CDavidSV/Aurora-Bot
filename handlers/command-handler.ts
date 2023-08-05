@@ -18,15 +18,15 @@ const setupCommands = (token: string, client: Client, clientId: string) => {
     const rest = new REST().setToken(token);
     (async () => {
         await rest.put(
-            Routes.applicationGuildCommands(clientId, config.testGuildId),
-            { body: Array.from(client.slashCommands.values()).map((command) => {
-                return command.data.toJSON();
-            })} // Convert slash command data into json.
-
-            // Routes.applicationCommands(clientId),
+            // Routes.applicationGuildCommands(clientId, config.testGuildId),
             // { body: Array.from(client.slashCommands.values()).map((command) => {
             //     return command.data.toJSON();
-            // })}
+            // })} // Convert slash command data into json.
+
+            Routes.applicationCommands(clientId),
+            { body: Array.from(client.slashCommands.values()).map((command) => {
+                return command.data.toJSON();
+            })}
         )
         .then(() => console.log(`Successfully reloaded application (/) commands.`.green))
         .catch((e => console.error(e)));
