@@ -39,6 +39,7 @@ export default {
         const user = interaction.options.getUser('user', true);
         const banReason = interaction.options.getString('reason') || "Not specified";
         const deleteMessagesTimeSec = interaction.options.getString('delete_messages') || "0";
+        const channel = interaction.channel!;
 
         let member: GuildMember;
         try {
@@ -78,8 +79,9 @@ export default {
                     .setLabel('Unban User')
                     .setStyle(ButtonStyle.Primary),
             );
-
-            await interaction.reply({ components: [row], embeds: [banEmbed] });
+            
+            await interaction.reply({ content: `The user ${user.username} (id: ${user.id}) has been banned from this server`, components: [row], ephemeral: true });
+            await channel.send({ embeds: [banEmbed] });
         }).catch(async (err) => {
             console.log(err);
             banEmbed

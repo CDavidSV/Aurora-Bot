@@ -40,7 +40,7 @@ export default {
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setAuthor({ name: `Removed timeout from ${user.username}.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
 
-            await interaction.reply({ embeds: [timeoutEmbed] });
+            await interaction.reply({ embeds: [timeoutEmbed], ephemeral: true });
         }).catch(async () => {
             timeoutEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)

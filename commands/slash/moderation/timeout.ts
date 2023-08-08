@@ -32,6 +32,7 @@ export default {
         const user = interaction.options.getUser('user', true);
         const timeoutReason = interaction.options.getString('reason') || "Not specified";
         const duration = interaction.options.getString('duration') || "";
+        const channel = interaction.channel!;
 
         let member: GuildMember;
         try {
@@ -59,7 +60,8 @@ export default {
             .setAuthor({ name: `${user.username} was timed out.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
             .setDescription(`****Reason:**** ${timeoutReason}\n**Duration:** \`${convertTime(time)}\``)
 
-            await interaction.reply({ embeds: [timeoutEmbed] });
+            await interaction.reply({ content: `${user.username} was timed out.`, ephemeral: true });
+            await channel.send({ embeds: [timeoutEmbed] });
         }).catch(async (err) => {
             console.log(err)
             timeoutEmbed

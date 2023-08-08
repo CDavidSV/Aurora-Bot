@@ -30,12 +30,12 @@ declare module "discord.js" {
 }
 
 // Tokens.
-const token: string = process.env.TOKEN as string;
-// const token: string = process.env.TOKEN_TEST as string; // For testing only.
+// const token: string = process.env.TOKEN as string;
+const token: string = process.env.TOKEN_TEST as string; // For testing only.
 
 // Client id
-const clientId = config.clientId;
-// const clientId = config.testClientId; // For testing only.
+// const clientId = config.clientId;
+const clientId = config.testClientId; // For testing only.
 
 // Bot Setup.
 const client = new Client({ 

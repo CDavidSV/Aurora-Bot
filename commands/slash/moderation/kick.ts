@@ -25,6 +25,7 @@ export default {
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
         const banReason = interaction.options.getString('reason') || "Not specified";
+        const channel = interaction.channel!;
 
         let member: GuildMember;
         try {
@@ -49,7 +50,9 @@ export default {
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setAuthor({ name: `${user.username} was kicked from the server.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
             .setDescription(`****Reason:**** ${banReason}`)
-            await interaction.reply({ embeds: [banEmbed] });
+
+            await interaction.reply({ content: `The user ${user.username} (id: ${user.id}) has been kicked from the server`, ephemeral: true });
+            await channel.send({ embeds: [banEmbed] });
         }).catch(async (err) => {
             console.log(err);
             banEmbed
