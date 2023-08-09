@@ -72,10 +72,12 @@ export default {
                     await (subCommandFile?.callback ?? command.callback)(interaction);
                 } catch (err) {
                     console.error(err);
-                    if (interaction.replied || interaction.deferred) {
-                        await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true }).catch((err) => console.error(err));
+                    if (interaction.replied) {
+                        await interaction.editReply({ content: 'There was an error while executing this command!' }).catch(console.error);
+                    } else if (interaction.deferred) {
+                        await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true }).catch(console.error);
                     } else {
-                        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true }).catch((err) => console.error(err));
+                        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true }).catch(console.error);
                     }
                 }
                 break;
