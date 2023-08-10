@@ -2,7 +2,7 @@ import { Client, Collection, GatewayIntentBits } from "discord.js";
 import colors from 'colors';
 import dotenv from "dotenv"
 import setupEvents from "./handlers/event-handler";
-import setupCommands from "./handlers/command-handler";
+import { UpdateType, setupCommands } from "./handlers/command-handler";
 import setupButtons from "./handlers/component-handler";
 import setupModals from "./handlers/modal-handler";
 import mongoose from "mongoose";
@@ -62,7 +62,7 @@ async function main() {
     setupEvents(client);
     setupButtons(client);
     setupModals(client);
-    setupCommands(token, client, clientId);
+    setupCommands(token, client, clientId, { updateCommands: true, updateType: UpdateType.PROD });
 
     // Connect to mongo
     await mongoose.connect(process.env.MONGO_URI!).then(() => { // Connect to mongo, url needs to be provided in a .env file.

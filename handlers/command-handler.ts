@@ -2,7 +2,22 @@ import { Client, REST, Routes } from "discord.js";
 import getFiles from "../util/get-files";
 import config from "../config.json";
 
-const setupCommands = (token: string, client: Client, clientId: string) => {
+interface CommandHandlerOptions {
+    updateCommands?: boolean,
+    updateType?: UpdateType
+}
+
+enum UpdateType {
+    DEV = 'dev',
+    PROD = 'prod'
+}
+
+const setupCommands = (token: string, client: Client, clientId: string, options: CommandHandlerOptions = {}) => {
+    const {
+        updateCommands = true,
+        updateType = UpdateType.DEV
+    } = options
+
     // Get all Commands and determine the type.
     getFiles('./commands/slash', '.ts', 'SLASH COMMANDS').forEach((commandFile) => {
         const command = require(`${commandFile}`).default;
@@ -15,14 +30,24 @@ const setupCommands = (token: string, client: Client, clientId: string) => {
         client.slashCommands.set(command.data.name, command);
     });
 
+    if (!updateCommands) return console.log('Commands not updated'.red);
+
     const rest = new REST().setToken(token);
     (async () => {
-        await rest.put(
-            // Routes.applicationGuildCommands(clientId, config.testGuildId),
-            // { body: Array.from(client.slashCommands.values()).map((command) => {
-            //     return command.data.toJSON();
-            // })} // Convert slash command data into json.
+        if (updateType === UpdateType.DEV) {
+            await rest.put(
+                Routes.applicationGuildCommands(clientId, config.testGuildId),
+                { body: Array.from(client.slashCommands.values()).map((command) => {
+                    return command.data.toJSON();
+                })} // Convert slash command data into json.
+            )        
+            .then(() => console.log(`Successfully reloaded development application (/) commands.`.green))
+            .catch((e => console.error(e)));
 
+            return;
+        }
+
+        await rest.put(
             Routes.applicationCommands(clientId),
             { body: Array.from(client.slashCommands.values()).map((command) => {
                 return command.data.toJSON();
@@ -33,4 +58,4 @@ const setupCommands = (token: string, client: Client, clientId: string) => {
     })();
 }
 
-export default setupCommands;
+export { setupCommands, CommandHandlerOptions, UpdateType };
