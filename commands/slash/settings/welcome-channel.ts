@@ -7,7 +7,7 @@ export default {
         const selectedChannel = interaction.options.getChannel('channel');
 
         try {
-            const guildSettigns = await guildScheema.findByIdAndUpdate({ _id: interaction.guildId }, { $set: { 'welcome.welcome_channel': selectedChannel?.id } }, { upsert: true, new: true, setDefaultsOnInsert: true });
+            const guildSettigns = await guildScheema.findByIdAndUpdate(interaction.guildId, { $set: { 'welcome.welcome_channel': selectedChannel?.id } }, { upsert: true, new: true, setDefaultsOnInsert: true });
 
             if (!guildSettigns.welcome?.welcome_message) {
                 await interaction.reply(`👋 Welcome messages will now be sent to <#${selectedChannel?.id}>. Try </settings welcome message:1130343177728053328> to change the welcome message and image.`);

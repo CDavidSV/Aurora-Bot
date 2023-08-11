@@ -11,7 +11,7 @@ export default {
         imageUrl = imageUrl.length > 1 ? imageUrl : null;
 
         await guildScheema.findByIdAndUpdate(
-            { _id: interaction.guildId },
+            interaction.guildId,
             {
                 $set: {
                     'goodbye.goodbye_message': goodbyeText,

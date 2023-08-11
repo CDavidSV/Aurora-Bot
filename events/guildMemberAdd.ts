@@ -125,6 +125,12 @@ export default {
         try {
             const guildSettings = await guildScheema.findById(interaction.guild?.id);
 
+            if (guildSettings?.autonick) {
+                const member = interaction.guild?.members.cache.get(interaction.user.id);
+
+                member?.setNickname(guildSettings.autonick).catch(console.error);
+            }
+
             // If the guild is not in the db then do nothing.
             // Check if the guild has welcome messages enabled.
             if (!guildSettings || !guildSettings.welcome || !guildSettings.welcome.welcome_channel) return;

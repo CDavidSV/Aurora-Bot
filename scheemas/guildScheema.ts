@@ -52,10 +52,14 @@ const guildSchema = new Schema({
       default: null,
     },
   },
-  role_select_channel: {
-    type: String,
-    default: null,
+  autorole: {
+    type: Array,
+    default: []
   },
+  autonick: {
+    type: String,
+    default: null
+  }
 });
 
 export default model('Guild', guildSchema);

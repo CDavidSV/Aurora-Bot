@@ -72,12 +72,16 @@ export default {
                     await (subCommandFile?.callback ?? command.callback)(interaction);
                 } catch (err) {
                     console.error(err);
+                    const errorEmbed = new EmbedBuilder()
+                        .setAuthor({ name: 'There was an error while executing this command! Please try again', iconURL: config.embeds.images.errorImg })
+                        .setColor(config.embeds.colors.error as ColorResolvable)
+
                     if (interaction.replied) {
-                        await interaction.editReply({ content: 'There was an error while executing this command!' }).catch(console.error);
+                        await interaction.editReply({ embeds: [errorEmbed] }).catch(console.error);
                     } else if (interaction.deferred) {
-                        await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true }).catch(console.error);
+                        await interaction.followUp({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
                     } else {
-                        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true }).catch(console.error);
+                        await interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
                     }
                 }
                 break;
