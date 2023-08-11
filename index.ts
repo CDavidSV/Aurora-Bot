@@ -30,12 +30,12 @@ declare module "discord.js" {
 }
 
 // Tokens.
-const token: string = process.env.TOKEN as string;
-// const token: string = process.env.TOKEN_TEST as string; // For testing only.
+// const token: string = process.env.TOKEN as string;
+const token: string = process.env.TOKEN_TEST as string; // For testing only.
 
 // Client id
-const clientId = config.clientId;
-// const clientId = config.testClientId; // For testing only.
+// const clientId = config.clientId;
+const clientId = config.testClientId; // For testing only.
 
 // Bot Setup.
 const client = new Client({ 
@@ -62,7 +62,7 @@ async function main() {
     setupEvents(client);
     setupButtons(client);
     setupModals(client);
-    setupCommands(token, client, clientId, { updateCommands: true, updateType: UpdateType.PROD });
+    setupCommands(token, client, clientId, { updateCommands: true, updateType: UpdateType.DEV }); // Change to dev for testing new commands.
 
     // Connect to mongo
     await mongoose.connect(process.env.MONGO_URI!).then(() => { // Connect to mongo, url needs to be provided in a .env file.

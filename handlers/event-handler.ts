@@ -6,7 +6,7 @@ const setupEvents = (client: Client) => {
     getFiles('./events', '.ts', 'EVENTS').forEach((eventFile) => {
         const event = require(`${eventFile}`).default;
         if (!event) return;
-
+        
         if (event.once) {
             client.once(event.name, (...args) => event.execute(...args));
         } else {
