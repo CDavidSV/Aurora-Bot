@@ -16,7 +16,7 @@ export default {
         }).then((res) => res.data).catch(() => null);
 
         if (!user) {
-            await interaction.reply('An Error Ocurred. Please try again.');
+            await interaction.reply('User not found.');
             return;
         }
         

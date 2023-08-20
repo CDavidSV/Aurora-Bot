@@ -46,7 +46,8 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildPresences,
-    ],
+        GatewayIntentBits.GuildMessageReactions
+    ]
 });
 
 async function main() {
@@ -62,6 +63,7 @@ async function main() {
     setupEvents(client);
     setupButtons(client);
     setupModals(client);
+
     setupCommands(token, client, clientId, { updateCommands: true, updateType: UpdateType.DEV }); // Change to dev for testing new commands.
 
     // Connect to mongo
