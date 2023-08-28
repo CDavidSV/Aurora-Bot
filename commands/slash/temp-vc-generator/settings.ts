@@ -16,7 +16,7 @@ export default {
         // if there is only one generator, send the settings for that generator
         if (generators.length === 1) {
             const selectedGenerator = generators[0];
-            const category = interaction.guild?.channels.cache.get(selectedGenerator.generator_id);
+            const category = interaction.guild?.channels.cache.get(selectedGenerator.category_id!);
             const allowRenameString = selectedGenerator.allow_rename ? "✔" : "✖";
     
             const generatorEmbed = new EmbedBuilder()
