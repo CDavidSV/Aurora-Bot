@@ -7,8 +7,8 @@ export default {
         let welcomeText: string | null =  interaction.fields.getTextInputValue('messageInput');
         let imageUrl: string | null = interaction.fields.getTextInputValue('imageInput');
 
-        welcomeText = welcomeText.length > 1 ? welcomeText : null;
-        imageUrl = imageUrl.length > 1 ? imageUrl : null;
+        welcomeText = welcomeText.length >= 1 ? welcomeText : null;
+        imageUrl = imageUrl.length >= 1 ? imageUrl : null;
 
         await guildScheema.findByIdAndUpdate(
             interaction.guildId,

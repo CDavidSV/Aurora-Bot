@@ -87,4 +87,25 @@ const getTimestampFromString = (duration: string, time: number = 0) => {
     return time;
 }
 
-export { getRoleInfo, convertTime, getTimestampFromString };
+/**
+ * 
+ * @param url url string
+ * Validates an input string as a url.
+ */
+const isValidURL = (url: string) => {
+    const regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+
+    return regex.test(url);
+}
+
+/**
+ * 
+ * @param hex color in hexadecimal value
+ */
+const isValidColorHex = (hex: string) => {
+    const regex = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i;
+
+    return regex.test(hex);
+}
+
+export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL };

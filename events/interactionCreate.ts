@@ -125,7 +125,10 @@ export default {
                 try {
                     await modalFile.callback(interaction);
                 } catch (err) {
-                    interaction.reply({ content: 'Unable to process modal', ephemeral: true });
+                    const errorEmbed = new EmbedBuilder()
+                        .setAuthor({ name: 'Unable to process modal', iconURL: config.embeds.images.errorImg })
+                        .setColor(config.embeds.colors.error as ColorResolvable)
+                    interaction.reply({ embeds: [errorEmbed], ephemeral: true });
                     console.error('Unhandled Modal Error: ', err);
                 }
             }
