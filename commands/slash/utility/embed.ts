@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, PermissionFlagsBits, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ChannelType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, PermissionFlagsBits, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import { isValidColorHex } from "../../../util/herper-functions";
 import config from "../../../config.json";
 
@@ -19,6 +19,7 @@ export default {
                     option
                         .setName('channel')
                         .setDescription('Channel to send the embed to')
+                        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.PublicThread, ChannelType.GuildForum, ChannelType.GuildStageVoice, ChannelType.PrivateThread, ChannelType.GuildVoice)
                         .setRequired(false))
                 .addBooleanOption(option =>
                     option
@@ -43,6 +44,7 @@ export default {
                         option
                             .setName('channel')
                             .setDescription('Channel to send the embed to')
+                            .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.PublicThread, ChannelType.GuildForum, ChannelType.GuildStageVoice, ChannelType.PrivateThread, ChannelType.GuildVoice)
                             .setRequired(false)))
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .setDMPermission(false),
