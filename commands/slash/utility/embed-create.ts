@@ -10,7 +10,7 @@ export default {
         const timestamp = interaction.options.getBoolean('timestamp', false) || false;
 
         const modal = new ModalBuilder()
-            .setCustomId(`customEmbedModal.${channel ? channel!.id : ""}.${color ? color : ""}.${timestamp}`)
+            .setCustomId(`customEmbedModal.${channel ? channel!.id : ""}.${color ? color : ""}.${timestamp ? 1 : 0}`)
             .setTitle('Your Message');
 
         const embedTitle = new TextInputBuilder()

@@ -43,7 +43,8 @@ export default {
             .setDescription(desc)
             .setImage(image)
             .setFooter(footer?.length >= 1 ? {text: footer} : null)
-        if (timestamp) customEmbed.setTimestamp();
+        
+        if (parseInt(timestamp)) customEmbed.setTimestamp();
 
         // Determine where to send the embed.
         if (channel) {
