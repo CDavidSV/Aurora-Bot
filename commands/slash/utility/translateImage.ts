@@ -1,5 +1,5 @@
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js";
-import { validateImageFormat, getImageText } from "../../../util/image-to-text"
+import { isImage, getImageText } from "../../../util/image-to-text"
 import { langCodes, translateString } from "../../../util/translate";
 import config from "../../../config.json";
 
@@ -9,7 +9,7 @@ export default {
         await interaction.deferReply();
         const image = interaction.options.getAttachment('image', true);
 
-        if (!validateImageFormat(image?.url)) {
+        if (!isImage(image)) {
             await interaction.followUp({ content: "Attachment is not an Image", ephemeral: true })
             return;
         }

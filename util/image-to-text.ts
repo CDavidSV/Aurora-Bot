@@ -1,4 +1,5 @@
 import vision from "@google-cloud/vision";
+import { Attachment } from "discord.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -10,14 +11,13 @@ const client = new vision.ImageAnnotatorClient({
 
 /**
  * 
- * @param url 
+ * @param attatchment 
  */
-const validateImageFormat = (url: string) => {
-    try {
-        const extension = url.split(".").pop();
-        const imageExtensions = ["jpg", "jpeg", "png", "gif", "tiff", "webp"]; // Add more extensions if needed
+const isImage = (attatchment: Attachment) => {
+    try { 
+        const imageTypes = ["image/jpeg", "image/png", "image/gif", "image/tiff", "image/webp"];
     
-        if (extension && imageExtensions.includes(extension.toLowerCase())) {
+        if (imageTypes.includes(attatchment.contentType || "")) {
           return true; // The file is an image
         } else {
           return false; // The file is not an image
@@ -32,7 +32,7 @@ const validateImageFormat = (url: string) => {
  * 
  * @param imageUrl 
  */
-const getImageText =  async (imageUrl: string) => {
+const getImageText = async (imageUrl: string) => {
     try {
         const [result] = await client.textDetection(imageUrl);
         
@@ -47,6 +47,6 @@ const getImageText =  async (imageUrl: string) => {
 }
 
 export {
-    validateImageFormat,
+    isImage,
     getImageText
 }
