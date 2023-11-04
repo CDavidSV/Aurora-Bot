@@ -124,11 +124,16 @@ export default {
         // Check if the server the user joined has welcome messages enabled.
         try {
             const guildSettings = await guildScheema.findById(interaction.guild?.id);
+            const member = interaction.guild?.members.cache.get(interaction.user.id);
 
             if (guildSettings?.autonick) {
-                const member = interaction.guild?.members.cache.get(interaction.user.id);
-
                 member?.setNickname(guildSettings.autonick).catch(console.error);
+            }
+
+            if (guildSettings?.autorole) {
+                for (let roleId of guildSettings.autorole) {
+                    member?.roles.add(roleId).catch(console.error);
+                }
             }
 
             // If the guild is not in the db then do nothing.

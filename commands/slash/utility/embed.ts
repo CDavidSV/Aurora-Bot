@@ -1,6 +1,4 @@
-import { ActionRowBuilder, ChannelType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, PermissionFlagsBits, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import { isValidColorHex } from "../../../util/herper-functions";
-import config from "../../../config.json";
+import { ChannelType, PermissionFlagsBits, SlashCommandBuilder, } from "discord.js";
 
 export default {
     data: new SlashCommandBuilder()

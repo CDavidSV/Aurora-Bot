@@ -55,6 +55,7 @@ const generatorSelect = async (
   ) => {
   // Get generators and check if there are any.
   const generators = await getGenerators(interaction.guild?.id!);
+  
 
   if (!generators || generators.length < 1) {
     await interaction.reply({ content: "This server doesn't have any voice channel generators", ephemeral: true });
@@ -70,6 +71,7 @@ const generatorSelect = async (
 
   // Build select menu and cancel button.
   const selectRow = await buildSelector(interaction.id, interaction, generators);
+  
   const btnRow = new ActionRowBuilder<ButtonBuilder>()
   .addComponents(
     new ButtonBuilder()

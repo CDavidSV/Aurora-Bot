@@ -31,7 +31,7 @@ export default {
             }
 
             if (!interaction.replied) {
-                await interaction.reply({ embeds: [generatorEmbed], components: [], ephemeral: true  });
+                await interaction.reply({ embeds: [generatorEmbed], components: [], ephemeral: true  });  
             } else {
                 await interaction.editReply({ embeds: [generatorEmbed], components: [] });
             }

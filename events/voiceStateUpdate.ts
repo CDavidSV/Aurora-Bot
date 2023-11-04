@@ -33,17 +33,18 @@ const generateTempVC = async (state: VoiceState) => {
         const channel = await state.guild.channels.create({ // Apply settings from generator and save.
             name: channelName,
             type: ChannelType.GuildVoice,
-            rtcRegion: generator.region,
+            rtcRegion: generator.region || undefined,
             parent: generator.category_id,
-            userLimit: generator.vc_user_limit
+            userLimit: generator.vc_user_limit || undefined
         });
 
-        await state.member?.voice.setChannel(channel).then(async () => {
+        try {
+            await state.member?.voice.setChannel(channel)
             await tempvcScheema.create({ guild_id: state.guild.id, generator_id: generator.generator_id, vc_id: channel.id, owner_id: state.member?.id, name: channelName });
             state.client.tempvChannels.add(state.guild.id + channel.id); // Add the channel to the tempvc set.
-        }).catch(async () => { 
+        } catch {
             await channel.delete();
-        });
+        }   
     } catch (err) {
         console.error(err);
     }
@@ -53,8 +54,10 @@ const deleteTempVC = async (state: VoiceState) => {
     if (state.channel?.members.size! > 0 || !state.client.tempvChannels.has(state.guild.id + state.channelId)) return; // Check if the channel still has users in it and it is a temp vc.
     
     try {
-        await state.channel?.delete(); // delete channel.
-        await tempvcScheema.findOneAndDelete({ guild_id: state.guild.id, vc_id: state.channelId });
+        await Promise.all([
+            state.channel?.delete(), // delete channel.
+            tempvcScheema.findOneAndDelete({ guild_id: state.guild.id, vc_id: state.channelId })
+        ]);
     } catch (err) {
         console.error(err);
     }
