@@ -27,7 +27,7 @@ const generateTempVC = async (state: VoiceState) => {
         const generator = await tempvcGeneratorScheema.findOne({ guild_id: state.guild.id, generator_id: state.channelId });
         if (!generator) return;
 
-        const count = await tempvcScheema.count({ guild_id: state.guild.id, generator_id: generator.generator_id });
+        const count = await tempvcScheema.countDocuments({ guild_id: state.guild.id, generator_id: generator.generator_id });
         const channelName =  generator.custom_vc_name ? `${generator.custom_vc_name} ${count + 1}` : `${state.member?.displayName}'s VC`;
         
         const channel = await state.guild.channels.create({ // Apply settings from generator and save.

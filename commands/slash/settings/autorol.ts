@@ -5,11 +5,11 @@ import config from "../../../config.json";
 const confirmDeleteRole = async (interaction: StringSelectMenuInteraction, role: string) => {
     // Show confirmation and canmcels buttons.
     const confirmButton = new ButtonBuilder()
-        .setCustomId('confirmDelete')
+        .setCustomId(`confirmDelete.${interaction.id}`)
         .setLabel('Confirm')
         .setStyle(ButtonStyle.Success);
     const cancelButton = new ButtonBuilder()
-        .setCustomId('cancelDelete')
+        .setCustomId(`cancelDelete.${interaction.id}`)
         .setLabel('Cancel')
         .setStyle(ButtonStyle.Danger);
 
@@ -27,8 +27,10 @@ const confirmDeleteRole = async (interaction: StringSelectMenuInteraction, role:
     const BtnCollector = interaction.channel?.createMessageComponentCollector({ filter: (buttonInteraction) => buttonInteraction.user.id === interaction.user.id, time: 90_000 });
     
     BtnCollector?.on('collect', async (buttonInteraction) => {
+        if (buttonInteraction.customId !== `confirmDelete.${interaction.id}` && buttonInteraction.customId !== `cancelDelete.${interaction.id}`) return;
+
         BtnCollector?.removeAllListeners().stop();
-        if (buttonInteraction.customId === 'confirmDelete') {
+        if (buttonInteraction.customId === `confirmDelete.${interaction.id}`) {
             // Remove the role from the autorole list.
             try {
                 await guildScheema.findByIdAndUpdate(interaction.guildId, { $pull: { autorole: role } }, { new: true });
@@ -145,17 +147,22 @@ export default {
                 });
                 
                 const roleSelect = new StringSelectMenuBuilder()
-                    .setCustomId('removeAutoroles')
+                    .setCustomId(`removeAutorole.${interaction.id}`)
                     .setPlaceholder('Select a role to remove')
                     .addOptions(roleOptions);
                 
                 const row = new ActionRowBuilder<StringSelectMenuBuilder>()
                     .addComponents(roleSelect);
+                
+                const responseEmbed = new EmbedBuilder()
+                    .setAuthor({ name: 'Remove autorole' })
+                    .setColor(config.embeds.colors.warning as ColorResolvable)
+                    .setDescription('Select a role to remove from the autorole list');
 
-                await interaction.reply({ content: 'Select a role to remove from the autorole list', components: [row], ephemeral: true });
+                await interaction.reply({ embeds: [responseEmbed], components: [row], ephemeral: true });
 
                 // Await the interaction response from user (2 minutes)
-                const collector = interaction.channel?.createMessageComponentCollector({ filter: (selectInteraction) => selectInteraction.user.id === interaction.user.id, time: 90_000 });
+                const collector = interaction.channel?.createMessageComponentCollector({ filter: (selectInteraction) => selectInteraction.user.id === interaction.user.id && selectInteraction.customId === `removeAutorole.${interaction.id}`, time: 90_000  });
 
                 collector?.on('collect', async (selectInteraction: StringSelectMenuInteraction) => {
                     try {
