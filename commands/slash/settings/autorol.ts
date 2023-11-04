@@ -27,7 +27,7 @@ const confirmDeleteRole = async (interaction: StringSelectMenuInteraction, role:
     const BtnCollector = interaction.channel?.createMessageComponentCollector({ filter: (buttonInteraction) => buttonInteraction.user.id === interaction.user.id, time: 90_000 });
     
     BtnCollector?.on('collect', async (buttonInteraction) => {
-        BtnCollector?.stop();
+        BtnCollector?.removeAllListeners().stop();
         if (buttonInteraction.customId === 'confirmDelete') {
             // Remove the role from the autorole list.
             try {
@@ -53,7 +53,7 @@ const confirmDeleteRole = async (interaction: StringSelectMenuInteraction, role:
     });
 
     BtnCollector?.on('end', async () => {
-        BtnCollector?.stop();
+        BtnCollector?.removeAllListeners().stop();
         const errorEmbed = new EmbedBuilder()
             .setAuthor({ name: 'Action timeout', iconURL: config.embeds.images.errorImg })
             .setColor(config.embeds.colors.error as ColorResolvable)
@@ -159,7 +159,7 @@ export default {
 
                 collector?.on('collect', async (selectInteraction: StringSelectMenuInteraction) => {
                     try {
-                        collector?.stop();
+                        collector?.removeAllListeners().stop();
                         await confirmDeleteRole(selectInteraction, selectInteraction.values[0]);
                     } catch (error) {
                         console.error('Error within confirmDeleteRole:', error);
@@ -167,7 +167,7 @@ export default {
                 });
 
                 collector?.on('end', async () => {
-                    collector?.stop();
+                    collector?.removeAllListeners().stop();
                     const errorEmbed = new EmbedBuilder()
                         .setAuthor({ name: 'Action timeout', iconURL: config.embeds.images.errorImg })
                         .setColor(config.embeds.colors.error as ColorResolvable)
