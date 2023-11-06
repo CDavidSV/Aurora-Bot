@@ -27,12 +27,12 @@ export default {
             roleAction
                 .setColor(config.embeds.colors.success as ColorResolvable)
                 .setAuthor({ name: 'Role added successfully.', iconURL: config.embeds.images.successImg })
-            await interaction.reply({ embeds: [roleAction], ephemeral: true })
+            await interaction.reply({ embeds: [roleAction], ephemeral: true });
         }).catch(async () => {
             roleAction
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [roleAction], ephemeral: true })
+            await interaction.reply({ embeds: [roleAction], ephemeral: true }).catch(console.error);
         });
     }
 }

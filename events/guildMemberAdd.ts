@@ -121,6 +121,7 @@ export default {
     name: Events.GuildMemberAdd,
     once: false,
     async execute(interaction: Interaction) {
+        console.log(`guildMemberAdd event triggered for user ${interaction.user.id} at ${new Date().toISOString()}`);
         // Check if the server the user joined has welcome messages enabled.
         try {
             const guildSettings = await guildScheema.findById(interaction.guild?.id);
