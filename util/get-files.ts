@@ -15,14 +15,16 @@ const getFiles = (dir: string, ext: string, handler: string) => {
     let files: string[] = [];
 
     filesInDir.forEach((file) => {
-        const filePath = path.join(dir, file);
-        const fileStat = fs.statSync(filePath);
+        const filePath = path.resolve(dir, file);
 
-        if (fileStat.isDirectory()) {
-            files = [...files,  ...getFiles(filePath, ext, handler)]; // Get all files in subdirectory.
-        } else if (path.extname(filePath) === ext) {
-            files.push(path.resolve(filePath));
-            console.log(`[GET-FILES][${handler}] - File ${path.basename(filePath)} was loaded successfully`.yellow);
+        try {
+            const subFiles = getFiles(filePath, ext, handler);
+            Array.prototype.push.apply(files, subFiles);
+        } catch {
+            if (path.extname(filePath) === ext) {
+                files.push(path.resolve(filePath));
+                console.log(`[GET-FILES][${handler}] - File ${path.basename(filePath)} was loaded successfully`.yellow);
+            }
         }
     });
 

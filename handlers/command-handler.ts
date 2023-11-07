@@ -54,7 +54,7 @@ const setupCommands = (token: string, client: Client, clientId: string, options:
             })}
         )
         .then(() => console.log(`Successfully reloaded application (/) commands.`.green))
-        .catch((e => console.error(e)));
+        .catch((e => console.error('Unable to reload application commands'.red, e)));
     })();
 }
 

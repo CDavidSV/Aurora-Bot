@@ -13,7 +13,7 @@ const generateTempVC = async (state: VoiceState) => {
         const expirationTime = cooldowns.get(state.member?.id!)!;
 
         if (now < expirationTime) {
-            await state.member?.user.send(`You are trying to generate voice channels too quickly. Try again **<t:${Math.round(expirationTime / 1000)}:R>**`);
+            state.member?.user.send(`You are trying to generate voice channels too quickly. Try again **<t:${Math.round(expirationTime / 1000)}:R>**`).catch(console.error);
             return;
         }
     }

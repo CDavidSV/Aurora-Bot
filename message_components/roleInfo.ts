@@ -15,9 +15,9 @@ export default {
         const row = new ActionRowBuilder<RoleSelectMenuBuilder>()
             .addComponents(roleSelect);
 
-        if (!role) return await interaction.update({ content: 'Role not found', components: [row] }).catch(console.error);
+        if (!role) return await interaction.update({ content: 'Role not found', components: [row] });
         const embed = getRoleInfo(role);
 
-        interaction.update({ embeds: [embed], components: [row] }).catch(console.error);
+        await interaction.update({ embeds: [embed], components: [row] });
     }
 }

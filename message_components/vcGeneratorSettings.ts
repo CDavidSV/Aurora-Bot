@@ -8,7 +8,7 @@ export default {
         const selectedValue = interaction.values[0];
         const generators = await getGenerators(interaction.guild?.id!);
 
-        if (!generators) return await interaction.update({ components: [], embeds: [], content: 'This server has no temporary vc generators' }).catch(console.error);
+        if (!generators) return await interaction.update({ components: [], embeds: [], content: 'This server has no temporary vc generators' });
         const selectedGenerator = generators.find((generator) => generator.generator_id === selectedValue)!;
 
         const selectRow = await buildSelector(`viewGeneratorSettings`, interaction, generators);
@@ -18,9 +18,9 @@ export default {
 
         if (!selectedGenerator) {
             if (generators.length == 1) {
-                return await interaction.update({ content: 'Generator no longer exists', components: [] }).catch(console.error);
+                return await interaction.update({ content: 'Generator no longer exists', components: [] });
             } else {
-                return await interaction.update({ content: 'Generator no longer exists', components: [selectRow] }).catch(console.error);
+                return await interaction.update({ content: 'Generator no longer exists', components: [selectRow] });
             }
         }
 
@@ -40,6 +40,6 @@ export default {
                 { name: 'Allow Renaming', value: allowRenameString, inline: true }
             ]);
 
-        await interaction.update({ embeds: [generatorEmbed], components: [selectRow] }).catch(console.error);
+        await interaction.update({ embeds: [generatorEmbed], components: [selectRow] });
     }
 }

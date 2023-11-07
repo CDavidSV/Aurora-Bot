@@ -10,7 +10,8 @@ import config from "../config.json";
 const getGenerators = async (guildId: string) => {
     try {
         return await tempvcScheema.find({ guild_id: guildId });
-    } catch {
+    } catch (err) {
+        console.error(err);
         return null;
     }
 }
@@ -26,20 +27,18 @@ const buildSelector = async (id: string, interaction: Interaction, generators: a
     .setCustomId(id)
     .setPlaceholder('Select a generator')
 
-    let selectOptions: StringSelectMenuOptionBuilder[] = [];
-    for (let [index, generator] of generators.entries()) {
-        const channelName = await interaction.guild?.channels.fetch(generator.generator_id).then(channel => channel?.name).catch(() => "Deleted Channel");
-        selectOptions.push(
-            new StringSelectMenuOptionBuilder()
+    const channels = await interaction.guild?.channels.fetch();
+    const selectOptions = generators.map((generator, index) => {
+        const channelName = channels?.get(generator.generator_id)?.name || "Deleted Channel";
+        return new StringSelectMenuOptionBuilder()
             .setLabel(`${index + 1}.- ${channelName}`)
             .setValue(`${generator.generator_id}`)
-            .setDescription(`In Category: ${interaction.guild?.channels.cache.get(generator.category_id)?.name || "Deleted Category"} `)
-        );
-    }
+            .setDescription(`In Category: ${interaction.guild?.channels.cache.get(generator.category_id)?.name || "Deleted Category"} `);
+    });
 
     select.addOptions(selectOptions);
     const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>()
-    .addComponents(select);
+      .addComponents(select);
 
     return selectRow;
 }
@@ -56,9 +55,8 @@ const generatorSelect = async (
   // Get generators and check if there are any.
   const generators = await getGenerators(interaction.guild?.id!);
   
-
   if (!generators || generators.length < 1) {
-    await interaction.reply({ content: "This server doesn't have any voice channel generators", ephemeral: true });
+    interaction.reply({ content: "This server doesn't have any voice channel generators", ephemeral: true }).catch(console.error);
     return;
   }
 
@@ -70,12 +68,11 @@ const generatorSelect = async (
   }
 
   // Build select menu and cancel button.
-  const selectRow = await buildSelector(interaction.id, interaction, generators);
   
   const btnRow = new ActionRowBuilder<ButtonBuilder>()
   .addComponents(
     new ButtonBuilder()
-    .setCustomId(`cancelselect${interaction.id}`)
+    .setCustomId(`cancelselect.${interaction.id}`)
     .setLabel('Cancel')
     .setStyle(ButtonStyle.Danger)
   );
@@ -99,48 +96,70 @@ const generatorSelect = async (
     componentType: ComponentType.Button
   });
 
-  await interaction.reply({ embeds: [generatorEmbed], components: [selectRow, btnRow], ephemeral: true });
+  try {
+    const selectRow = await buildSelector(interaction.id, interaction, generators);
+    await interaction.reply({ embeds: [generatorEmbed], components: [selectRow, btnRow], ephemeral: true }).catch(console.error);  
+  } catch (err) {
+    console.error(err);
+    return;
+  }
 
   // The user selected a generator
   selectCollector?.on('collect', async (selectInteraction) => {
-    const selectedValue = selectInteraction.values[0];
-    const generator = generators.find((generator) => generator.generator_id === selectedValue);
-
-    await callback(selectedValue, generator);
-    selectCollector?.removeAllListeners().stop();
-    buttonCollector?.removeAllListeners().stop();
-
-    selectInteraction.deferUpdate();
+    try {
+      const selectedValue = selectInteraction.values[0];
+      const generator = generators.find((generator) => generator.generator_id === selectedValue);
+  
+      if (!generator) {
+        throw new Error(`Generator with id ${selectedValue} not found`);
+      }
+  
+      await callback(selectedValue, generator);
+      selectCollector?.removeAllListeners().stop();
+      buttonCollector?.removeAllListeners().stop();
+  
+      await selectInteraction.deferUpdate();
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   // The user cancelled the action
   buttonCollector?.on('collect', async (btnInteraction: ButtonInteraction) => {
-    if (btnInteraction.customId !== `cancelselect${interaction.id}`) return;
+    try {
+      if (btnInteraction.customId !== `cancelselect.${interaction.id}`) return;
 
-    generatorEmbed
-      .setTitle('Cancelled')
-      .setColor(config.embeds.colors.error as ColorResolvable)
-      .setDescription('The action has been cancelled.')
-      .setTimestamp();
+      generatorEmbed
+        .setTitle('Cancelled')
+        .setColor(config.embeds.colors.error as ColorResolvable)
+        .setDescription('The action has been cancelled.')
+        .setTimestamp();
 
-    await interaction.editReply({ embeds: [generatorEmbed], components: [] });
+      await interaction.editReply({ embeds: [generatorEmbed], components: [] });
 
-    selectCollector?.removeAllListeners().stop();
-    buttonCollector?.removeAllListeners().stop();
-    await btnInteraction.deferUpdate();
+      selectCollector?.removeAllListeners().stop();
+      buttonCollector?.removeAllListeners().stop();
+      await btnInteraction.deferUpdate();
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   // On timeout event
   selectCollector?.on('end', async () => {
-    generatorEmbed
+    try {
+      generatorEmbed
       .setTitle('Timeout')
       .setColor(config.embeds.colors.error as ColorResolvable)
       .setDescription('You took too long to complete this action')
       .setTimestamp();
 
-    selectCollector?.removeAllListeners().stop();
-    buttonCollector?.removeAllListeners().stop();
-    await interaction.editReply({ embeds: [generatorEmbed], components: [] });
+      selectCollector?.removeAllListeners().stop();
+      buttonCollector?.removeAllListeners().stop();
+      await interaction.editReply({ embeds: [generatorEmbed], components: [] });
+    } catch (err) {
+      console.error(err);
+    }
   });
 };
 

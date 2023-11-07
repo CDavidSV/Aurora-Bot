@@ -1,6 +1,6 @@
 {
   "name": "aurora-bot",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "A multipurpose Discord Bot with a variety of commands for both server moderation and entertainment.",
   "main": "index.ts",
   "scripts": {

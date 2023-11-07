@@ -7,8 +7,8 @@ export default {
         const userId: string = interaction.customId.split('.')[1];
         const member = interaction.guild?.members.cache.get(userId);
 
-        if (!member) return await interaction.update({ components: [] }).catch(console.error);
-        if (member.displayAvatarURL({size: 2048}) === member.user.displayAvatarURL({size: 2048})) return await interaction.update({ components: [] }).catch(console.error);
+        if (!member) return await interaction.update({ components: [] });
+        if (member.displayAvatarURL({size: 2048}) === member.user.displayAvatarURL({size: 2048})) return await interaction.update({ components: [] });
         
         let guildAvatarLinks = `[jpg](${member.displayAvatarURL({size: 2048, extension: 'jpg', forceStatic: true})}) | [jpeg](${member.displayAvatarURL({size: 2048, extension: 'jpeg', forceStatic: true})}) | [png](${member.displayAvatarURL({size: 2048, extension: 'png', forceStatic: true})}) | [webp](${member.displayAvatarURL({size: 2048, extension: 'webp', forceStatic: true})})`;
         if (member.avatarURL()?.endsWith('.gif')) guildAvatarLinks += ` | [gif](${member.user.displayAvatarURL({size: 2048, extension: 'gif'})})`;
@@ -27,6 +27,6 @@ export default {
                     .setStyle(ButtonStyle.Primary),
             );
         
-        interaction.update({ embeds: [avatarEmbed], components: [row] }).catch(console.error);
+        await interaction.update({ embeds: [avatarEmbed], components: [row] });
     }
 }

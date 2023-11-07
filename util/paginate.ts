@@ -21,19 +21,21 @@ const paginate = (itemsList: string[], quantity: number = 10, options: PageField
     let embeds: EmbedBuilder[] = [];
     const embedQuantity = Math.ceil(itemsList.length / quantity);
 
-    const pages = [];
-    for (let i = 0; i < itemsList.length; i += quantity) {
-        pages.push(itemsList.slice(i, i + quantity));
-    }
+    const pages = itemsList.reduce((acc, item, i) => {
+        if (i % quantity === 0) acc.push([]);
+        acc[acc.length - 1].push(item);
+        return acc;
+    }, [] as string[][]);
+
+    const embed = new EmbedBuilder()
+        .setTitle(options.title || null)
+        .addFields(options.fields || [])
+        .setColor(options.color || null)
+        .setThumbnail(options.thumbnail || null)
 
     let count = 1;
     for (let i = 0; i < embedQuantity; i++) {
         let items = options.description && options.description.length !== 0 ? `${options.description}\n\n` : '';
-        const embed = new EmbedBuilder()
-            .setTitle(options.title || null)
-            .addFields(options.fields || [])
-            .setColor(options.color || null)
-            .setThumbnail(options.thumbnail || null)
 
         for (let item of pages[i]) {
             items += `\`${count}\` ${item}\n`;
