@@ -24,9 +24,8 @@ export default {
                 )
                 .setFooter({ text: config.version })
             await interaction.reply({ embeds: [mathEmbed] });
-
         } catch {
-            await interaction.reply({content: `Incorrect math expression for: **${expression}**`});
+            await interaction.reply({content: `Incorrect math expression for: **${expression}**`}).catch(console.error);
         }
     }
 }

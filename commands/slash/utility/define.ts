@@ -56,7 +56,7 @@ export default {
             await interaction.followUp({embeds: [definitionEmbed]});
         })
         .catch(async (err) => {
-            await interaction.followUp({ content: `No definitions found for "*${interaction.options.getString('word')}*"`, ephemeral: true});
+            interaction.followUp({ content: `No definitions found for "*${interaction.options.getString('word')}*"`, ephemeral: true}).catch(console.error);
         });
     },
 }

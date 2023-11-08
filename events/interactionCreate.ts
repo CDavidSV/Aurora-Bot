@@ -26,24 +26,24 @@ export default {
                 const { cooldowns } = interaction.client;
                 const { commandName, client, options } = interaction;
                 const command = client.slashCommands.get(commandName)!;
+                const errorEmbed = new EmbedBuilder()
                 
                 // Check if the bot has sufficient permissions to perform the command.
                 if (command.botPerms && interaction.guild && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
-                    const noPermissions = new EmbedBuilder()
-                    .setColor(config.embeds.colors.error as ColorResolvable)
-                    .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
-                    interaction.reply({ embeds: [noPermissions], ephemeral: true });
-                    return;
+                    errorEmbed
+                        .setColor(config.embeds.colors.error as ColorResolvable)
+                        .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
+                    return interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+                    
                 }
     
                 const subCommandFile = fetchSubCommandFile(options, commandName, client);
     
                 if (!subCommandFile && !command.callback) {
-                    await interaction.reply({
+                    return interaction.reply({
                         content: "This command is outdated.",
                         ephemeral: true
-                    });
-                    return;
+                    }).catch(console.error);
                 }
 
                 // Handle cooldowns.
@@ -60,7 +60,7 @@ export default {
                     const expirationTime = timestamps.get(interaction.user.id)! + cooldownMs;
 
                     if (expirationTime > currentTime) {
-                        return interaction.reply({ content: `Please wait, this command is on cooldown. You may use it again <t:${Math.round(expirationTime / 1000)}:R>.`, ephemeral: true });
+                        return interaction.reply({ content: `Please wait, this command is on cooldown. You may use it again <t:${Math.round(expirationTime / 1000)}:R>.`, ephemeral: true }).catch(console.error);
                     } 
                 }
 
@@ -72,16 +72,16 @@ export default {
                     await (subCommandFile?.callback ?? command.callback)(interaction);
                 } catch (err) {
                     console.error(err);
-                    const errorEmbed = new EmbedBuilder()
+                    errorEmbed
                         .setAuthor({ name: 'There was an error while executing this command! Please try again', iconURL: config.embeds.images.errorImg })
                         .setColor(config.embeds.colors.error as ColorResolvable)
 
                     if (interaction.replied) {
-                        await interaction.editReply({ embeds: [errorEmbed] }).catch(console.error);
+                        interaction.editReply({ embeds: [errorEmbed] }).catch(console.error);
                     } else if (interaction.deferred) {
-                        await interaction.followUp({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+                        interaction.followUp({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
                     } else {
-                        await interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+                        interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
                     }
                 }
                 break;
@@ -113,6 +113,7 @@ export default {
                     interaction.update({ components: [] }).catch(console.error);
                     console.error('Unhandled Component Error: ', err);
                 }
+                break;
             }
             case InteractionType.ModalSubmit: {
                 const { customId } = interaction
@@ -128,9 +129,10 @@ export default {
                     const errorEmbed = new EmbedBuilder()
                         .setAuthor({ name: 'Unable to process modal', iconURL: config.embeds.images.errorImg })
                         .setColor(config.embeds.colors.error as ColorResolvable)
-                    interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+                    interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
                     console.error('Unhandled Modal Error: ', err);
                 }
+                break;
             }
         }
     }

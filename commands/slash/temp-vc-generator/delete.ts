@@ -63,22 +63,20 @@ export default {
                             .setColor(config.embeds.colors.error as ColorResolvable)
                             .setDescription("An unexpected error occurred while attempting to update the generator's settings. Please try again.")
                             .setTimestamp()
-                            await interaction.editReply({ embeds: [deleteEmbed], components: [] });
+                            interaction.editReply({ embeds: [deleteEmbed], components: [] }).catch(console.error);
                         }
                         break;
                     case `cancel`:
                         deleteEmbed
-                        .setTitle('Cancelled')
-                        .setColor(config.embeds.colors.error as ColorResolvable)
-                        .setDescription("The action has been cancelled.")
-                        .setTimestamp()
-        
-                        await interaction.editReply({ embeds: [deleteEmbed], components: [] });
+                            .setTitle('Cancelled')
+                            .setColor(config.embeds.colors.error as ColorResolvable)
+                            .setDescription("The action has been cancelled.")
+                            .setTimestamp()
+                        interaction.editReply({ embeds: [deleteEmbed], components: [] }).catch(console.error);
                         break;
                 }
                 buttonCollector?.removeAllListeners().stop();
-                await btnInteraction.deferUpdate();
-
+                btnInteraction.deferUpdate().catch(console.error);
             });
 
             // On timeout.
@@ -90,7 +88,7 @@ export default {
                 .setTimestamp()
 
                 buttonCollector?.removeAllListeners().stop();
-                await interaction.editReply({ embeds: [deleteEmbed], components: [] });
+                interaction.editReply({ embeds: [deleteEmbed], components: [] }).catch(console.error);
             });
         });
     }

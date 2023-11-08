@@ -6,7 +6,6 @@ import tempvcGeneratorsScheema from "../../../scheemas/tempvcGeneratorsScheema";
 export default {
     subCommand: 'tempvc.name',
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
-
         generatorSelect(interaction, async (generatorId: string) => {
             const generatorEmbed = new EmbedBuilder().setFooter({ text: config.version });
             const selectedChannel = generatorId
@@ -31,9 +30,9 @@ export default {
             }
 
             if (!interaction.replied) {
-                await interaction.reply({ embeds: [generatorEmbed], components: [], ephemeral: true  });  
+                interaction.reply({ embeds: [generatorEmbed], components: [], ephemeral: true  }).catch(console.error);  
             } else {
-                await interaction.editReply({ embeds: [generatorEmbed], components: [] });
+                interaction.editReply({ embeds: [generatorEmbed], components: [] }).catch(console.error);
             }
         });
     }

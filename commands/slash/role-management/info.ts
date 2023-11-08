@@ -12,7 +12,7 @@ export default {
             roleEmbed
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: 'El rol no existe. Intenta mencionarlos.', iconURL: 'attachment://error-icon.png' })
-            interaction.reply({ embeds: [roleEmbed] });
+            await interaction.reply({ embeds: [roleEmbed] });
             return;
         }
 

@@ -57,17 +57,19 @@ export default {
         member.timeout(time, timeoutReason).then(async () => {
             timeoutEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: `${user.username} was timed out.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+            .setAuthor({ name: `${user.username} was timed out.`, iconURL: user.avatarURL({ forceStatic: false })! })
             .setDescription(`****Reason:**** ${timeoutReason}\n**Duration:** \`${convertTime(time)}\``)
 
-            await interaction.reply({ content: `${user.username} was timed out.`, ephemeral: true });
-            await channel.send({ embeds: [timeoutEmbed] });
+            await Promise.all([
+                interaction.reply({ content: `${user.username} was timed out.`, ephemeral: true }),
+                channel.send({ embeds: [timeoutEmbed] })
+            ]);
         }).catch(async (err) => {
             console.log(err)
             timeoutEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: "I'm Sorry, but I can't timeout this member.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [timeoutEmbed] });
+            interaction.reply({ embeds: [timeoutEmbed] }).catch(console.error);
         })
     }
 }

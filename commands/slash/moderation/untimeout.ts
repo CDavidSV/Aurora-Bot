@@ -38,14 +38,14 @@ export default {
         member.timeout(null, untimeoutReason).then(async () => {
             timeoutEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: `Removed timeout from ${user.username}.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+            .setAuthor({ name: `Removed timeout from ${user.username}.`, iconURL: user.avatarURL({ forceStatic: false })! })
 
             await interaction.reply({ embeds: [timeoutEmbed], ephemeral: true });
         }).catch(async () => {
             timeoutEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: "I'm Sorry, but I can't untimeout this member.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [timeoutEmbed] }).catch(console.error);
+            interaction.reply({ embeds: [timeoutEmbed] }).catch(console.error);
         })
     }
 }

@@ -87,7 +87,7 @@ export default {
             banEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: "I'm Sorry but I can't ban this member.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [banEmbed], ephemeral: true });
+            interaction.reply({ embeds: [banEmbed], ephemeral: true }).catch(console.error);
         })
     }
 }

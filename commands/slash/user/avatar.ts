@@ -34,7 +34,7 @@ export default {
             .setImage(member.displayAvatarURL({size: 2048}))
             .setColor(config.embeds.colors.main as ColorResolvable)
         
-        if(member.displayAvatarURL({size: 2048}) === user.displayAvatarURL({size: 2048})) {
+        if (member.displayAvatarURL({size: 2048}) === user.displayAvatarURL({size: 2048})) {
             avatarEmbed.setDescription(userAvatarLinks)
             await interaction.reply({embeds: [avatarEmbed]});
         } else {

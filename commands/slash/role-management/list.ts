@@ -20,7 +20,7 @@ export default {
 
             const handlePagination = new PaginationHandler(embedsList);
 
-            const replyMsg = await interaction.reply({ content: handlePagination.getPageNumber(), embeds: [handlePagination.getCurrentEmbed()], components: [row, handlePagination.getButtons()], fetchReply: true }).catch(() => undefined);
+            const replyMsg = await interaction.reply({ content: handlePagination.getPageNumber(), embeds: [handlePagination.getCurrentEmbed()], components: [row, handlePagination.getButtons()], fetchReply: true }).catch(() => null);
             if (!replyMsg) return;
 
             const collector = interaction.channel?.createMessageComponentCollector({ 
@@ -37,7 +37,7 @@ export default {
                     const role = collectedInteraction.guild?.roles.cache.get(collectedInteraction.values[0]);
                     
                     if (!role) {
-                        await collectedInteraction.deferReply().catch(console.error);
+                        collectedInteraction.deferReply().catch(console.error);
                         return;
                     } 
                     const embed = getRoleInfo(role);
@@ -48,7 +48,7 @@ export default {
                         .setMinValues(1)
                         .setMaxValues(1));
 
-                    await collectedInteraction.reply({ embeds: [embed], components: [roleRow], ephemeral: true }).catch(console.error);
+                    collectedInteraction.reply({ embeds: [embed], components: [roleRow], ephemeral: true }).catch(console.error);
                     return;
                 }
 
@@ -57,7 +57,7 @@ export default {
 
                 if (!page) {
                     collector.stop();
-                    await collectedInteraction.message.delete().catch(console.error);
+                    collectedInteraction.message.delete().catch(console.error);
                     return;
                 }
                 collectedInteraction.message.edit({ content: page.pageNumber, embeds: [page.embed], components: [row, page.buttons] }).catch(console.error);
@@ -78,7 +78,7 @@ export default {
 
             const embedsList = paginate(roles, 10, { title: 'Roles', description: `List of roles in ${interaction.guild?.name}[${roles.length}]`, thumbnail: interaction.guild?.iconURL(), color: config.embeds.colors.main as ColorResolvable });
             
-            await displayRoles(embedsList, roles);
+            displayRoles(embedsList, roles).catch(console.error);
             return;
         }
 

@@ -31,7 +31,7 @@ export default {
             roleAction
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [roleAction], ephemeral: true }).catch(console.error);
+            interaction.reply({ embeds: [roleAction], ephemeral: true }).catch(console.error);
         });
     }
 }

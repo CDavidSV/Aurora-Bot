@@ -42,7 +42,7 @@ export default {
                 .setAuthor({ name: 'Unnable to change the nickname for that user', iconURL: config.embeds.images.errorImg })
                 .setColor(config.embeds.colors.error as ColorResolvable)
 
-            await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+            interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
         });
     }
 }

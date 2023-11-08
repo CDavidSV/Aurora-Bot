@@ -6,7 +6,7 @@ export default {
         .setName('banana')
         .setDescription('🍌 How long is your banana'),
     botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-    callback: (interaction: CommandInteraction) => {
+    callback: async (interaction: CommandInteraction) => {
         // Generate random size and color.
         const randomSize = random.randomValue(7, 21);
         const member = interaction.member as GuildMember;
@@ -23,6 +23,6 @@ export default {
             .setTitle(`${username}'s banana is ${randomSize} cm long.`)
             .setImage("https://cdn.discordapp.com/attachments/1102351325120974979/1105891025089744968/banana.png");
 
-        interaction.reply({ embeds: [bananaSizeEmbed], allowedMentions: { repliedUser: false } })
+        await interaction.reply({ embeds: [bananaSizeEmbed], allowedMentions: { repliedUser: false } });
     },
 };

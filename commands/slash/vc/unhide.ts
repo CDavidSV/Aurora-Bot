@@ -12,28 +12,23 @@ export default {
         }
 
         // Check if the user is the owner of the voice channel.
-        tempvcScheema.findOne({ owner_id: member.id, guild_id: interaction.guildId }).then(async (vc) => {
-            if (!vc) {
-                return await interaction.reply({ content: 'You are not the owner of this voice channel.', ephemeral: true });
-            }
+        const vc = await tempvcScheema.findOne({ owner_id: member.id, guild_id: interaction.guildId });
+        if (!vc) {
+            return await interaction.reply({ content: 'You are not the owner of this voice channel.', ephemeral: true });
+        }
 
-            // Get the users voice channel
-            const channel = interaction.guild!.channels.cache.get(vc.vc_id) as VoiceChannel;
-            if (!channel) {
-                return await interaction.reply({ content: 'An error occured while trying to find your voice channel. Please try again.', ephemeral: true });
-            }
+        // Get the users voice channel
+        const channel = interaction.guild!.channels.cache.get(vc.vc_id) as VoiceChannel;
+        if (!channel) {
+            return await interaction.reply({ content: 'An error occured while trying to find your voice channel. Please try again.', ephemeral: true });
+        }
 
-            // Deny ViewChannel permission for @everyone role
-            await channel.edit({ name: `${vc.name}`});
-            await channel.permissionOverwrites.create(interaction.guild?.roles.everyone!, {
-                ViewChannel: true
-            });
-
-            await interaction.reply({ content: 'Your voice channel has been hidden from @everyone!', ephemeral: true });
-
-        }).catch(async (err) => {
-            console.error(err);
-            interaction.reply({ content: 'An error occured while trying to hide your voice channel. Please try again.', ephemeral: true });
+        // Deny ViewChannel permission for @everyone role
+        await channel.edit({ name: `${vc.name}`});
+        await channel.permissionOverwrites.create(interaction.guild?.roles.everyone!, {
+            ViewChannel: true
         });
+
+        await interaction.reply({ content: 'Your voice channel has been hidden from @everyone!', ephemeral: true });
     }
 }

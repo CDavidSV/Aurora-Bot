@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction, EmbedBuilder, PermissionFlagsBits, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { ColorResolvable, CommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import config from "../../../config.json";
 
 const calculateUptime = (startTime: number) => {

@@ -29,7 +29,7 @@ export default {
         interaction.guild?.members.unban(user, unbanReason).then(async () => {
             unbanEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setAuthor({ name: `${user.username} was unbanned from the server.`, iconURL: String(user.avatarURL({ forceStatic: false })) })
+            .setAuthor({ name: `${user.username} was unbanned from the server.`, iconURL: user.avatarURL({ forceStatic: false })! })
             .setDescription(`****Reason:**** ${unbanReason}`)
 
             await interaction.reply({ embeds: [unbanEmbed], ephemeral: true });
@@ -37,7 +37,7 @@ export default {
             unbanEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: "I'm Sorry, but I can't unban this member.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [unbanEmbed], ephemeral: true }).catch(console.error);
+            interaction.reply({ embeds: [unbanEmbed], ephemeral: true }).catch(console.error);
         })
     }
 }
