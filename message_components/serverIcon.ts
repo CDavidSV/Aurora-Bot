@@ -1,9 +1,9 @@
-import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js";
-import config from '../../../config.json';
+import { ColorResolvable, MessageComponentInteraction, EmbedBuilder } from "discord.js";
+import config from "../config.json";
 
 export default {
-    subCommand: "server.icon",
-    callback: async (interaction: ChatInputCommandInteraction) => {
+    name: 'serverIcon',
+    callback: async (interaction: MessageComponentInteraction) => {
         const guild = interaction.guild;
         if (!guild) return;
 
@@ -12,7 +12,7 @@ export default {
         if (!icon) {
             const errorEmbed = new EmbedBuilder()
                 .setColor(config.embeds.colors.error as ColorResolvable)
-                .setAuthor({ name: 'This server does not have an icon', iconURL: config.embeds.images.errorImg })
+                .setAuthor({ name: 'This server does not have an icon', iconURL: config.embeds.colors.error })
             return await interaction.reply({ embeds: [errorEmbed] })
         };
 
