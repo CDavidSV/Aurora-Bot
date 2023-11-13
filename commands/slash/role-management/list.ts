@@ -60,8 +60,7 @@ export default {
                     collectedInteraction.message.delete().catch(console.error);
                     return;
                 }
-                collectedInteraction.message.edit({ content: page.pageNumber, embeds: [page.embed], components: [row, page.buttons] }).catch(console.error);
-                collectedInteraction.deferUpdate().catch(console.error);
+                collectedInteraction.update({ content: page.pageNumber, embeds: [page.embed], components: [row, page.buttons] }).catch(console.error);
             });
         }
 
