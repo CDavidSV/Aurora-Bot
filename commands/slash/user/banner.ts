@@ -6,7 +6,7 @@ export default {
     callback: async (interaction: CommandInteraction) => {
         const bannerEmbed = new EmbedBuilder();
     
-        const user = await interaction.options.getUser('user')?.fetch() || await interaction.client.users.fetch(interaction.user.id) as User;
+        const user = await interaction.options.getUser('user')?.fetch() || await interaction.user.fetch();
 
         if (!user) {
             await interaction.reply('User not found.');
@@ -29,7 +29,7 @@ export default {
             .setTitle(`${user.username}'s Banner`)
             .setImage(banner as string)
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setDescription(`[Image URL](${banner as string})`)
+            .setDescription(`[Banner URL](${banner as string})`)
 
         await interaction.reply({embeds: [bannerEmbed]});
     }
