@@ -7,12 +7,8 @@ export default {
         const avatarEmbed = new EmbedBuilder();
     
         let member: GuildMember;
-        const user = interaction.options.getUser('user')!;
-        if(!user) {
-            member = interaction.guild!.members.cache.get(interaction.member!.user.id)!;
-        } else {
-            member = interaction.guild!.members.cache.get(user.id) as GuildMember;
-        }
+        const user = interaction.options.getUser('user') || interaction.user;
+        member = interaction.guild!.members.cache.get(user.id) as GuildMember;
 
         let userAvatarLinks = `[jpg](${user.displayAvatarURL({size: 2048, extension: 'jpg', forceStatic: true})}) | [jpeg](${user.displayAvatarURL({size: 2048, extension: 'jpeg', forceStatic: true})}) | [png](${user.displayAvatarURL({size: 2048, extension: 'png', forceStatic: true})}) | [webp](${user.displayAvatarURL({size: 2048, extension: 'webp', forceStatic: true})})`;
         if (user.avatarURL()?.endsWith('.gif')) userAvatarLinks += ` | [gif](${user.displayAvatarURL({size: 2048, extension: 'gif'})})`;
