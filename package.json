@@ -1,6 +1,6 @@
 {
   "name": "aurora-bot",
-  "version": "1.7.4",
+  "version": "1.8.0",
   "description": "A multipurpose Discord Bot with a variety of commands for both server moderation and entertainment.",
   "main": "index.ts",
   "scripts": {
@@ -13,18 +13,18 @@
   "dependencies": {
     "@google-cloud/translate": "^8.0.2",
     "@google-cloud/vision": "^4.0.2",
-    "axios": "^1.6.1",
+    "axios": "^1.6.2",
     "canvas": "^2.11.2",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
-    "mathjs": "^12.0.0",
-    "mongoose": "^8.0.0"
+    "mathjs": "^12.1.0",
+    "mongoose": "^8.0.2"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
+    "@types/node": "^20.10.3",
     "colors": "^1.4.0",
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.0.2",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.2"
   }
 }

@@ -12,19 +12,17 @@ import config from '../config.json';
  */
 const clearMessages = async (channel: TextChannel, count: number, user: User, replyMsg: Message, filterFunc?: (message: Message | PartialMessage) => boolean): Promise<EmbedBuilder> => {
     // Ignore the first message (sent by bot) by adding 1 to the count
-    count += 1;
     let deleteAmmount = count;
     let currentCount = 0;
     let oldMessage = false;
-    let deletedMessagesSet = new Set<string>();
+    let beforeId = replyMsg.id;
     try {
         // Loop through the messages and delete them in bulk
         while (count > 0) {
             // If the count is greater than 100, set the delete ammount to 100
             if (count > 100) deleteAmmount = 100;
 
-            let messages = await channel.messages.fetch({ limit: deleteAmmount, cache: false });
-            messages = messages.filter((message: Message | PartialMessage) => message.id !== replyMsg.id && !deletedMessagesSet.has(message.id));
+            let messages = await channel.messages.fetch({ limit: deleteAmmount, before: beforeId });
             
             // Apply the filter function if provided
             if (filterFunc) messages = messages.filter((message: Message | PartialMessage) => filterFunc(message));
@@ -32,16 +30,16 @@ const clearMessages = async (channel: TextChannel, count: number, user: User, re
             const deletedMessages = await channel.bulkDelete(messages, true);
 
             // Add the deleted messages to the set
-            deletedMessages.forEach(message => { if (message) deletedMessagesSet.add(message!.id) });
+            if (deletedMessages.size > 0) beforeId = deletedMessages.last()!.id;
 
             // Add the amount of deleted messages to the current count and subtract the amount from the total count
             currentCount += deletedMessages.size;
-            console.log(currentCount);
             count -= deletedMessages.size;
 
             // If the amount of deleted messages is less than the delete ammount, break the loop (means there are no more messages to delete)
-            if (deletedMessages.size < deleteAmmount - 1) {
-                oldMessage = messages.some(message => Date.now() - message.createdTimestamp >= 604_800)
+            if (deletedMessages.size < deleteAmmount) {
+                // Check if there are any messages older than 7 days
+                if (messages.size > 0) oldMessage = messages.some(message => Date.now() - message.createdTimestamp >= 604_800)
                 break;
             };
         }
@@ -57,7 +55,7 @@ const clearMessages = async (channel: TextChannel, count: number, user: User, re
         
         return embed;
     } catch (error) {
-        console.log(error);
+        console.error(error);
         const embed = new EmbedBuilder()
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: 'Failed', iconURL: config.embeds.images.errorImg })
