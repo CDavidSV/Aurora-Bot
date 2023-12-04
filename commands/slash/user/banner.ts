@@ -14,7 +14,6 @@ export default {
         }
         
         const banner = user.bannerURL({ size: 2048 });
-        console.log(banner);
         if (!banner) {
             if (user === interaction.user) {
                 await interaction.reply(`**You** don't have a banner T_T`);
