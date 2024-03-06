@@ -49,7 +49,13 @@ export default {
                 .addBooleanOption(option => 
                     option
                         .setName('allow_renaming')
-                        .setDescription('Whether or not to allow the owner to change the vc name')))
+                        .setDescription('Whether or not to allow the owner to change the vc name'))
+                .addStringOption(option =>
+                    option
+                        .setName('generator_name')
+                        .setDescription('Type in a name for the temporary vc generator')
+                        .setMinLength(1)
+                        .setMaxLength(98)))
         .addSubcommand(subcommand => 
             subcommand
                 .setName('delete')
@@ -114,6 +120,17 @@ export default {
             subcommand
                 .setName('settings')
                 .setDescription('📋 Review the settings for a temporary vc generator'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('generator_name')
+                .setDescription('📝 Change a tempv generator\'s name')
+                .addStringOption(option =>
+                    option
+                        .setName('name')
+                        .setDescription('Type in a name for the temporary vc generator')
+                        .setMinLength(1)
+                        .setMaxLength(98)
+                        .setRequired(true)))
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     botPerms: [PermissionFlagsBits.ManageChannels, PermissionFlagsBits.MoveMembers],

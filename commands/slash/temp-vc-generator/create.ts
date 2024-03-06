@@ -11,10 +11,11 @@ export default {
         const region = interaction.options.getString('region');
         const name = interaction.options.getString('custom_name');
         const allowRename = interaction.options.getBoolean('allow_renaming') || false;
+        const generatorName = interaction.options.getString('generator_name');
 
         // Create the generator channel in the corresponding category.
         interaction.guild?.channels.create({ 
-            name: "➕ VC Generator",
+            name: generatorName || "➕ VC Generator",
             type: ChannelType.GuildVoice,
             parent: category?.id,
         }).then(async (channel) => {
@@ -33,7 +34,7 @@ export default {
                     }
                 );
             } catch {
-                await interaction.reply({ content: "An Error ocurred while creating the generator channel. Please Try again.", ephemeral: true });
+                interaction.reply({ content: "An Error ocurred while creating the generator channel. Please Try again.", ephemeral: true }).catch(console.error);
                 channel.delete().catch((err) => console.error('Unnable to delete voice channel: ', err));
                 return;
             }
@@ -55,7 +56,7 @@ export default {
             await interaction.reply({ embeds: [generatorSettingsEmbed], ephemeral: true });
         }).catch(async (err) => {
             console.log(err);
-            await interaction.reply({ content: "An Error ocurred while creating the generator channel. Please Try again.", ephemeral: true });
+            interaction.reply({ content: "An Error ocurred while creating the generator channel. Please Try again.", ephemeral: true }).catch(console.error);
         });
     }
 }

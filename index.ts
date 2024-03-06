@@ -29,14 +29,6 @@ declare module "discord.js" {
     }
 }
 
-// Tokens.
-const token: string = process.env.TOKEN as string;
-// const token: string = process.env.TOKEN_TEST as string; // For testing only.
-
-// Client id
-const clientId = config.clientId;
-// const clientId = config.testClientId; // For testing only.
-
 // Bot Setup.
 const client = new Client({ 
     intents: [
@@ -50,7 +42,29 @@ const client = new Client({
     ]
 });
 
-async function main() {
+const env = process.argv[2];
+async function main(env: string = "prod") {
+    // Tokens.
+    let token: string;
+    let clientId: string;
+    switch (env) {
+        case "prod":
+            console.log('Starting bot in production mode'.magenta);
+            token = process.env.TOKEN as string;
+            clientId = config.clientId;
+            break;
+        case "dev":
+            console.log('Starting bot in development mode'.yellow);
+            token = process.env.TOKEN_TEST as string;
+            clientId = config.testClientId;
+            break;
+        default:
+            console.log('Invalid env variable provided. Starting in dev'.red);
+            token = process.env.TOKEN_TEST as string;
+            clientId = config.testClientId;
+            break;
+    }
+    
     // Initialize sets and collections.
     client.tempvChannels = new Set();
     client.tempvcGenerators = new Set();
@@ -64,7 +78,7 @@ async function main() {
     setupButtons(client);
     setupModals(client);
 
-    setupCommands(token, client, clientId, { updateCommands: true, updateType: UpdateType.PROD }); // Change to dev for testing new commands.
+    setupCommands(token, client, clientId, { updateCommands: true, updateType: env === "prod" ? UpdateType.PROD : UpdateType.DEV }); // Change to dev for testing new commands.
 
     // Connect to mongo
     await mongoose.connect(process.env.MONGO_URI!).then(() => { // Connect to mongo, url needs to be provided in a .env file.
@@ -90,4 +104,4 @@ async function main() {
     client.login(token);
 }
 
-main();
+main(env);

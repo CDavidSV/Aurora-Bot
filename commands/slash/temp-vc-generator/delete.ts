@@ -47,7 +47,7 @@ export default {
                     case `confirm`:
                         try {
                             await tempvcGeneratorScheema.deleteOne({ guild_id: interaction.guild?.id, generator_id: selectedChannel });
-                            await interaction.guild?.channels.delete(selectedChannel).catch(console.error);
+                            interaction.guild?.channels.delete(selectedChannel).catch(console.error);
     
                             deleteEmbed
                             .setTitle('Generator successfully deleted')

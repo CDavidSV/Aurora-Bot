@@ -1,4 +1,4 @@
-import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, ButtonBuilder, ButtonStyle, ButtonInteraction, Interaction } from "discord.js";
+import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, ButtonBuilder, ButtonStyle, ButtonInteraction, Interaction, InteractionCollector, StringSelectMenuInteraction } from "discord.js";
 import tempvcScheema from "../scheemas/tempvcGeneratorsScheema";
 import config from "../config.json";
 
@@ -43,6 +43,11 @@ const buildSelector = async (id: string, interaction: Interaction, generators: a
     return selectRow;
 }
 
+const stopCollectors = (selectCollector: InteractionCollector<StringSelectMenuInteraction<CacheType>> | undefined, buttonCollector: InteractionCollector<ButtonInteraction<CacheType>> | undefined) => {
+  if (selectCollector) selectCollector.removeAllListeners().stop();
+  if (buttonCollector) buttonCollector.removeAllListeners().stop();
+}
+
 /**
  * Creates a generator select menu for users if any exist in the interaction's guild.
  * @param interaction Chat command Interation Object.
@@ -63,7 +68,11 @@ const generatorSelect = async (
   // If there is only one generator, execute the callback with it.
   if (generators.length === 1) {
       const { generator_id, ...generator } = generators[0];
-      await callback(generator_id, generator);
+      try {
+          await callback(generator_id, generator);
+      } catch (err) {
+          console.error(err);
+      }
       return;
   }
 
@@ -98,7 +107,7 @@ const generatorSelect = async (
 
   try {
     const selectRow = await buildSelector(interaction.id, interaction, generators);
-    await interaction.reply({ embeds: [generatorEmbed], components: [selectRow, btnRow], ephemeral: true }).catch(console.error);  
+    await interaction.reply({ embeds: [generatorEmbed], components: [selectRow, btnRow], ephemeral: true });  
   } catch (err) {
     console.error(err);
     return;
@@ -111,12 +120,13 @@ const generatorSelect = async (
       const generator = generators.find((generator) => generator.generator_id === selectedValue);
   
       if (!generator) {
-        throw new Error(`Generator with id ${selectedValue} not found`);
+        interaction.editReply({ content: "An error ocurred while trying to find the generator. "}).catch(console.error);
+        return;
       }
-  
+      
+      // Remove all components and execute the callback
       await callback(selectedValue, generator);
-      selectCollector?.removeAllListeners().stop();
-      buttonCollector?.removeAllListeners().stop();
+      stopCollectors(selectCollector, buttonCollector);
   
       await selectInteraction.deferUpdate();
     } catch (err) {
@@ -137,8 +147,7 @@ const generatorSelect = async (
 
       await interaction.editReply({ embeds: [generatorEmbed], components: [] });
 
-      selectCollector?.removeAllListeners().stop();
-      buttonCollector?.removeAllListeners().stop();
+      stopCollectors(selectCollector, buttonCollector);
       await btnInteraction.deferUpdate();
     } catch (err) {
       console.error(err);
@@ -154,8 +163,7 @@ const generatorSelect = async (
       .setDescription('You took too long to complete this action')
       .setTimestamp();
 
-      selectCollector?.removeAllListeners().stop();
-      buttonCollector?.removeAllListeners().stop();
+      stopCollectors(selectCollector, buttonCollector);
       await interaction.editReply({ embeds: [generatorEmbed], components: [] });
     } catch (err) {
       console.error(err);
