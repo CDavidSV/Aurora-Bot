@@ -1,5 +1,6 @@
 import { CacheType, ChatInputCommandInteraction, GuildMember, VoiceChannel } from "discord.js";
 import tempvcScheema from "../../../scheemas/tempvcScheema";
+import tempvcGeneratorsScheema from "../../../scheemas/tempvcGeneratorsScheema";
 
 export default {
     subCommand: 'vc.name',
@@ -11,9 +12,17 @@ export default {
         if (!member.voice.channel) return interaction.reply({ content: 'You must be in a voice channel to use this command.', ephemeral: true });
 
         // Check if the user is the owner of the voice channel.
-        const vc = await tempvcScheema.findOneAndUpdate({ owner_id: member.id, guild_id: interaction.guildId }, { name: newName });
+        const vc = await tempvcScheema.findOne({ owner_id: member.id, guild_id: interaction.guildId });
+
         if (!vc) {
             return await interaction.reply({ content: 'You are not the owner of this voice channel.', ephemeral: true });
+        }
+        
+        // Check if the names for generated vcs can be changed.
+        const generator = await tempvcGeneratorsScheema.findOne({ generator_id: vc?.generator_id });
+
+        if (generator && !generator.allow_rename) {
+            return await interaction.reply({ content: 'You are not allowed to change the name of this voice channel.', ephemeral: true });
         }
 
         // Get the users voice channel.
@@ -24,6 +33,7 @@ export default {
 
         // Change vc name.
         await channel.setName(newName);
+        await vc.updateOne({ name: newName });
 
         await interaction.reply({ content: 'Your voice channe\'s name has been changed', ephemeral: true });
     }

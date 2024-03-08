@@ -18,10 +18,10 @@ const generateTempVC = async (state: VoiceState) => {
         }
     }
 
-    cooldowns.set(state.member?.id!, now + 5000);
+    cooldowns.set(state.member?.id!, now + 30000);
     setTimeout(() => { 
         cooldowns.delete(state.member!.id); // reset cooldowns.
-    }, 5000);
+    }, 30000);
     try {
         // Get the generator settings for the one the user joined and create a temporary voice channel.
         const generator = await tempvcGeneratorScheema.findOne({ guild_id: state.guild.id, generator_id: state.channelId });

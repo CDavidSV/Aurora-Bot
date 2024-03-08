@@ -54,18 +54,20 @@ export default {
                 const currentTime = Date.now();
                 const timestamps = cooldowns.get(command.data.name)!;
                 const cooldownMs = (command.cooldown ?? 0) * 1000;
+                let requestsMade = 0;
 
                 // Check if the user already executed this command before.
                 if (timestamps && timestamps.has(interaction.user.id)) {
-                    const expirationTime = timestamps.get(interaction.user.id)! + cooldownMs;
+                    const expirationTime = timestamps.get(interaction.user.id)!.time + cooldownMs;
+                    requestsMade = timestamps.get(interaction.user.id)!.requests + 1;
 
-                    if (expirationTime > currentTime) {
+                    if (requestsMade >= (command.requestsBeforeCooldown ?? 1)) {
                         return interaction.reply({ content: `Please wait, this command is on cooldown. You may use it again <t:${Math.round(expirationTime / 1000)}:R>.`, ephemeral: true }).catch(console.error);
                     } 
                 }
 
                 // Set the cooldown for the user.
-                timestamps.set(interaction.user.id, currentTime);
+                timestamps.set(interaction.user.id, { time: currentTime, requests: requestsMade });
                 setTimeout(() => timestamps.delete(interaction.user.id), cooldownMs);
                 
                 try {

@@ -36,5 +36,6 @@ export default {
                 .setDescription('🔐 Unhide your vc'))
         .setDMPermission(false),
     botPerms: [PermissionFlagsBits.ManageChannels, PermissionFlagsBits.MoveMembers],
-    cooldown: 5
+    requestsBeforeCooldown: 2,
+    cooldown: 600
 }

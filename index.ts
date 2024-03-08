@@ -22,7 +22,7 @@ declare module "discord.js" {
         subCommands: Collection<string, any>;
         messageComponents: Collection<string, any>;
         modals: Collection<string, any>;
-        cooldowns: Collection<string, Collection<string, number>>;
+        cooldowns: Collection<string, Collection<string, { time: number, requests: number }>>;
         tempvcGenerators: Set<string>;
         tempvChannels: Set<string>;
         startTime: number;
