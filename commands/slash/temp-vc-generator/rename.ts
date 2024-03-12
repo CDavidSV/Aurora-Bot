@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, CacheType, StringSelectMenuInteraction, EmbedBuilder, ColorResolvable } from "discord.js";
 import { generatorSelect } from "../../../handlers/generator-select-handler";
 import config from "../../../config.json";
-import tempvcGeneratorsScheema from "../../../scheemas/tempvcGeneratorsScheema";
+import tempvcGeneratorsSchema from "../../../scheemas/tempvcGeneratorsSchema";
 
 export default {
     subCommand: 'tempvc.rename',
@@ -13,7 +13,7 @@ export default {
             const generatorEmbed = new EmbedBuilder().setFooter({ text: config.version });
             
             try {
-                const generator = await tempvcGeneratorsScheema.findOneAndUpdate(
+                const generator = await tempvcGeneratorsSchema.findOneAndUpdate(
                     { guild_id: interaction.guildId, generator_id: selectedChannel }, 
                     { allow_rename: selectedOption }
                 );

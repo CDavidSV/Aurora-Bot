@@ -1,6 +1,6 @@
 import { AttachmentBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, User } from "discord.js";
 import config from '../../../config.json';
-import rpImagesScheema from "../../../scheemas/rpImagesScheema";
+import rpImagesScheema from "../../../scheemas/rpImagesSchema";
 import canvas from "canvas";
 import path from "path";
 
@@ -133,6 +133,8 @@ export default {
         .setDMPermission(false),
     botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply({ ephemeral: false });
+        
         let randomPercentage = Math.floor(Math.random() * 100);
         let message = randomMessage(randomPercentage);
         const user1 = interaction.options.getUser('member_1', true);
@@ -146,6 +148,6 @@ export default {
             .setDescription(`**Affinity:** ${randomPercentage}%`)
             .setImage("attachment://ship.png")
             .setColor(config.embeds.colors.main as ColorResolvable)
-        await interaction.reply({ embeds: [shipEmbed], files: [file] });
+        await interaction.followUp({ embeds: [shipEmbed], files: [file] });
     }
 }

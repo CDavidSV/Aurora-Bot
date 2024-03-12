@@ -1,6 +1,6 @@
 import { ChannelType, Events, VoiceState, Collection } from "discord.js";
-import tempvcGeneratorScheema from "../scheemas/tempvcGeneratorsScheema";
-import tempvcScheema from "../scheemas/tempvcScheema";
+import tempvcGeneratorScheema from "../scheemas/tempvcGeneratorsSchema";
+import tempvcScheema from "../scheemas/tempvcSchema";
 
 const cooldowns = new Collection<string, number>(); // Cooldows for generating temp voice channels.
 
@@ -18,10 +18,10 @@ const generateTempVC = async (state: VoiceState) => {
         }
     }
 
-    cooldowns.set(state.member?.id!, now + 30000);
+    cooldowns.set(state.member?.id!, now + 15000);
     setTimeout(() => { 
         cooldowns.delete(state.member!.id); // reset cooldowns.
-    }, 30000);
+    }, 15000);
     try {
         // Get the generator settings for the one the user joined and create a temporary voice channel.
         const generator = await tempvcGeneratorScheema.findOne({ guild_id: state.guild.id, generator_id: state.channelId });

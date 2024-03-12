@@ -6,8 +6,8 @@ import { UpdateType, setupCommands } from "./handlers/command-handler";
 import setupButtons from "./handlers/component-handler";
 import setupModals from "./handlers/modal-handler";
 import mongoose from "mongoose";
-import tempvcScheema from "./scheemas/tempvcScheema";
-import tempvcGeneratorsScheema from "./scheemas/tempvcGeneratorsScheema";
+import tempvcScheema from "./scheemas/tempvcSchema";
+import tempvcGeneratorsScheema from "./scheemas/tempvcGeneratorsSchema";
 import config from "./config.json";
 import { ACommand } from "./structs/ACommand";
 
@@ -23,6 +23,7 @@ declare module "discord.js" {
         messageComponents: Collection<string, any>;
         modals: Collection<string, any>;
         cooldowns: Collection<string, Collection<string, { time: number, requests: number }>>;
+        channelCooldowns: Collection<string, { requests: number, cooldown: number }>;
         tempvcGenerators: Set<string>;
         tempvChannels: Set<string>;
         startTime: number;
@@ -73,6 +74,7 @@ async function main(env: string = "prod") {
     client.slashCommands = new Collection();
     client.subCommands = new Collection();
     client.cooldowns = new Collection();
+    client.channelCooldowns = new Collection();
 
     setupEvents(client);
     setupButtons(client);
@@ -81,7 +83,7 @@ async function main(env: string = "prod") {
     setupCommands(token, client, clientId, { updateCommands: true, updateType: env === "prod" ? UpdateType.PROD : UpdateType.DEV }); // Change to dev for testing new commands.
 
     // Connect to mongo
-    await mongoose.connect(process.env.MONGO_URI!).then(() => { // Connect to mongo, url needs to be provided in a .env file.
+    await mongoose.connect(env === "prod" ? process.env.MONGO_URI! : process.env.MONGO_URI_TEST!).then(() => { // Connect to mongo, url needs to be provided in a .env file.
         console.log('Connected to mongo'.green);
 
         // Get temp vc generators and voice channels.

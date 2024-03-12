@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, CacheType, ActionRowBuilder, EmbedBuilder, ColorResolvable, ComponentType, ButtonInteraction, ButtonBuilder, ButtonStyle } from "discord.js";
 import config from "../../../config.json";
-import tempvcGeneratorScheema from "../../../scheemas/tempvcGeneratorsScheema";
+import tempvcGeneratorSchema from "../../../scheemas/tempvcGeneratorsSchema";
 import { generatorSelect } from "../../../handlers/generator-select-handler";
 
 export default {
@@ -46,7 +46,7 @@ export default {
                 switch (btnInteraction.customId.replace(/\d/g, '')) {
                     case `confirm`:
                         try {
-                            await tempvcGeneratorScheema.deleteOne({ guild_id: interaction.guild?.id, generator_id: selectedChannel });
+                            await tempvcGeneratorSchema.deleteOne({ guild_id: interaction.guild?.id, generator_id: selectedChannel });
                             interaction.guild?.channels.delete(selectedChannel).catch(console.error);
     
                             deleteEmbed

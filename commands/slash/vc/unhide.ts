@@ -1,5 +1,5 @@
 import { CacheType, ChatInputCommandInteraction, GuildMember, VoiceChannel } from "discord.js";
-import tempvcScheema from "../../../scheemas/tempvcScheema";
+import tempvcScheema from "../../../scheemas/tempvcSchema";
 
 export default {
     subCommand: 'vc.unhide',
@@ -24,11 +24,11 @@ export default {
         }
 
         // Deny ViewChannel permission for @everyone role
-        await channel.edit({ name: `${vc.name}`});
+        channel.edit({ name: `${vc.name}`}).catch(console.error);
         await channel.permissionOverwrites.create(interaction.guild?.roles.everyone!, {
             ViewChannel: true
         });
 
-        await interaction.reply({ content: 'Your voice channel has been hidden from @everyone!', ephemeral: true });
+        await interaction.reply({ content: 'Your voice channel has been revealed to @everyone!', ephemeral: true });
     }
 }

@@ -1,4 +1,5 @@
-import { Role, EmbedBuilder } from 'discord.js';
+import { Role, EmbedBuilder, Client } from 'discord.js';
+import userSchema from '../scheemas/userSchema';
 
 const getRoleInfo = (role: Role) => {
     const name = role.name;
@@ -108,4 +109,31 @@ const isValidColorHex = (hex: string) => {
     return regex.test(hex);
 }
 
-export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL };
+/**
+ * 
+ * @param channelId 
+ * @param client 
+ */
+const canRenameChannel = (channelId: string, client: Client) => {
+    const channelCooldowns = client.channelCooldowns;
+    const channelCooldown = channelCooldowns.get(channelId);
+    let requestsMade = channelCooldown?.requests ?? 0;
+    if (channelCooldown && channelCooldown.requests >= 2) { // 2 requests every 10 minutes
+        return { canRename: false, message: `You can only rename a channel 2 times every 10 minutes. You may rename this channel again <t:${Math.round(channelCooldown.cooldown / 1000)}:R>` };
+    }
+    requestsMade++;
+    channelCooldowns.set(channelId, { requests: requestsMade, cooldown: Date.now() + 600000 });
+
+    return { canRename: true, message: '' };
+};
+
+/**
+ * 
+ * @param id 
+ */
+const createUser = (id: string) => {
+    // Update the user in the database
+    userSchema.findByIdAndUpdate(id, { _id: id }, { upsert: true, setDefaultsOnInsert: true, new: true }).catch(console.error);
+};
+
+export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL, canRenameChannel, createUser };

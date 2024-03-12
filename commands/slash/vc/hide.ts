@@ -1,5 +1,5 @@
 import { CacheType, ChatInputCommandInteraction, GuildMember, VoiceChannel } from "discord.js";
-import tempvcScheema from "../../../scheemas/tempvcScheema";
+import tempvcScheema from "../../../scheemas/tempvcSchema";
 
 export default {
     subCommand: 'vc.hide',
@@ -24,7 +24,7 @@ export default {
         }
 
         // Deny ViewChannel permission for @everyone role
-        await channel.edit({ name: `Hidden | ${vc.name}`});
+        // channel.edit({ name: `Hidden | ${vc.name}`}).catch(console.error);
         await channel.permissionOverwrites.create(interaction.guild?.roles.everyone!, {
             ViewChannel: false
         });

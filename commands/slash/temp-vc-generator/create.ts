@@ -1,6 +1,6 @@
 import { CacheType, ChannelType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js"
 import config from "../../../config.json";
-import tempvcGeneratorScheema from "../../../scheemas/tempvcGeneratorsScheema";
+import tempvcGeneratorScheema from "../../../scheemas/tempvcGeneratorsSchema";
 
 export default {
     subCommand: 'tempvc.create',
@@ -18,9 +18,9 @@ export default {
             name: generatorName || "➕ VC Generator",
             type: ChannelType.GuildVoice,
             parent: category?.id,
+            rtcRegion: region!,
+            position: 0
         }).then(async (channel) => {
-            await channel.setRTCRegion(region);
-            
             try {
                 await tempvcGeneratorScheema.create( // Save in the db.
                     { 

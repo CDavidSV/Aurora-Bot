@@ -1,5 +1,5 @@
 import { CacheType, ChatInputCommandInteraction, GuildMember, VoiceChannel } from "discord.js";
-import tempvcScheema from "../../../scheemas/tempvcScheema";
+import tempvcScheema from "../../../scheemas/tempvcSchema";
 
 export default {
     subCommand: 'vc.limit',

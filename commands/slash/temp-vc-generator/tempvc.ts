@@ -122,17 +122,16 @@ export default {
                 .setDescription('📋 Review the settings for a temporary vc generator'))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('generator_name')
-                .setDescription('📝 Change a tempv generator\'s name')
-                .addStringOption(option =>
+                .setName('category')
+                .setDescription('📁 Change the category for a generator channel')
+                .addChannelOption(option =>
                     option
-                        .setName('name')
-                        .setDescription('Type in a name for the temporary vc generator')
-                        .setMinLength(1)
-                        .setMaxLength(98)
-                        .setRequired(true)))
+                        .setName('category')
+                        .setDescription('Select a server category where temporary voice channels will be created')
+                        .setRequired(true)
+                        .addChannelTypes(ChannelType.GuildCategory)))
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     botPerms: [PermissionFlagsBits.ManageChannels, PermissionFlagsBits.MoveMembers],
-    cooldown: 15,
+    cooldown: 10,
 }

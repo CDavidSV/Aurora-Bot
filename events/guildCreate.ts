@@ -1,5 +1,5 @@
 import { Events, Guild } from "discord.js";
-import guildScheema from "../scheemas/guildScheema";
+import guildScheema from "../scheemas/guildSchema";
 
 export default {
     name: Events.GuildCreate,

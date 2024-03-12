@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import guildScheema from "../../../scheemas/guildScheema";
+import guildScheema from "../../../scheemas/guildSchema";
 
 export default {
     subCommand: "settings.welcome.message",

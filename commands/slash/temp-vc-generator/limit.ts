@@ -1,19 +1,18 @@
 import { ChatInputCommandInteraction, CacheType, StringSelectMenuInteraction, EmbedBuilder, ColorResolvable } from "discord.js";
 import { generatorSelect } from "../../../handlers/generator-select-handler";
 import config from "../../../config.json";
-import tempvcGeneratorsScheema from "../../../scheemas/tempvcGeneratorsScheema";
+import tempvcGeneratorsSchema from "../../../scheemas/tempvcGeneratorsSchema";
 
 export default {
     subCommand: 'tempvc.limit',
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
         generatorSelect(interaction, async (generatorId: string) => {
             const generatorEmbed = new EmbedBuilder().setFooter({ text: config.version });
-            const selectedChannel = generatorId;
             const selectedLimit = interaction.options.getInteger('max');
             
             try {
-                const generator = await tempvcGeneratorsScheema.findOneAndUpdate(
-                    { guild_id: interaction.guildId, generator_id: selectedChannel }, 
+                const generator = await tempvcGeneratorsSchema.findOneAndUpdate(
+                    { guild_id: interaction.guildId, generator_id: generatorId }, 
                     { vc_user_limit: selectedLimit }
                 );
 

@@ -22,6 +22,6 @@ export default {
                 .setFooter({ text: config.version })
                 .setTimestamp()
             await interaction.editReply({ embeds: [pingEmbed] });
-        })
+        });
     }
 }

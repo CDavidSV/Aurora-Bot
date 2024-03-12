@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import guildScheema from "../../../scheemas/guildScheema";
+import guildScheema from "../../../scheemas/guildSchema";
 import config from "../../../config.json"
 
 export default {

@@ -1,5 +1,6 @@
 import { Client, ColorResolvable, EmbedBuilder, Events, Interaction, InteractionType, Collection } from "discord.js";
 import config from "../config.json";
+import { createUser } from "../util/herper-functions";
 
 /**
  * 
@@ -26,7 +27,9 @@ export default {
                 const { cooldowns } = interaction.client;
                 const { commandName, client, options } = interaction;
                 const command = client.slashCommands.get(commandName)!;
-                const errorEmbed = new EmbedBuilder()
+                const errorEmbed = new EmbedBuilder();
+
+                createUser(interaction.user.id);
                 
                 // Check if the bot has sufficient permissions to perform the command.
                 if (command.botPerms && interaction.guild && !interaction.guild!.members.me!.permissions.has(command!.botPerms)) {
@@ -34,7 +37,6 @@ export default {
                         .setColor(config.embeds.colors.error as ColorResolvable)
                         .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
                     return interaction.reply({ embeds: [errorEmbed], ephemeral: true });
-                    
                 }
     
                 const subCommandFile = fetchSubCommandFile(options, commandName, client);
@@ -105,8 +107,9 @@ export default {
                 const { customId } = interaction
                 const componentName = customId.split('.')[0];
 
-                const componentFile = interaction.client.messageComponents.get(componentName);
+                createUser(interaction.user.id);
 
+                const componentFile = interaction.client.messageComponents.get(componentName);
                 if (!componentFile) return;
 
                 try {
