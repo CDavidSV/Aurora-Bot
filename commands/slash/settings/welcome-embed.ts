@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import guildScheema from "../../../scheemas/guildSchema";
+import guildScheema from "../../../schemas/guildSchema";
 
 export default {
     subCommand: "settings.welcome.embed",

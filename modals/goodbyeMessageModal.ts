@@ -1,5 +1,5 @@
 import { ModalSubmitInteraction } from "discord.js";
-import guildScheema from "../scheemas/guildSchema";
+import guildScheema from "../schemas/guildSchema";
 
 export default {
     name: 'goodbyeMessageModal',

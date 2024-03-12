@@ -1,7 +1,7 @@
 import { AttachmentBuilder, ColorResolvable, EmbedBuilder, Events, Guild, Interaction, TextBasedChannel, User } from "discord.js";
 import canvas from "canvas"
 import config from "../config.json";
-import guildScheema from "../scheemas/guildSchema";
+import guildScheema from "../schemas/guildSchema";
 
 const resizeText = (canvas: canvas.Canvas, text: string) => {
     const context = canvas.getContext('2d');

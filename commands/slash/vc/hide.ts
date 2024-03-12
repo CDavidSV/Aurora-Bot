@@ -1,5 +1,5 @@
 import { CacheType, ChatInputCommandInteraction, GuildMember, VoiceChannel } from "discord.js";
-import tempvcScheema from "../../../scheemas/tempvcSchema";
+import tempvcScheema from "../../../schemas/tempvcSchema";
 
 export default {
     subCommand: 'vc.hide',

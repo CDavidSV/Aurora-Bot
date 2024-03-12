@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js";
 import config from "../../../config.json";
-import guildScheema from "../../../scheemas/guildSchema";
+import guildScheema from "../../../schemas/guildSchema";
 
 export default {
     subCommand: 'server.settings',

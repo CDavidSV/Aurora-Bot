@@ -1,6 +1,6 @@
 import { ChannelType, Events, VoiceState, Collection } from "discord.js";
-import tempvcGeneratorScheema from "../scheemas/tempvcGeneratorsSchema";
-import tempvcScheema from "../scheemas/tempvcSchema";
+import tempvcGeneratorScheema from "../schemas/tempvcGeneratorsSchema";
+import tempvcScheema from "../schemas/tempvcSchema";
 
 const cooldowns = new Collection<string, number>(); // Cooldows for generating temp voice channels.
 

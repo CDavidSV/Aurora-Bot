@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, Role, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
-import guildScheema from "../../../scheemas/guildSchema";
+import guildScheema from "../../../schemas/guildSchema";
 import config from "../../../config.json";
 
 const confirmDeleteRole = async (interaction: StringSelectMenuInteraction, role: string) => {

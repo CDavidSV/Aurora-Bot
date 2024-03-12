@@ -20,7 +20,7 @@ export default {
     botPerms: [PermissionFlagsBits.KickMembers, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: async (interaction:  ChatInputCommandInteraction<CacheType>) => {
         // Create message embed.
-        const banEmbed = new EmbedBuilder();
+        const kickEmbed = new EmbedBuilder();
 
         const guild = interaction.guild;
         const user = interaction.options.getUser('user', true);
@@ -37,28 +37,37 @@ export default {
 
         // Avoids user from banning moderators and administrators.
         if ((member!.permissions.has([PermissionFlagsBits.Administrator]) || !member!.kickable)) {
-            banEmbed
+            kickEmbed
                 .setColor(config.embeds.colors.error as ColorResolvable)
                 .setAuthor({ name: "You can't kick an Administrator.", iconURL: config.embeds.images.errorImg })
-            await interaction.reply({ embeds: [banEmbed], ephemeral: true });
+            await interaction.reply({ embeds: [kickEmbed], ephemeral: true });
             return;
         }
 
+        // Send a DM to the user.
+        const userEmbed = new EmbedBuilder()
+            .setColor(config.embeds.colors.main as ColorResolvable)
+            .setAuthor({ name: `You have been kicked from ${interaction.guild?.name}.`, iconURL: interaction.guild?.iconURL({ forceStatic: false })! })
+            .setDescription(`****Reason:**** ${kickReason}`)
+            .setFooter({ text: `If you think this was a mistake, please contact the server's moderators.` });
+        
+        await user.send({ embeds: [userEmbed] }).catch(console.error);
+        
         // Attempts to ban the user.
         member.kick(kickReason).then(async () => {
-            banEmbed
+            kickEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setAuthor({ name: `${user.username} was kicked from the server.`, iconURL: user.avatarURL({ forceStatic: false })! })
             .setDescription(`****Reason:**** ${kickReason}`)
 
-            await interaction.reply({ content: `The user ${user.username} (id: ${user.id}) has been kicked from the server`, ephemeral: true });
-            await channel.send({ embeds: [banEmbed] });
+            interaction.reply({ content: `The user ${user.username} (id: ${user.id}) has been kicked from the server`, ephemeral: true }).catch(console.error);
+            channel.send({ embeds: [kickEmbed] }).catch(console.error);
         }).catch(async (err) => {
             console.log(err);
-            banEmbed
+            kickEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: "I'm Sorry but I can't kick this member.", iconURL: config.embeds.images.errorImg })
-            interaction.reply({ embeds: [banEmbed], ephemeral: true }).catch(console.error);
-        })
+            interaction.reply({ embeds: [kickEmbed], ephemeral: true }).catch(console.error);
+        });
     }
 }

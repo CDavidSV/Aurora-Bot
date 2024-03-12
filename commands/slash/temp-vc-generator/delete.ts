@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, CacheType, ActionRowBuilder, EmbedBuilder, ColorResolvable, ComponentType, ButtonInteraction, ButtonBuilder, ButtonStyle } from "discord.js";
 import config from "../../../config.json";
-import tempvcGeneratorSchema from "../../../scheemas/tempvcGeneratorsSchema";
+import tempvcGeneratorSchema from "../../../schemas/tempvcGeneratorsSchema";
 import { generatorSelect } from "../../../handlers/generator-select-handler";
 
 export default {

@@ -6,8 +6,8 @@ import { UpdateType, setupCommands } from "./handlers/command-handler";
 import setupButtons from "./handlers/component-handler";
 import setupModals from "./handlers/modal-handler";
 import mongoose from "mongoose";
-import tempvcScheema from "./scheemas/tempvcSchema";
-import tempvcGeneratorsScheema from "./scheemas/tempvcGeneratorsSchema";
+import tempvcScheema from "./schemas/tempvcSchema";
+import tempvcGeneratorsScheema from "./schemas/tempvcGeneratorsSchema";
 import config from "./config.json";
 import { ACommand } from "./structs/ACommand";
 

@@ -1,6 +1,6 @@
 import { AttachmentBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, User } from "discord.js";
 import config from '../../../config.json';
-import rpImagesScheema from "../../../scheemas/rpImagesSchema";
+import rpImagesScheema from "../../../schemas/rpImagesSchema";
 import canvas from "canvas";
 import path from "path";
 

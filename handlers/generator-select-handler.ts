@@ -1,5 +1,5 @@
 import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, ButtonBuilder, ButtonStyle, ButtonInteraction, Interaction, InteractionCollector, StringSelectMenuInteraction } from "discord.js";
-import tempvcScheema from "../scheemas/tempvcGeneratorsSchema";
+import tempvcScheema from "../schemas/tempvcGeneratorsSchema";
 import config from "../config.json";
 
 /**

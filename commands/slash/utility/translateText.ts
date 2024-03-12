@@ -23,7 +23,8 @@ export default {
                 .setFooter({ text: `${config.version} • Powered by Google` })
 
             await interaction.followUp({ embeds: [translateEmbed] });
-        }).catch(async () => {
+        }).catch(async (err) => {
+            console.error(err);
             await interaction.followUp("An error ocurred while translating this text. Please try again later.");
         });
     },

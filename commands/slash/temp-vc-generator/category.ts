@@ -1,5 +1,5 @@
 import { CacheType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js";
-import tempvcGeneratorsSchema from "../../../scheemas/tempvcGeneratorsSchema";
+import tempvcGeneratorsSchema from "../../../schemas/tempvcGeneratorsSchema";
 import { generatorSelect } from "../../../handlers/generator-select-handler";
 import config from "../../../config.json";
 

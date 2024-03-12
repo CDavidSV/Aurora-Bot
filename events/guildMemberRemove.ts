@@ -1,5 +1,5 @@
 import { ColorResolvable, EmbedBuilder, Events, Interaction, TextBasedChannel } from "discord.js";
-import guildScheema from "../scheemas/guildSchema";
+import guildScheema from "../schemas/guildSchema";
 import config from "../config.json";
 
 export default {

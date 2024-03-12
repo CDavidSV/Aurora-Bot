@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, CacheType, EmbedBuilder, ColorResolvable } from "discord.js";
 import { generatorSelect } from "../../../handlers/generator-select-handler";
 import config from "../../../config.json";
-import tempvcGeneratorsScheema from "../../../scheemas/tempvcGeneratorsSchema";
+import tempvcGeneratorsScheema from "../../../schemas/tempvcGeneratorsSchema";
 
 export default {
     subCommand: 'tempvc.region',

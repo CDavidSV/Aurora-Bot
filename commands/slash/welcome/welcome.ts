@@ -1,6 +1,6 @@
 import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { generateWelcomeResponse } from "../../../events/guildMemberAdd";
-import guildScheema from "../../../scheemas/guildSchema";
+import guildScheema from "../../../schemas/guildSchema";
 
 export default {
     data: new SlashCommandBuilder()

@@ -1,6 +1,6 @@
 import { CacheType, ChatInputCommandInteraction, Collection, GuildMember, VoiceChannel } from "discord.js";
-import tempvcScheema from "../../../scheemas/tempvcSchema";
-import tempvcGeneratorsScheema from "../../../scheemas/tempvcGeneratorsSchema";
+import tempvcScheema from "../../../schemas/tempvcSchema";
+import tempvcGeneratorsScheema from "../../../schemas/tempvcGeneratorsSchema";
 import { canRenameChannel } from "../../../util/herper-functions";
 
 export default {

@@ -58,15 +58,25 @@ export default {
             return;
         }
 
+        // Send a message to the banned user.
+        const userEmbed = new EmbedBuilder()
+            .setColor(config.embeds.colors.main as ColorResolvable)
+            .setAuthor({ name: `You have been banned from ${interaction.guild?.name}.`, iconURL: interaction.guild?.iconURL({ forceStatic: false })! })
+            .setDescription(`****Reason:**** ${banReason}`)
+            .setFooter({ text: `If you think this was a mistake, please contact the server's moderators.` });
+
+        await user.send({ embeds: [userEmbed] }).catch(console.error);
+
         // Attempts to ban the user.
         interaction.guild?.members.ban(user, { deleteMessageSeconds: parseInt(deleteMessagesTimeSec), reason: banReason }).then(async () => {
             banEmbed
             .setColor(config.embeds.colors.main as ColorResolvable)
             .setAuthor({ name: `${user.username} was banned for the server.`, iconURL: user.avatarURL({ forceStatic: false })! })
             .setDescription(`****Reason:**** ${banReason}`)
+            .setFooter({ text: '' })
 
             // Initialize unban button collector.
-            const collector = interaction.channel!.createMessageComponentCollector({ 
+            interaction.channel!.createMessageComponentCollector({ 
                 filter: (btnInteraction) => btnInteraction.customId === `user${interaction.id}`, 
                 componentType: ComponentType.Button,
                 time: 900_000
@@ -80,14 +90,14 @@ export default {
                     .setStyle(ButtonStyle.Primary),
             );
             
-            await interaction.reply({ content: `The user ${user.username} (id: ${user.id}) has been banned from this server`, components: [row], ephemeral: true });
-            await channel.send({ embeds: [banEmbed] });
+            interaction.reply({ content: `The user ${user.username} (id: ${user.id}) has been banned from this server`, components: [row], ephemeral: true }).catch(console.error);
+            channel.send({ embeds: [banEmbed] }).catch(console.error);
         }).catch(async (err) => {
             console.log(err);
             banEmbed
             .setColor(config.embeds.colors.error as ColorResolvable)
             .setAuthor({ name: "I'm Sorry but I can't ban this member.", iconURL: config.embeds.images.errorImg })
             interaction.reply({ embeds: [banEmbed], ephemeral: true }).catch(console.error);
-        })
+        });
     }
 }

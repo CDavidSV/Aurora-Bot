@@ -1,6 +1,6 @@
 import { CacheType, ChannelType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js"
 import config from "../../../config.json";
-import tempvcGeneratorScheema from "../../../scheemas/tempvcGeneratorsSchema";
+import tempvcGeneratorScheema from "../../../schemas/tempvcGeneratorsSchema";
 
 export default {
     subCommand: 'tempvc.create',

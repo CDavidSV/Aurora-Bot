@@ -1,5 +1,5 @@
 import { Role, EmbedBuilder, Client } from 'discord.js';
-import userSchema from '../scheemas/userSchema';
+import userSchema from '../schemas/userSchema';
 
 const getRoleInfo = (role: Role) => {
     const name = role.name;
