@@ -8,7 +8,7 @@ export default {
             const allowedUser = interaction.client.users.cache.get(customIdParts[2]);
 
             if (!allowedUser || interaction.user.id !== allowedUser.id) {
-                await interaction.reply({ content: `You do not have permission to run this command.`, ephemeral: true});
+                await interaction.reply({ content: `You do not have permission to perform this action.`, ephemeral: true });
                 return;
             }
 

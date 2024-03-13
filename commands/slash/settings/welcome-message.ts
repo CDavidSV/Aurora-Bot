@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import guildScheema from "../../../schemas/guildSchema";
+import guildSchema from "../../../schemas/guildSchema";
 
 export default {
     subCommand: "settings.welcome.message",
@@ -32,7 +32,7 @@ export default {
             .setRequired(false)
             .setValue(`{username} - User's name\n{mention} - User's mention\n{id} - User's ID\n{server} - Server name\n{members} - Server member count\n`)
 
-        const guildSettings = await guildScheema.findById(interaction.guild?.id).catch(() => null);
+        const guildSettings = await guildSchema.findById(interaction.guild?.id).catch(() => null);
 
         if (guildSettings && guildSettings.welcome?.welcome_message) {
             welcomeMessageInput.setValue(guildSettings.welcome.welcome_message);

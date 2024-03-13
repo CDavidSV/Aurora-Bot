@@ -1,5 +1,4 @@
 import { ActionRowBuilder, CacheType, ChannelType, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, PermissionFlagsBits, PermissionsBitField, SlashCommandBuilder, TextBasedChannel, TextInputBuilder, TextInputStyle } from "discord.js";
-import { re } from "mathjs";
 
 export default {
     data: new SlashCommandBuilder()
@@ -22,7 +21,7 @@ export default {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages | PermissionFlagsBits.ManageChannels | PermissionFlagsBits.ManageMessages),
     botPerms: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ManageMessages],
     callback: async (interaction: ChatInputCommandInteraction<CacheType>) => {
-        const channel: TextBasedChannel = interaction.options.getChannel("channel") as TextBasedChannel;
+        const channel: TextBasedChannel = interaction.options.getChannel("channel") as TextBasedChannel || interaction.channel!;
 
         // Check if the bot has permissions to send messages in the channel
         if (channel.type !== ChannelType.DM && !channel.permissionsFor(interaction.client.user!)?.has(PermissionsBitField.Flags.SendMessages)) {

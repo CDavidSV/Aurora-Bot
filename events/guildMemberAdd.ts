@@ -1,7 +1,7 @@
 import { AttachmentBuilder, ColorResolvable, EmbedBuilder, Events, Guild, Interaction, TextBasedChannel, User } from "discord.js";
 import canvas from "canvas"
 import config from "../config.json";
-import guildScheema from "../schemas/guildSchema";
+import guildSchema from "../schemas/guildSchema";
 
 const resizeText = (canvas: canvas.Canvas, text: string) => {
     const context = canvas.getContext('2d');
@@ -124,7 +124,7 @@ export default {
         console.log(`guildMemberAdd event triggered for user ${interaction.user.id} at ${new Date().toISOString()}`);
         // Check if the server the user joined has welcome messages enabled.
         try {
-            const guildSettings = await guildScheema.findById(interaction.guild?.id);
+            const guildSettings = await guildSchema.findById(interaction.guild?.id);
             const member = interaction.guild?.members.cache.get(interaction.user.id);
 
             if (guildSettings?.autonick) {

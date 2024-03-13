@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import guildScheema from "../../../schemas/guildSchema";
+import guildSchema from "../../../schemas/guildSchema";
 import config from "../../../config.json"
 
 export default {
@@ -37,14 +37,14 @@ export default {
             case 'set': {
                 const nickname = interaction.options.getString('nickname', true);
 
-                await guildScheema.findByIdAndUpdate(interaction.guildId, { autonick: nickname }, { upsert: true, new: true, setDefaultsOnInsert: true });
+                await guildSchema.findByIdAndUpdate(interaction.guildId, { autonick: nickname }, { upsert: true, new: true, setDefaultsOnInsert: true });
 
                 autonickEmbed.setAuthor({ name: `Autonick configured. Users that join will now receive the nickname: ${nickname}`, iconURL: config.embeds.images.successImg }).setColor(config.embeds.colors.success as ColorResolvable);
                 await interaction.reply({ embeds: [autonickEmbed], ephemeral: true });
                 break;
             }
             case 'disable': {
-                await guildScheema.findByIdAndUpdate(interaction.guildId, { autonick: null }, { upsert: true, new: true, setDefaultsOnInsert: true });
+                await guildSchema.findByIdAndUpdate(interaction.guildId, { autonick: null }, { upsert: true, new: true, setDefaultsOnInsert: true });
 
                 autonickEmbed.setAuthor({ name: 'Autonick has been disabled on this server', iconURL: config.embeds.images.successImg }).setColor(config.embeds.colors.success as ColorResolvable);
                 await interaction.reply({ embeds: [autonickEmbed], ephemeral: true });
@@ -52,7 +52,7 @@ export default {
                 break;
             }
             case 'view': {
-                const guildSettings = await guildScheema.findById(interaction.guildId);
+                const guildSettings = await guildSchema.findById(interaction.guildId);
 
                 autonickEmbed.setAuthor({ name: 'This server is not configured with autonick', iconURL: config.embeds.images.errorImg }).setColor(config.embeds.colors.error as ColorResolvable);
                 if (!guildSettings || !guildSettings.autonick) {

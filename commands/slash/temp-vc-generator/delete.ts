@@ -54,9 +54,17 @@ export default {
                             .setColor(config.embeds.colors.success as ColorResolvable)
                             .setDescription("The temporary voice channel generator has been deleted.")
                             .setTimestamp()
+
+                            const createTempvcGeneratorButton = new ButtonBuilder()
+                                .setCustomId('createTempvcGenerator')
+                                .setLabel('Create Temp vc generator')
+                                .setStyle(ButtonStyle.Success);
+
+                            const row = new ActionRowBuilder<ButtonBuilder>()
+                                .addComponents(createTempvcGeneratorButton);
                             
                             interaction.client.tempvcGenerators.delete(interaction.guild?.id + selectedChannel);
-                            await interaction.editReply({ embeds: [deleteEmbed], components: [] });
+                            await interaction.editReply({ embeds: [deleteEmbed], components: [row] });
                         } catch {
                             deleteEmbed
                             .setTitle('Unexpected Error')

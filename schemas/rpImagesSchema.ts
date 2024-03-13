@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-const rpImagesScheema = new Schema({
+const rpImagesSchema = new Schema({
     rp_type: {
         require: true,
         type: String,
@@ -22,4 +22,4 @@ const rpImagesScheema = new Schema({
     }
 });
 
-export default model('RPImages', rpImagesScheema);
+export default model('RPImages', rpImagesSchema);

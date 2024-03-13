@@ -6,8 +6,8 @@ import { UpdateType, setupCommands } from "./handlers/command-handler";
 import setupButtons from "./handlers/component-handler";
 import setupModals from "./handlers/modal-handler";
 import mongoose from "mongoose";
-import tempvcScheema from "./schemas/tempvcSchema";
-import tempvcGeneratorsScheema from "./schemas/tempvcGeneratorsSchema";
+import tempvcSchema from "./schemas/tempvcSchema";
+import tempvcGeneratorsSchema from "./schemas/tempvcGeneratorsSchema";
 import config from "./config.json";
 import { ACommand } from "./structs/ACommand";
 
@@ -87,14 +87,14 @@ async function main(env: string = "prod") {
         console.log('Connected to mongo'.green);
 
         // Get temp vc generators and voice channels.
-        tempvcGeneratorsScheema.find().then((generators) => {
+        tempvcGeneratorsSchema.find().then((generators) => {
             if (generators.length >= 1) {
                 generators.forEach((generator) => {
                     client.tempvcGenerators.add(generator.guild_id + generator.generator_id);
                 });
             }
         });
-        tempvcScheema.find().then((voiceChannels) => {
+        tempvcSchema.find().then((voiceChannels) => {
             if (voiceChannels.length >= 1) {
                 voiceChannels.forEach((voiceChannel) => {
                     client.tempvChannels.add(voiceChannel.guild_id + voiceChannel.vc_id);

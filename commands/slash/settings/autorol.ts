@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, Role, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
-import guildScheema from "../../../schemas/guildSchema";
+import guildSchema from "../../../schemas/guildSchema";
 import config from "../../../config.json";
 
 const confirmDeleteRole = async (interaction: StringSelectMenuInteraction, role: string) => {
@@ -33,7 +33,7 @@ const confirmDeleteRole = async (interaction: StringSelectMenuInteraction, role:
         if (buttonInteraction.customId === `confirmDelete.${interaction.id}`) {
             // Remove the role from the autorole list.
             try {
-                await guildScheema.findByIdAndUpdate(interaction.guildId, { $pull: { autorole: role } }, { new: true });
+                await guildSchema.findByIdAndUpdate(interaction.guildId, { $pull: { autorole: role } }, { new: true });
                 const successEmbed = new EmbedBuilder()
                     .setAuthor({ name: `Role removed`, iconURL: config.embeds.images.successImg })
                     .setDescription(`The role <@&${role}> has been removed from the autorole list`)
@@ -102,9 +102,9 @@ export default {
 
                 try {
                     // Check if the guild is saved in the database.
-                    const guildData = await guildScheema.findById(interaction.guildId);
+                    const guildData = await guildSchema.findById(interaction.guildId);
                     if(!guildData) {
-                        await guildScheema.create({ _id: interaction.guildId, autorole: [role.id] });
+                        await guildSchema.create({ _id: interaction.guildId, autorole: [role.id] });
 
                         return await interaction.reply({ embeds: [successEmbed], ephemeral: true });
                     } else if (guildData.autorole.length === 3) {
@@ -122,7 +122,7 @@ export default {
                 }
                 break;
             case 'remove':
-                const guildData = await guildScheema.findById(interaction.guildId);
+                const guildData = await guildSchema.findById(interaction.guildId);
                 if (!guildData || !guildData.autorole || guildData.autorole.length < 1) {
                     const errorEmbed = new EmbedBuilder()
                         .setAuthor({ name: 'There are no autoroles set for this server', iconURL: config.embeds.images.errorImg })

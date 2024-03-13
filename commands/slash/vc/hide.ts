@@ -1,5 +1,5 @@
 import { CacheType, ChatInputCommandInteraction, GuildMember, VoiceChannel } from "discord.js";
-import tempvcScheema from "../../../schemas/tempvcSchema";
+import tempvcSchema from "../../../schemas/tempvcSchema";
 
 export default {
     subCommand: 'vc.hide',
@@ -12,7 +12,7 @@ export default {
         }
 
         // Check if the user is the owner of the voice channel.
-        const vc = await tempvcScheema.findOne({ owner_id: member.id, guild_id: interaction.guildId });
+        const vc = await tempvcSchema.findOne({ owner_id: member.id, guild_id: interaction.guildId });
         if (!vc) {
             return await interaction.reply({ content: 'You are not the owner of this voice channel.', ephemeral: true });
         }

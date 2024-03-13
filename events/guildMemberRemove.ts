@@ -1,5 +1,5 @@
 import { ColorResolvable, EmbedBuilder, Events, Interaction, TextBasedChannel } from "discord.js";
-import guildScheema from "../schemas/guildSchema";
+import guildSchema from "../schemas/guildSchema";
 import config from "../config.json";
 
 export default {
@@ -8,7 +8,7 @@ export default {
     async execute(interaction: Interaction) {
         // Check if the server the user joined has welcome messages enabled.
         try {
-            const guildSettings = await guildScheema.findById(interaction.guild?.id);
+            const guildSettings = await guildSchema.findById(interaction.guild?.id);
 
             // If the guild is not in the db then do nothing.
             // Check if the guild has goodbye messages enabled.

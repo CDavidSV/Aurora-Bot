@@ -1,6 +1,6 @@
 import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { generateWelcomeResponse } from "../../../events/guildMemberAdd";
-import guildScheema from "../../../schemas/guildSchema";
+import guildSchema from "../../../schemas/guildSchema";
 
 export default {
     data: new SlashCommandBuilder()
@@ -16,7 +16,7 @@ export default {
     callback: async (interaction: CommandInteraction) => {
         await interaction.deferReply();
         // Check if the server the user joined has welcome messages enabled.
-        const guildSettings = await guildScheema.findById(interaction.guild?.id);
+        const guildSettings = await guildSchema.findById(interaction.guild?.id);
 
         // If the guild is not in the db then do nothing.
         // Check if the guild has welcome messages enabled.

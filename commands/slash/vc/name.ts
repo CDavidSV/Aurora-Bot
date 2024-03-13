@@ -1,6 +1,6 @@
 import { CacheType, ChatInputCommandInteraction, Collection, GuildMember, VoiceChannel } from "discord.js";
-import tempvcScheema from "../../../schemas/tempvcSchema";
-import tempvcGeneratorsScheema from "../../../schemas/tempvcGeneratorsSchema";
+import tempvcSchema from "../../../schemas/tempvcSchema";
+import tempvcGeneratorsSchema from "../../../schemas/tempvcGeneratorsSchema";
 import { canRenameChannel } from "../../../util/herper-functions";
 
 export default {
@@ -13,14 +13,14 @@ export default {
         if (!member.voice.channel) return interaction.reply({ content: 'You must be in a voice channel to use this command.', ephemeral: true });
         
         // Check if the user is the owner of the voice channel.
-        const vc = await tempvcScheema.findOne({ owner_id: member.id, guild_id: interaction.guildId });
+        const vc = await tempvcSchema.findOne({ owner_id: member.id, guild_id: interaction.guildId });
         
         if (!vc) {
             return await interaction.reply({ content: 'You are not the owner of this voice channel.', ephemeral: true });
         }
         
         // Check if the names for generated vcs can be changed.
-        const generator = await tempvcGeneratorsScheema.findOne({ generator_id: vc?.generator_id });
+        const generator = await tempvcGeneratorsSchema.findOne({ generator_id: vc?.generator_id });
         
         if (generator && !generator.allow_rename) {
             return await interaction.reply({ content: 'You are not allowed to change the name of this voice channel.', ephemeral: true });

@@ -1,6 +1,6 @@
 import { AttachmentBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, User } from "discord.js";
 import config from '../../../config.json';
-import rpImagesScheema from "../../../schemas/rpImagesSchema";
+import rpImagesSchema from "../../../schemas/rpImagesSchema";
 import canvas from "canvas";
 import path from "path";
 
@@ -133,13 +133,17 @@ export default {
         .setDMPermission(false),
     botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
     callback: async (interaction: ChatInputCommandInteraction) => {
-        await interaction.deferReply({ ephemeral: false });
         
         let randomPercentage = Math.floor(Math.random() * 100);
         let message = randomMessage(randomPercentage);
         const user1 = interaction.options.getUser('member_1', true);
         const user2 = interaction.options.getUser('member_2', true);
-        const shipImg = await rpImagesScheema.aggregate([{ $match: {rp_type: "ship"} }, { $sample: { size: 1 } }]).then(docs => docs[0]);
+        
+        if (user1.id === interaction.user.id && user2.id === interaction.user.id) return await interaction.reply({ content: "You can't ship yourself with yourself ¯\\_(ツ)_/¯.", ephemeral: true });
+        if (user1.id === user2.id) return await interaction.reply({ content: "You can't ship the same person with themselves ¯\\_(ツ)_/¯.", ephemeral: true });
+
+        await interaction.deferReply({ ephemeral: false });
+        const shipImg = await rpImagesSchema.aggregate([{ $match: {rp_type: "ship"} }, { $sample: { size: 1 } }]).then(docs => docs[0]);
 
         const file = await shipImage(user1, user2, shipImg?.img_url!, `${randomPercentage}%`);
 

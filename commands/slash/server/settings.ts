@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js";
 import config from "../../../config.json";
-import guildScheema from "../../../schemas/guildSchema";
+import guildSchema from "../../../schemas/guildSchema";
 
 export default {
     subCommand: 'server.settings',
@@ -20,7 +20,7 @@ export default {
             )
         
         // Fetch guild settings from database.
-        const guildSettings = await guildScheema.findById(interaction.guild!.id);
+        const guildSettings = await guildSchema.findById(interaction.guild!.id);
 
         if (!guildSettings) return await interaction.reply({ embeds: [guildSettingsEmbed], ephemeral: true }); 
                 

@@ -1,5 +1,5 @@
 import { ModalSubmitInteraction } from "discord.js";
-import guildScheema from "../schemas/guildSchema";
+import guildSchema from "../schemas/guildSchema";
 
 export default {
     name: 'goodbyeMessageModal',
@@ -10,7 +10,7 @@ export default {
         goodbyeText = goodbyeText.length > 1 ? goodbyeText : null;
         imageUrl = imageUrl.length > 1 ? imageUrl : null;
 
-        await guildScheema.findByIdAndUpdate(
+        await guildSchema.findByIdAndUpdate(
             interaction.guildId,
             {
                 $set: {

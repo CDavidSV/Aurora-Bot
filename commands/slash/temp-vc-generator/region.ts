@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, CacheType, EmbedBuilder, ColorResolvable } from "discord.js";
 import { generatorSelect } from "../../../handlers/generator-select-handler";
 import config from "../../../config.json";
-import tempvcGeneratorsScheema from "../../../schemas/tempvcGeneratorsSchema";
+import tempvcGeneratorsSchema from "../../../schemas/tempvcGeneratorsSchema";
 
 export default {
     subCommand: 'tempvc.region',
@@ -12,7 +12,7 @@ export default {
             const selectedRegion = interaction.options.getString('select');
             
             try {
-                const generator = await tempvcGeneratorsScheema.findOneAndUpdate(
+                const generator = await tempvcGeneratorsSchema.findOneAndUpdate(
                     { guild_id: interaction.guildId, generator_id: selectedChannel }, 
                     { region: selectedRegion }
                 );

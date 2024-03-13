@@ -1,6 +1,6 @@
 import { CacheType, ChannelType, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from "discord.js"
 import config from "../../../config.json";
-import tempvcGeneratorScheema from "../../../schemas/tempvcGeneratorsSchema";
+import tempvcGeneratorSchema from "../../../schemas/tempvcGeneratorsSchema";
 
 export default {
     subCommand: 'tempvc.create',
@@ -22,7 +22,7 @@ export default {
             position: 0
         }).then(async (channel) => {
             try {
-                await tempvcGeneratorScheema.create( // Save in the db.
+                await tempvcGeneratorSchema.create( // Save in the db.
                     { 
                         category_id: category?.id, 
                         guild_id: interaction.guild?.id,
@@ -48,7 +48,7 @@ export default {
                 .setFields(
                     { name: 'Category', value: category?.name || 'No name' },
                     { name: 'Limit', value: limit?.toString() || 'Not specified', inline: true},
-                    { name: 'Region', value: region || 'Not specified', inline: true },
+                    { name: 'Region', value: region || 'Automatic', inline: true },
                     { name: 'Custom name', value: name || 'Not Specified', inline: true},
                     { name: 'Allow Renaming', value: allowRenameString, inline: true }
                 )

@@ -133,5 +133,5 @@ export default {
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     botPerms: [PermissionFlagsBits.ManageChannels, PermissionFlagsBits.MoveMembers],
-    cooldown: 10,
+    cooldown: 5,
 }

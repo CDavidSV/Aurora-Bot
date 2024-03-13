@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import guildScheema from "../../../schemas/guildSchema";
+import guildSchema from "../../../schemas/guildSchema";
 
 export default {
     subCommand: "settings.welcome.embed",
@@ -7,7 +7,7 @@ export default {
         const option = interaction.options.getBoolean('enable');
 
         try {
-            const guild = await guildScheema.findOneAndUpdate({ _id: interaction.guildId }, { $set: { 'welcome.embed': option } }, { upsert: true, new: true, setDefaultsOnInsert: true });
+            const guild = await guildSchema.findOneAndUpdate({ _id: interaction.guildId }, { $set: { 'welcome.embed': option } }, { upsert: true, new: true, setDefaultsOnInsert: true });
 
             const message = guild.welcome?.embed ? '👋 Welcome messages will now be sent as embeds' : '👋 Welcome messages will no longer be sent as embeds';
 

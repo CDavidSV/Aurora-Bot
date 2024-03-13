@@ -1,5 +1,5 @@
 import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, CacheType, ChatInputCommandInteraction, ColorResolvable, ComponentType, EmbedBuilder, ButtonBuilder, ButtonStyle, ButtonInteraction, Interaction, InteractionCollector, StringSelectMenuInteraction } from "discord.js";
-import tempvcScheema from "../schemas/tempvcGeneratorsSchema";
+import tempvcSchema from "../schemas/tempvcGeneratorsSchema";
 import config from "../config.json";
 
 /**
@@ -9,7 +9,7 @@ import config from "../config.json";
  */
 const getGenerators = async (guildId: string) => {
     try {
-        return await tempvcScheema.find({ guild_id: guildId });
+        return await tempvcSchema.find({ guild_id: guildId });
     } catch (err) {
         console.error(err);
         return null;

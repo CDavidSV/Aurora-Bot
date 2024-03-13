@@ -1,6 +1,6 @@
 import { ChannelType, Events, VoiceState, Collection } from "discord.js";
-import tempvcGeneratorScheema from "../schemas/tempvcGeneratorsSchema";
-import tempvcScheema from "../schemas/tempvcSchema";
+import tempvcGeneratorSchema from "../schemas/tempvcGeneratorsSchema";
+import tempvcSchema from "../schemas/tempvcSchema";
 
 const cooldowns = new Collection<string, number>(); // Cooldows for generating temp voice channels.
 
@@ -24,10 +24,10 @@ const generateTempVC = async (state: VoiceState) => {
     }, 15000);
     try {
         // Get the generator settings for the one the user joined and create a temporary voice channel.
-        const generator = await tempvcGeneratorScheema.findOne({ guild_id: state.guild.id, generator_id: state.channelId });
+        const generator = await tempvcGeneratorSchema.findOne({ guild_id: state.guild.id, generator_id: state.channelId });
         if (!generator) return;
 
-        const count = await tempvcScheema.countDocuments({ guild_id: state.guild.id, generator_id: generator.generator_id });
+        const count = await tempvcSchema.countDocuments({ guild_id: state.guild.id, generator_id: generator.generator_id });
         const channelName =  generator.custom_vc_name ? `${generator.custom_vc_name} ${count + 1}` : `${state.member?.displayName}'s VC`;
         
         const channel = await state.guild.channels.create({ // Apply settings from generator and save.
@@ -40,7 +40,7 @@ const generateTempVC = async (state: VoiceState) => {
 
         try {
             await state.member?.voice.setChannel(channel)
-            await tempvcScheema.create({ guild_id: state.guild.id, generator_id: generator.generator_id, vc_id: channel.id, owner_id: state.member?.id, name: channelName });
+            await tempvcSchema.create({ guild_id: state.guild.id, generator_id: generator.generator_id, vc_id: channel.id, owner_id: state.member?.id, name: channelName });
             state.client.tempvChannels.add(state.guild.id + channel.id); // Add the channel to the tempvc set.
         } catch {
             await channel.delete();
@@ -56,7 +56,7 @@ const deleteTempVC = async (state: VoiceState) => {
     try {
         await Promise.all([
             state.channel?.delete(), // delete channel.
-            tempvcScheema.findOneAndDelete({ guild_id: state.guild.id, vc_id: state.channelId })
+            tempvcSchema.findOneAndDelete({ guild_id: state.guild.id, vc_id: state.channelId })
         ]);
     } catch (err) {
         console.error(err);
