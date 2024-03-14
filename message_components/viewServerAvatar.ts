@@ -23,7 +23,7 @@ export default {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId(`userAvatar.${userId}`)
-                    .setLabel('View User Avatar')
+                    .setLabel('🖼️ View User Avatar')
                     .setStyle(ButtonStyle.Primary),
             );
         

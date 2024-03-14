@@ -69,5 +69,6 @@ export default {
             .setAuthor({ name: "I'm Sorry but I can't kick this member.", iconURL: config.embeds.images.errorImg })
             interaction.reply({ embeds: [kickEmbed], ephemeral: true }).catch(console.error);
         });
-    }
+    },
+    cooldown: 3
 }

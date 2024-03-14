@@ -23,11 +23,11 @@ export default {
         const guildSettings = await guildSchema.findById(interaction.guild!.id);
 
         if (!guildSettings) return await interaction.reply({ embeds: [guildSettingsEmbed], ephemeral: true }); 
-                
+        
         const welcome_channel = guildSettings.welcome && guildSettings.welcome.welcome_channel ? `<#${guildSettings.welcome.welcome_channel}>` : 'Disabled';
         const goodbye_channel = guildSettings.goodbye && guildSettings.goodbye.goodbye_channel ? `<#${guildSettings.goodbye.goodbye_channel}>` : 'Disabled';
         const birthday_channel = guildSettings.bday && guildSettings.bday.channel ? `<#${guildSettings.bday.channel}>` : 'Disabled';
-        const auto_roles = guildSettings.autorole && guildSettings.autorole.length >= 1 ? guildSettings.autorole.join(', ') : 'Disabled';
+        const auto_roles = guildSettings.autorole && guildSettings.autorole.length >= 1 ? guildSettings.autorole.map(role => `<@&${role}>`).join(', ') : 'Disabled';
         const auto_nick = guildSettings.autonick ? guildSettings.autonick : 'Disabled';
         guildSettingsEmbed
             .setFields(

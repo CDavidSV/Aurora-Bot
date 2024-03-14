@@ -1,5 +1,6 @@
 import { Role, EmbedBuilder, Client } from 'discord.js';
 import userSchema from '../schemas/userSchema';
+import userWarningsSchema from '../schemas/userWarningsSchema';
 
 const getRoleInfo = (role: Role) => {
     const name = role.name;
@@ -136,4 +137,32 @@ const createUser = (id: string) => {
     userSchema.findByIdAndUpdate(id, { _id: id }, { upsert: true, setDefaultsOnInsert: true, new: true }).catch(console.error);
 };
 
-export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL, canRenameChannel, createUser };
+const getUserWarnings = async (userId: string, guildId: string, client: Client, cursor?: string) => {
+    try {
+        const match: any = { user_id: userId, guild_id: guildId };
+        if (cursor) { 
+            match._id = { $lt: cursor };
+        }
+
+        const userWarnings = await userWarningsSchema.aggregate([
+            { $match: match },
+            { $sort: { created_at: -1 } },
+            { $project: { id: { $toString: "$_id" }, reason: 1, moderator_id: 1, created_at: 1, _id: 0 } }
+        ]);
+
+        const user = await client.users.fetch(userId);
+        return { warnings: { 
+            user: {
+                userId: user.id,
+                username: user.username,
+                avatar: user.avatarURL({ forceStatic: false })!
+            },
+            count: userWarnings.length,
+            data: userWarnings 
+        }, error: null };
+    } catch (err) {
+        return { warnings: null, error: "Failed to fetch user warnings" };
+    }
+};
+
+export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL, canRenameChannel, createUser, getUserWarnings };

@@ -25,5 +25,6 @@ export default {
                 .setName('settings')
                 .setDescription('⚙️ View bot settings for this server')
         ),
-    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageGuild]
+    botPerms: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageGuild],
+    cooldown: 5
 }

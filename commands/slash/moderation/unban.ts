@@ -39,5 +39,6 @@ export default {
             .setAuthor({ name: "I'm Sorry, but I can't unban this member.", iconURL: config.embeds.images.errorImg })
             interaction.reply({ embeds: [unbanEmbed], ephemeral: true }).catch(console.error);
         })
-    }
+    },
+    cooldown: 5
 }

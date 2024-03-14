@@ -44,5 +44,6 @@ export default {
 
             interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
         });
-    }
+    },
+    cooldown: 3
 }

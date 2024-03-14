@@ -99,5 +99,6 @@ export default {
             .setAuthor({ name: "I'm Sorry but I can't ban this member.", iconURL: config.embeds.images.errorImg })
             interaction.reply({ embeds: [banEmbed], ephemeral: true }).catch(console.error);
         });
-    }
+    },
+    cooldown: 3
 }

@@ -3,7 +3,6 @@ import { Schema, model } from "mongoose";
 const userSchema = new Schema({
     _id: String,
     birthday: { type: Date, default: null },
-    about: { type: String, default: null },
     bot_member_since: { type: Date, default: new Date() },
     occupation: { type: String, default: null },
     xp: { type: Number, default: 0 },

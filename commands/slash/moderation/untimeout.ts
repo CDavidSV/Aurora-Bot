@@ -47,5 +47,6 @@ export default {
             .setAuthor({ name: "I'm Sorry, but I can't untimeout this member.", iconURL: config.embeds.images.errorImg })
             interaction.reply({ embeds: [timeoutEmbed] }).catch(console.error);
         })
-    }
+    },
+    cooldown: 5
 }

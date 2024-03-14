@@ -1,5 +1,5 @@
 // Show a user´s avatar.
-import {SlashCommandBuilder, PermissionsBitField, PermissionFlagsBits } from 'discord.js';
+import {SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -18,6 +18,15 @@ export default {
             subcommand
                 .setName('banner')
                 .setDescription("👤 Shows a user's banner")
+                .addUserOption(option =>
+                    option
+                        .setName('user')
+                        .setDescription('User Mention')
+                        .setRequired(false)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('info')
+                .setDescription("👤 Shows a user's information")
                 .addUserOption(option =>
                     option
                         .setName('user')

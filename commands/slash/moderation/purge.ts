@@ -99,5 +99,6 @@ export default {
                 message.delete().catch(console.error);
             }, 4000); // Delete the reponse message after 4 seconds
         });
-    }
+    },
+    cooldown: 10
 }

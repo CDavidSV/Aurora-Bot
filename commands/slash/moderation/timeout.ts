@@ -71,5 +71,6 @@ export default {
             .setAuthor({ name: "I'm Sorry, but I can't timeout this member.", iconURL: config.embeds.images.errorImg })
             interaction.reply({ embeds: [timeoutEmbed] }).catch(console.error);
         })
-    }
+    },
+    cooldown: 3
 }
