@@ -1,6 +1,7 @@
-import { Role, EmbedBuilder, Client } from 'discord.js';
+import { Role, EmbedBuilder, Client, ColorResolvable } from 'discord.js';
 import userSchema from '../schemas/userSchema';
 import userWarningsSchema from '../schemas/userWarningsSchema';
+import config from '../config.json';
 
 const getRoleInfo = (role: Role) => {
     const name = role.name;
@@ -137,18 +138,22 @@ const createUser = (id: string) => {
     userSchema.findByIdAndUpdate(id, { _id: id }, { upsert: true, setDefaultsOnInsert: true, new: true }).catch(console.error);
 };
 
-const getUserWarnings = async (userId: string, guildId: string, client: Client, cursor?: string) => {
+const getUserWarnings = async (userId: string, guildId: string, client: Client, page: number = 1) => {
     try {
-        const match: any = { user_id: userId, guild_id: guildId };
-        if (cursor) { 
-            match._id = { $lt: cursor };
-        }
-
-        const userWarnings = await userWarningsSchema.aggregate([
-            { $match: match },
+        if (page < 1) page = 1;
+        const query: any = [
+            { $match: { user_id: userId, guild_id: guildId } },
             { $sort: { created_at: -1 } },
+            { $skip: (page - 1) * 10 },
+            { $limit: 10 },
             { $project: { id: { $toString: "$_id" }, reason: 1, moderator_id: 1, created_at: 1, _id: 0 } }
+        ];
+
+        const [ userWarningsCount, userWarnings ] = await Promise.all([
+            userWarningsSchema.countDocuments({ user_id: userId, guild_id: guildId }),
+            userWarningsSchema.aggregate(query)
         ]);
+        const pages = Math.ceil(userWarningsCount / 10);
 
         const user = await client.users.fetch(userId);
         return { warnings: { 
@@ -157,7 +162,10 @@ const getUserWarnings = async (userId: string, guildId: string, client: Client, 
                 username: user.username,
                 avatar: user.avatarURL({ forceStatic: false })!
             },
-            count: userWarnings.length,
+            count: userWarningsCount,
+            countPerPage: 10,
+            pages,
+            page,
             data: userWarnings 
         }, error: null };
     } catch (err) {
@@ -165,4 +173,35 @@ const getUserWarnings = async (userId: string, guildId: string, client: Client, 
     }
 };
 
-export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL, canRenameChannel, createUser, getUserWarnings };
+const constructWarningsEmbed = (warnings: any, username: string, userId: string, iconUrl: string) => {
+    const pageEmbed = new EmbedBuilder()
+
+    let maxCharactersReached = false;
+    let warningsString = '';
+    for (let i = 0; i < warnings.data.length; i++) {
+        const stringToAppend = `**${warnings.page * warnings.countPerPage - (warnings.countPerPage - (i + 1))}.** ${warnings.data[i].reason} | **id:** ${warnings.data[i].id} | <t:${Math.round(warnings.data[i].created_at.getTime() / 1000)}:R> | <@${warnings.data[i].moderator_id}>\n`;
+        if (warningsString.length + stringToAppend.length > 4096) {
+            maxCharactersReached = true;
+            pageEmbed
+                .setColor(config.embeds.colors.main as ColorResolvable)
+                .setAuthor({ name: `Warnings for ${username} (id: ${userId})`, iconURL: iconUrl })
+                .setDescription(warnings.count === 0 ? "This user has no warnings." : `This user has **${warnings.count}** warnings:\n${warningsString}`)
+                .setTimestamp()
+
+            warningsString = '';
+            break;
+        };
+
+        warningsString += stringToAppend;
+    }
+
+    if (maxCharactersReached) return pageEmbed;
+
+    return pageEmbed
+        .setColor(config.embeds.colors.main as ColorResolvable)
+        .setAuthor({ name: `Warnings for ${username} (id: ${userId})`, iconURL: iconUrl })
+        .setDescription(warnings.count === 0 ? "This user has no warnings." : `This user has **${warnings.count}** warnings:\n${warningsString}`)
+        .setTimestamp()
+};
+
+export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL, canRenameChannel, createUser, getUserWarnings, constructWarningsEmbed };

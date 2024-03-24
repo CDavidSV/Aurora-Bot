@@ -12,11 +12,11 @@ export default {
             return;
         }
 
-        const permissions = member.permissions.toArray().map(perm => `✅ ${perm}`).join(',\n');
+        const permissions = member.permissions.toArray().map((perm, index) => `**${index + 1}.** ${perm}`).join('\n');
         const permsEmbed = new EmbedBuilder()
             .setTitle(`${member.displayName}'s Permissions`)
             .setColor(config.embeds.colors.main as ColorResolvable)
-            .setDescription(`\`\`\`${permissions}\`\`\``)
+            .setDescription(`${permissions}`)
             .setFooter({ text: interaction.guild?.name!, iconURL: interaction.guild?.iconURL({ forceStatic: false })! })
             .setTimestamp()
         

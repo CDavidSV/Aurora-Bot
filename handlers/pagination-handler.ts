@@ -1,122 +1,84 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import PaginationButtonHandler from "./pagination-button-handler";
 
 export class PaginationHandler {
     private embeds: EmbedBuilder[];
-    private pages: number;
-    private currentPage: number;
-    private paginationButtons: ActionRowBuilder<ButtonBuilder>;
+    private buttonHandler: PaginationButtonHandler;
 
     constructor(embeds: EmbedBuilder[], page: number = 1) { 
         this.embeds = embeds;
-        this.pages = embeds.length;
-
-        if (page > this.pages) {
-            this.currentPage = this.pages - 1;
-        }
-        this.currentPage = page - 1;
-        
-        // Build Buttons.
-        this.paginationButtons = new ActionRowBuilder<ButtonBuilder>()
-        .addComponents([
-            new ButtonBuilder().setCustomId('previous').setEmoji('1133857717027614811').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId('stop').setEmoji('1133857126478008430').setStyle(ButtonStyle.Danger),
-            new ButtonBuilder().setCustomId('next').setEmoji('1133857705241620530').setStyle(ButtonStyle.Primary)
-        ]);
-
-        this.updateButtonState();
+        this.buttonHandler = new PaginationButtonHandler(page, embeds.length);
     }
 
     getPageNumber(): string {
-        return `Page **${this.currentPage + 1}** of **${this.pages}**`;
-    }
-
-    private updateButtonState() {
-        // Check the current page and update the enabled and dissable buttons.
-        if (this.pages === 1) {
-            this.paginationButtons.components[0].setDisabled(true);
-            this.paginationButtons.components[2].setDisabled(true);
-        } else if (this.currentPage === 0) {
-            this.paginationButtons.components[0].setDisabled(true);
-            this.paginationButtons.components[2].setDisabled(false);
-        } else if (this.currentPage >= this.pages - 1) {
-            this.paginationButtons.components[0].setDisabled(false);
-            this.paginationButtons.components[2].setDisabled(true);
-        } else {
-            this.paginationButtons.components[0].setDisabled(false);
-            this.paginationButtons.components[2].setDisabled(false);
-        }
+        return `Page **${this.buttonHandler.getCurrentPageNumber() + 1}** of **${this.buttonHandler.getTotalPages()}**`;
     }
 
     updateEmbeds(newEmbedsList: EmbedBuilder[]) {
         this.embeds = newEmbedsList;
-        this.pages = this.embeds.length;
+        this.buttonHandler.setTotalPages(this.embeds.length);
 
-        if (this.currentPage >= this.pages -1) {
-            this.currentPage = this.pages - 1;
+        if (this.buttonHandler.getCurrentPageNumber() >= this.buttonHandler.getTotalPages() - 1) {
+            this.buttonHandler.setCurrentPage(this.buttonHandler.getTotalPages() - 1);
         }
-
-        this.updateButtonState();
     }
 
     getCurrentEmbed(): EmbedBuilder {
-        return this.embeds[this.currentPage];
+        return this.embeds[this.buttonHandler.getCurrentPageNumber()];
     }
 
     getButtons(): ActionRowBuilder<ButtonBuilder> {
-        return this.paginationButtons;
+        return this.buttonHandler.getButtons();
     }
 
     nextPage(): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } {
-        if (this.currentPage >= this.pages - 1) {
-            return { pageNumber: this.getPageNumber(), embed: this.embeds[-1], buttons: this.paginationButtons };
+        if (this.buttonHandler.getCurrentPageNumber() >= this.buttonHandler.getTotalPages() - 1) {
+            return { pageNumber: this.getPageNumber(), embed: this.embeds[-1], buttons: this.buttonHandler.getButtons() };
         }
 
-        this.currentPage++;
-        this.updateButtonState();
-        return { pageNumber: this.getPageNumber(), embed: this.embeds[this.currentPage], buttons: this.paginationButtons };
+        this.buttonHandler.increasePage();
+        return { pageNumber: this.getPageNumber(), embed: this.embeds[this.buttonHandler.getCurrentPageNumber()], buttons: this.buttonHandler.getButtons() };
     }
 
     previousPage(): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } {
-        if (this.currentPage === 0) {
-            return { pageNumber: this.getPageNumber(), embed: this.embeds[this.currentPage], buttons: this.paginationButtons };
+        if (this.buttonHandler.getCurrentPageNumber() === 0) {
+            return { pageNumber: this.getPageNumber(), embed: this.embeds[this.buttonHandler.getCurrentPageNumber()], buttons: this.buttonHandler.getButtons() };
         }
 
-        this.currentPage--;
-        this.updateButtonState();
-        return { pageNumber: this.getPageNumber(), embed: this.embeds[this.currentPage], buttons: this.paginationButtons };
+        this.buttonHandler.decreasePage();
+        return { pageNumber: this.getPageNumber(), embed: this.embeds[this.buttonHandler.getCurrentPageNumber()], buttons: this.buttonHandler.getButtons() };
+    }
+
+    lastPage(): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } {
+        this.buttonHandler.lastPage();
+
+        return { pageNumber: this.getPageNumber(), embed: this.embeds[this.buttonHandler.getCurrentPageNumber()], buttons: this.buttonHandler.getButtons() };
+    }
+
+    firstPage(): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } {
+        this.buttonHandler.firstPage();
+
+        return { pageNumber: this.getPageNumber(), embed: this.embeds[this.buttonHandler.getCurrentPageNumber()], buttons: this.buttonHandler.getButtons() };
     }
 
     getPage(page: number): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } {
         // Cases where the page is out of bounds.
-        if (page >= this.pages) {
-            this.paginationButtons.components[0].setDisabled(false);
-            this.paginationButtons.components[2].setDisabled(true);
-
-            this.currentPage = this.pages - 1;
-            return { pageNumber: this.getPageNumber(), embed: this.embeds[-1], buttons: this.paginationButtons };
+        if (page >= this.buttonHandler.getTotalPages()) {
+            this.buttonHandler.lastPage();
+            return { pageNumber: this.getPageNumber(), embed: this.embeds[-1], buttons: this.buttonHandler.getButtons() };
         }
         if (page <= 1) {
-            this.paginationButtons.components[0].setDisabled(true);
-            this.paginationButtons.components[2].setDisabled(false);
-
-            this.currentPage = 0;
-            return { pageNumber: this.getPageNumber(), embed: this.embeds[0], buttons: this.paginationButtons };
+            this.buttonHandler.firstPage();
+            return { pageNumber: this.getPageNumber(), embed: this.embeds[0], buttons: this.buttonHandler.getButtons() };
         }
 
-        this.updateButtonState();
-        return { pageNumber: this.getPageNumber(), embed: this.embeds[page - 1], buttons: this.paginationButtons };
+        return { pageNumber: this.getPageNumber(), embed: this.embeds[page - 1], buttons: this.buttonHandler.getButtons() };
     }
 
     getPageOnButtonId(buttonId: string): { pageNumber: string ,embed: EmbedBuilder, buttons: ActionRowBuilder<ButtonBuilder> } | null {
-        switch (buttonId) {
-            case 'next':
-                return this.nextPage();
-            case 'previous':
-                return this.previousPage();
-            case 'stop':
-                return null;
-            default:
-                throw new Error('Invalid button id');
-        }
+        const pageData = this.buttonHandler.getPageOnButtonId(buttonId);
+        if (!pageData) return null;
+
+        return { pageNumber: this.getPageNumber(), embed: this.embeds[pageData.page], buttons: pageData.buttons };
     }
 }

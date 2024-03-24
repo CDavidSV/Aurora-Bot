@@ -56,6 +56,7 @@ export default {
                 const page = handlePagination.getPageOnButtonId(collectedInteraction.customId);
 
                 if (!page) {
+                    collector.removeAllListeners();
                     collector.stop();
                     collectedInteraction.message.delete().catch(console.error);
                     return;

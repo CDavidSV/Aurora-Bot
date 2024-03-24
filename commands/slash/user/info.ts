@@ -7,7 +7,6 @@ export default {
         const user = interaction.options.getUser('user', false) || interaction.user;
         const member = interaction.guild?.members.cache.get(user.id);
 
-        
         const dbUser = await userSchema.findOne({ _id: user.id }).catch(console.error);
         const marriedUser = dbUser && dbUser.married_to_id ? await interaction.client.users.fetch(dbUser.married_to_id).catch(() => null) : null;
 
@@ -18,8 +17,6 @@ export default {
         **Bot: **${user.bot ? "✔" : "✖"}
         **Color: **${member ? member.displayHexColor : 'No Color'}
 
-        **Birthday: **${ dbUser && dbUser.birthday ? `<t:${Math.round(dbUser.birthday.getTime() / 1000)}:D>` : "Not set" }
-        **Ocupation: ** ${ dbUser && dbUser.occupation ? dbUser.occupation : "Not set" }
         **Married to: **${ marriedUser ? marriedUser.displayName : "Not married" }`;
         const memberRoles = member ? member.roles.cache.map(role => `<@&${role.id}>`).join(', ') : 'Not in server';
         
