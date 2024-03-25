@@ -1,6 +1,6 @@
 import { Client, ColorResolvable, EmbedBuilder, Events, Interaction, InteractionType, Collection } from "discord.js";
 import config from "../config.json";
-import { createUser } from "../util/herper-functions";
+import { createUser, getPermissionName } from "../util/herper-functions";
 
 /**
  * 
@@ -36,6 +36,7 @@ export default {
                     errorEmbed
                         .setColor(config.embeds.colors.error as ColorResolvable)
                         .setAuthor({ name: "I don't have enough permissions to perform this action.", iconURL: config.embeds.images.errorImg })
+                        .setDescription(`I require the following permissions to execute this command:\n\n${command.botPerms.map((perm: bigint) => `\`${getPermissionName(perm)}\``).join(', ')}`)
                     return interaction.reply({ embeds: [errorEmbed], ephemeral: true });
                 }
     
@@ -97,7 +98,7 @@ export default {
                 const subCommandFile = fetchSubCommandFile(options, commandName, client);
     
                 try {
-                    await (subCommandFile?.autoComplete ?? command.autoComplete)(interaction);
+                    await (subCommandFile?.autoComplete! ?? command.autoComplete)(interaction);
                 } catch (err) {
                     console.error('Unhandled Command Error: ', err);
                 }

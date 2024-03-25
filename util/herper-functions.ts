@@ -1,4 +1,4 @@
-import { Role, EmbedBuilder, Client, ColorResolvable } from 'discord.js';
+import { Role, EmbedBuilder, Client, ColorResolvable, PermissionFlagsBits } from 'discord.js';
 import userSchema from '../schemas/userSchema';
 import userWarningsSchema from '../schemas/userWarningsSchema';
 import config from '../config.json';
@@ -138,6 +138,14 @@ const createUser = (id: string) => {
     userSchema.findByIdAndUpdate(id, { _id: id }, { upsert: true, setDefaultsOnInsert: true, new: true }).catch(console.error);
 };
 
+/**
+ * 
+ * @param userId 
+ * @param guildId 
+ * @param client 
+ * @param page 
+ * @returns warnings for a user
+ */
 const getUserWarnings = async (userId: string, guildId: string, client: Client, page: number = 1) => {
     try {
         if (page < 1) page = 1;
@@ -173,6 +181,14 @@ const getUserWarnings = async (userId: string, guildId: string, client: Client, 
     }
 };
 
+/**
+ * 
+ * @param warnings 
+ * @param username 
+ * @param userId 
+ * @param iconUrl 
+ * @returns constructed embed for warnings
+ */
 const constructWarningsEmbed = (warnings: any, username: string, userId: string, iconUrl: string) => {
     const pageEmbed = new EmbedBuilder()
 
@@ -204,4 +220,15 @@ const constructWarningsEmbed = (warnings: any, username: string, userId: string,
         .setTimestamp()
 };
 
-export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL, canRenameChannel, createUser, getUserWarnings, constructWarningsEmbed };
+/**
+ * 
+ * @param permission 
+ * @returns Permission name
+ */
+const getPermissionName = (permission: bigint) => {
+    for (const [key, value] of Object.entries(PermissionFlagsBits)) {
+        if (value === permission) return key;
+    }
+};
+
+export { getRoleInfo, convertTime, getTimestampFromString, isValidColorHex, isValidURL, canRenameChannel, createUser, getUserWarnings, constructWarningsEmbed, getPermissionName };

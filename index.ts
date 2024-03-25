@@ -9,7 +9,8 @@ import mongoose from "mongoose";
 import tempvcSchema from "./schemas/tempvcSchema";
 import tempvcGeneratorsSchema from "./schemas/tempvcGeneratorsSchema";
 import config from "./config.json";
-import { ACommand } from "./structs/ACommand";
+import { ALegacyCommand } from "./models/ACommand";
+import { ASlashCommand, ASlashSubCommand } from "./models/interfaces";
 
 dotenv.config();
 colors.enable();
@@ -17,9 +18,9 @@ colors.enable();
 // Ambient modules.
 declare module "discord.js" {
     export interface Client {
-        legacyCommands: Collection<string, ACommand>;
-        slashCommands: Collection<string, any>;
-        subCommands: Collection<string, any>;
+        legacyCommands: Collection<string, ALegacyCommand>;
+        slashCommands: Collection<string, ASlashCommand>;
+        subCommands: Collection<string, ASlashSubCommand>;
         messageComponents: Collection<string, any>;
         modals: Collection<string, any>;
         cooldowns: Collection<string, Collection<string, { time: number, requests: number }>>;

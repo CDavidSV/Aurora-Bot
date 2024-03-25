@@ -1,24 +1,6 @@
-import { Client, CommandInteraction, DMChannel, Guild, GuildMember, Message, TextChannel, User } from "discord.js";
+import { CommandOption } from "./interfaces";
 
-export enum CommandOptionType {
-    String = 'string',
-    Integer = 'integer',
-    Number = 'number',
-    Role = 'role',  
-    Attachment = 'attachment',
-    Boolean = 'bool',
-    Channel = 'channel',
-    Mentionable = 'mentionable'
-}
-
-export interface CommandOption {
-    name: string,
-    description: string,
-    type: CommandOptionType
-    required: boolean,
-}
-
-export class ACommand {
+export class ALegacyCommand{
     public slashCategory?: string;
     public name: string;
     public aliases?: string[];
