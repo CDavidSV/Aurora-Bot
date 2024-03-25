@@ -35,6 +35,7 @@ export default {
             return;
         }
 
+        let warningsCount: number = 1;
         try {
             const guildUser = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
             if (!guildUser) {
@@ -43,14 +44,15 @@ export default {
                 return;
             }
 
-            userWarningsSchema.countDocuments({
+            warningsCount = await userWarningsSchema.countDocuments({
                 user_id: user.id,
                 guild_id: interaction.guildId!
             }).then(count => {
                 if (count >= 5000) {
                     userWarningsSchema.findOneAndDelete({ user_id: user.id, guild_id: interaction.guildId! }, { sort: { created_at: 1 } }).catch(console.error);
                 }
-            }).catch(console.error);
+                return count;
+            }).catch(() => 0);
 
             await userWarningsSchema.create({
                 user_id: user.id,
@@ -68,7 +70,7 @@ export default {
         const warningEmbed = new EmbedBuilder()
             .setColor(config.embeds.colors.warning as ColorResolvable)
             .setAuthor({ name: `You have been warned in ${interaction.guild?.name}.`, iconURL: interaction.guild?.iconURL({ forceStatic: false })! })
-            .setDescription(`****Reason:**** ${reason}`)
+            .setDescription(`**Case #${warningsCount}**\n****Reason:**** ${reason}`)
         
         try {
             await user.send({ embeds: [warningEmbed] });

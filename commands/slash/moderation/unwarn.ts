@@ -112,7 +112,7 @@ export default {
                     const deletedWarnings = await userWarningsSchema.deleteMany({ _id: { $in: collectedInteraction.values } }).exec();
                     if (deletedWarnings.deletedCount === 0) {
                         embed.setDescription("No warnings were removed.");
-                        collectedInteraction.reply({ embeds: [embed], ephemeral: true }).catch(console.error);
+                        collectedInteraction.update({ components: [], embeds: [embed], content: "" }).catch(console.error);
                         return;
                     }
 
