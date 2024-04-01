@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, Collector, ColorResolvable, EmbedBuilder, InteractionType, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import config from "../../../config.json";
 import userWarningsSchema from "../../../schemas/userWarningsSchema";
 import ObjectId from 'mongoose';

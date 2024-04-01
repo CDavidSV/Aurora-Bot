@@ -1,4 +1,4 @@
-import { Client, Collection } from "discord.js";
+import { Client } from "discord.js";
 import getFiles from "../util/get-files";
 
 // Get all Events and listen.

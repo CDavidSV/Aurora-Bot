@@ -1,5 +1,5 @@
 import { ColorResolvable, Embed, EmbedBuilder, ModalSubmitInteraction, TextChannel } from "discord.js";
-import { isValidColorHex, isValidURL } from "../util/herper-functions";
+import { isValidURL } from "../util/herper-functions";
 import config from "../config.json";
 
 export default {

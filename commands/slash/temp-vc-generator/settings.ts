@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, CacheType, ColorResolvable, EmbedBuilder, ComponentType } from "discord.js";
+import { ChatInputCommandInteraction, CacheType, ColorResolvable, EmbedBuilder } from "discord.js";
 import { getGenerators, buildSelector } from "../../../handlers/generator-select-handler";
 import config from "../../../config.json";
 

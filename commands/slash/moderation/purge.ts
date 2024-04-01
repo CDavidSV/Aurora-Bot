@@ -1,4 +1,4 @@
-import { Attachment, ChatInputCommandInteraction, Embed, EmbedBuilder, Message, PartialMessage, PermissionFlagsBits, SlashCommandBuilder, TextChannel } from "discord.js";
+import { Attachment, ChatInputCommandInteraction, EmbedBuilder, Message, PartialMessage, PermissionFlagsBits, SlashCommandBuilder, TextChannel } from "discord.js";
 import clearMessages from "../../../util/clear-messages";
 
 export default {
